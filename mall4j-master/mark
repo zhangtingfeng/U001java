@@ -1,0 +1,11 @@
+#有问题记一下
+127.0.0.1/127.0.0.1:6379
+: Unable to connect to Redis server: 127.0.0.1/127.0.0.1:6379
+org.redisson.client.RedisConnectionException: Unable to connect to Redis server: 127.0.0.1/127.0.0.1:6379
+ Error creating bean with name 'redisson' defined in class path resource [org/redisson/spring/starter/RedissonAutoConfiguration.class]: Bean instantiation via factory method failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.redisson.api.RedissonClient]: Factory method 'redisson' threw exception; nested exception is org.redisson.client.RedisConnectionException: Unable to connect to Redis server: 127.0.0.1/127.0.0.1:6379
+ Error creating bean with name 'cacheManager'
+ Error creating bean with name 'cachesEndpoint' de
+
+ 有点复杂 你检查下 你初始化 配置是不是有什么没做
+
+ #接班 先
