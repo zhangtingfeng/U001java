@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="dynamicComment">
+	<sql id="sql_where">
+		<if test="''!=member_id and null!=member_id">
+			and a.member_id=#{member_id}
+		</if>
+		<if test="''!=dynamic_id and null!=dynamic_id">
+			and a.dynamic_id=#{dynamic_id}
+		</if>
+		<if test="''!=id and null!=id">
+			and a.id=#{id}
+		</if>
+	</sql>
+
+	<!-- 查询 -->
+	<select id="queryList" parameterType="map" resultType="dto">
+		SELECT
+		a.*,b.username
+		FROM
+		user_dynamic_comment a
+		left join m_member as b on(a.member_id=b.id)
+		WHERE 1 = 1 and a.is_delete='N'
+		<include refid="sql_where" />
+        order by a.id desc
+		<if test="null!=start">
+			limit ${start},${end}
+		</if>
+	</select>
+
+	<!-- 查询 -->
+	<select id="getInfo" parameterType="map" resultType="dto">
+		SELECT
+		a.*
+		FROM
+		user_dynamic_comment a
+		WHERE 1 = 1 and a.is_delete='N'
+		<include refid="sql_where" />
+		order by a.id desc
+		limit 1
+	</select>
+
+	<select id="queryListCount" parameterType="map" resultType="dto">
+		SELECT count(1) as total FROM user_dynamic_comment a WHERE 1=1  and a.is_delete='N'
+		<include refid="sql_where" />
+	</select>
+	<!-- 插入 -->
+	<insert id="saveInfo" parameterType="dto" useGeneratedKeys="true" keyProperty="id">
+		insert into user_dynamic_comment
+		(
+		<if test="''!=member_id and null!=member_id">
+			member_id,
+		</if>
+		<if test="''!=content and null!=content">
+			content,
+		</if>
+        <if test="''!=dynamic_id and null!=dynamic_id">
+			dynamic_id,
+        </if>
+		create_time,
+		creator,
+		is_delete
+		)
+		values (
+		<if test="''!=member_id and null!=member_id">
+		#{member_id},
+		</if>
+		<if test="''!=content and null!=content">
+			#{content},
+		</if>
+        <if test="''!=dynamic_id and null!=dynamic_id">
+            #{dynamic_id},
+        </if>
+		now(),
+		#{creator},
+		'N'
+		)
+	</insert>
+
+	<!-- 删除 -->
+	<delete id="deleteInfo" parameterType="dto">
+		update  user_dynamic_comment set is_delete='Y'  WHERE id = #{id}
+	</delete>
+</mapper>

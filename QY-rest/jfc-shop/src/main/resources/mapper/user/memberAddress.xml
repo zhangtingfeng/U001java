@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="memberAddress">
+
+    <sql id="sql_where">
+
+        <if test="''!=id and null!=id">
+            and a.id = #{id}
+        </if>
+        <if test="''!=nickname and null!=nickname">
+            and m.nickname LIKE CONCAT('%', #{nickname}, '%')
+        </if>
+        <if test="''!=memberid and null!=memberid">
+            and a.memberid LIKE CONCAT('%', #{memberid}, '%')
+        </if>
+        <if test="''!=memberid and null!=memberid">
+            and a.member_id = #{memberid}
+        </if>
+        <if test="''!=member_id and null!=member_id">
+            and a.member_id = #{member_id}
+        </if>
+        <if test="null!=status">
+            and a.status = #{status}
+        </if>
+        <if test="''!=nickname and null!=reciever">
+            and a.reciever LIKE CONCAT('%', #{reciever}, '%')
+        </if>
+        <if test="''!=reciever_tel and null!=reciever_tel">
+            and a.reciever_tel LIKE CONCAT('%', #{reciever_tel}, '%')
+        </if>
+        <if test="''!=_status and null!=_status">
+            and a.status = #{_status}
+        </if>
+        <if test="''!=startTime and null!=startTime">
+            and DATE_FORMAT(a.startTime,'%Y-%m-%d') = #{startTime}
+        </if>
+        <if test="''!=endTime and null!=endTime">
+            and DATE_FORMAT(a.endTime,'%Y-%m-%d') = #{endTime}
+        </if>
+
+        <if test="''!=startTime and null!=startTime">
+            and  DATE(a.create_time) &gt;= #{start_time}
+       </if>
+        <if test="''!=endTime and null!=endTime">
+            and  DATE(a.create_time) &lt;= #{end_time}
+        </if>
+
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+        a.*, m.nickname,
+        m.telephone,
+        pc1. NAME province_name,
+        pc2. NAME city_name,
+        pc3. NAME country_name,
+        s1.val status_alias,
+        CONCAT(pc1.`name`,pc2.`name`,pc3.`name`,reciever_address) as address
+        FROM
+        m_member_address a
+        LEFT JOIN m_member m ON a.member_id = m.id
+        LEFT JOIN sys_province_city pc1 ON a.province_id = pc1.id
+        LEFT JOIN sys_province_city pc2 ON a.city_id = pc2.id
+        LEFT JOIN sys_province_city pc3 ON a.country_id = pc3.id
+        LEFT JOIN sys_config s1 ON a.`status` = s1.id
+        WHERE
+        1 = 1
+        <include refid="sql_where"/>
+        ORDER BY a.`status` asc
+    </select>
+
+
+    <select id="queryListCount" parameterType="map" resultType="java.lang.Integer">
+        SELECT count(1) as count FROM m_member_address a WHERE 1=1
+        <include refid="sql_where"/>
+    </select>
+
+    <!-- 查询 -->
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT
+        a.*, m.nickname,
+        m.telephone,
+        pc1. NAME province_name,
+        pc2. NAME city_name,
+        pc3. NAME country_name,
+        s1.val status_alias,
+        CONCAT(pc1.`name`,pc2.`name`,pc3.`name`,reciever_address) as address
+        FROM
+        m_member_address a
+        LEFT JOIN m_member m ON a.member_id = m.id
+        LEFT JOIN sys_province_city pc1 ON a.province_id = pc1.id
+        LEFT JOIN sys_province_city pc2 ON a.city_id = pc2.id
+        LEFT JOIN sys_province_city pc3 ON a.country_id = pc3.id
+        LEFT JOIN sys_config s1 ON a.`status` = s1.id
+        WHERE
+        1 = 1
+        <include refid="sql_where"/>
+        limit 1
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+        insert into m_member_address
+        (
+            member_id,
+            province_id,
+            city_id,
+            country_id,
+            reciever,
+            reciever_tel,
+            reciever_address,
+            status,
+            create_time,
+            creator,
+            is_delete
+        )
+        values
+        (
+            #{member_id},
+            #{province_id},
+            #{city_id},
+            #{country_id},
+            #{reciever},
+            #{reciever_tel},
+            #{reciever_address},
+            #{status},
+            now(),
+            #{creator},
+            'N'
+        )
+	  </insert>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_member_address
+        set
+        <if test="null!=member_id">
+            member_id = #{member_id},
+        </if>
+        <if test="null!=province_id">
+            province_id = #{province_id},
+        </if>
+        <if test="null!=city_id">
+            city_id = #{city_id},
+        </if>
+        <if test="null!=country_id">
+            country_id = #{country_id},
+        </if>
+        <if test="''!=reciever and null!=reciever">
+            reciever = #{reciever},
+        </if>
+        <if test="''!=reciever_tel and null!=reciever_tel">
+            reciever_tel = #{reciever_tel},
+        </if>
+        <if test="''!=reciever_address and null!=reciever_address">
+            reciever_address = #{reciever_address},
+        </if>
+        <if test="null!=status">
+            status = #{status},
+        </if>
+        <if test="null!=updator">
+            updator = #{updator},
+        </if>
+        <if test="''!=is_delete and null!=is_delete">
+            is_delete = #{is_delete},
+        </if>
+        update_time = now()
+        where id = #{id}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="dto">
+      DELETE FROM m_member_address WHERE id = #{id}
+    </delete>
+
+</mapper>

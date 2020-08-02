@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="changeProduct">
+    <sql id="sql_where">
+        <if test="''!=serveno and null!=serveno">
+            and a.serveno LIKE CONCAT('%', #{serveno}, '%')
+        </if>
+        <if test="''!=username and null!=username">
+            and e.username LIKE CONCAT('%', #{username}, '%')
+        </if>
+        <if test="''!=q_member_id and null!=q_member_id">
+            and a.q_member_id = #{q_member_id}
+        </if>
+        <if test="''!=shopid and null!=shopid">
+            and a.shop_id = #{shopid}
+        </if>
+        <if test="''!=id and null!=id">
+            and a.id = #{id}
+        </if>
+        <if test="''!=shopids and null!=shopids">
+            and a.shopids = #{shopids}
+        </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+        a.*, b.number AS pronumber,
+        b.order_money AS proordermoney,
+        c.number AS number,
+        c.product_num AS productnum,
+        c.order_money AS ordermoney,
+        d.name AS newproductname,
+        e.username,
+        f.val AS statusname
+        FROM
+        m_change_product a
+        LEFT JOIN m_order_sub b ON b.id = a.proorder_sub_id
+        LEFT JOIN m_order_sub c ON c.id = a.order_sub_id
+        LEFT JOIN m_product d ON d.id = c.product_id
+        LEFT JOIN m_member e ON e.id = a.member_id
+        LEFT JOIN sys_config f ON f.id = a.`status`
+        where 1 = 1
+        and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY id
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="java.lang.Integer">
+        SELECT count(1) as count FROM m_change_product a WHERE 1=1
+        <include refid="sql_where"/>
+    </select>
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT
+        a.*, b.number AS pronumber,
+        b.order_money AS proordermoney,
+        c.number AS number,
+        c.product_num AS productnum,
+        c.order_money AS ordermoney,
+        d.name AS newproductname,
+        e.username,
+        f.val AS statusname
+        FROM
+        m_change_product a
+        LEFT JOIN m_order_sub b ON b.id = a.proorder_sub_id
+        LEFT JOIN m_order_sub c ON c.id = a.order_sub_id
+        LEFT JOIN m_product d ON d.id = c.product_id
+        LEFT JOIN m_member e ON e.id = a.member_id
+        LEFT JOIN sys_config f ON f.id = a.`status`
+        <include refid="sql_where"/>
+        limit 0,1
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+    insert into m_change_product (serveno, member_id,
+      proorder_sub_id, order_sub_id, status)
+    values (#{serveno}, #{member_id},
+      #{proorder_sub_id}, #{order_sub_id}, 1)
+  </insert>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+    update m_change_product
+    set status = #{status},
+        update_time = now(),
+        updator = #{updator}
+    where id = #{id}
+  </update>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+    update m_change_product set is_delete = "Y" WHERE id = #id#
+  </delete>
+
+</mapper>

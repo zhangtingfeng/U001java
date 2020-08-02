@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="integralLog">
+  
+  <sql id="sql_where">
+          <if test="''!=id and null!=id">
+              and a.id = #{id}
+          </if>
+          <if test="''!=nickname and null!=nickname">
+              and b.nickname = #{nickname}
+          </if>
+          <if test="''!=nums and null!=nums">
+              and a.nums = #{nums}
+          </if>
+          <if test="''!=direction and null!=direction">
+              and  a.direction = #{direction}
+          </if>
+    </sql>
+  
+  <!-- 查询 -->
+  <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+        a.*, b.nickname,
+        (
+        CASE a.direction
+        WHEN 'a' THEN
+        '增加'
+        ELSE
+        '减少'
+        END
+        ) direction_alias
+        FROM
+        m_integral_log a
+        LEFT JOIN m_member b ON a.member_id = b.id
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N'
+    <include refid="sql_where"/>
+    ORDER BY id
+      <if test="null!=start">
+          limit ${start},${end}
+      </if>
+  </select>
+  
+  <select id="getInfo" parameterType="map" resultType="dto">
+    SELECT
+    a.*, b.nickname,
+    (
+    CASE a.direction
+    WHEN 'a' THEN
+    '增加'
+    ELSE
+    '减少'
+    END
+    ) direction_alias
+    FROM
+    m_integral_log a
+    LEFT JOIN m_member b ON a.member_id = b.id
+    WHERE
+    1 = 1
+    AND a.is_delete = 'N'
+    <include refid="sql_where"/>
+    ORDER BY id
+  </select>
+  
+  <select id="queryListCount" parameterType="map" resultType="dto">
+    SELECT count(1) as total FROM m_integral_log a left join m_member b
+      on a.member_id = b.id
+      WHERE 1=1  AND a.is_delete = 'N'
+    <include refid="sql_where"/> 
+  </select>
+  
+  <!-- 插入 -->
+  <insert id="saveInfo" parameterType="dto">
+    insert into m_integral_log
+    (
+      member_id,
+      nums,
+      direction,
+      create_time,
+      creator,
+      update_time,
+      updator,
+      is_delete
+    )
+    values
+      (
+        #{member_id},
+        #{nums},
+        #{direction},
+        now(),
+        #{creator},
+        now(),
+        #{updator},
+        'N'
+      )
+  </insert>
+  
+  <!-- 修改 -->
+  <update id="updateInfo" parameterType="dto">
+    update m_integral_log
+    set
+    <if test="member_id">
+      member_id = #{member_id},
+    </if>
+    <if test="nums">
+      nums = #{nums},
+    </if>
+    <if test="direction">
+      direction = #{direction},
+    </if>
+    <if test="create_time">
+      create_time = #{create_time},
+    </if>
+    <if test="creator">
+      creator = #{creator},
+    </if>
+    <if test="updator">
+      updator = #{updator},
+    </if>
+    <if test="is_delete">
+      is_delete = #{is_delete},
+    </if>
+    update_time = now()
+    where id = #{id}
+  </update>
+  
+  <!-- 删除 -->
+  <delete id="deleteInfo" parameterType="map">
+    UPDATE m_integral_log m
+	SET m.is_delete = 'Y'
+	WHERE
+		m.id = #{id}
+  </delete>
+  
+</mapper>

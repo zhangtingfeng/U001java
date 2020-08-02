@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="marketCombo">
+
+    <sql id="sql_where">
+        <if test="''!=shop_id and null!=shop_id">
+            and  a.shop_id=#{shop_id}
+        </if>
+        <if test="''!=typeid and null!=name">
+            and a.name like CONCAT ('%',#{name},'%')
+        </if>
+        <if test="''!=status and null!=status">
+            and  a.status=#{status}
+        </if>
+        <if test="''!=id and null!=id">
+            and a.id=#{id}
+        </if>
+       
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT a.*,p.`name` as shopname,pt.text
+        FROM m_market_combo a
+        left JOIN m_shop p on p.id=a.shop_id
+        left  join m_product_type pt on pt.id=a.type_id
+        WHERE 1=1
+        AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY a.id desc
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        SELECT count(1) as total FROM m_market_combo a
+        left JOIN m_shop p on p.id=a.shop_id
+        WHERE 1=1
+        AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+    </select>
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT a.*,p.`name` as pname,pt.text
+        FROM m_market_combo a
+        left JOIN m_shop p on p.id=a.shop_id
+        left  join m_product_type pt on pt.id=a.type_id
+        WHERE 1=1
+        AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY a.id
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+        insert into m_market_combo (shop_id, type_id, stock,
+        name,
+        spic,
+        bpic,
+        status,
+        sketch,
+        remark,
+        integral,
+        price,
+        properties,
+        sort,
+        create_time,
+        creator,
+        is_delete)
+        values (#{shop_id}, #{type_id}, #{stock},
+        #{name},#{spic},#{bpic},#{status},#{sketch},#{remark},#{integral},#{price},#{properties},#{sort},now(),
+        #{creator},
+       'N')
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+    update m_market_combo
+    set shop_id = #{shop_id},
+      type_id = #{type_id},
+      name = #{name},
+      stock = #{stock},
+      spic = #{spic},
+       bpic =#{bpic},
+      status =#{status},
+      sketch =#{sketch},
+      remark =#{remark},
+       integral =#{integral},
+       price =#{price},
+       properties =#{properties},
+       sort =#{sort},
+      update_time = now()
+    where id = #{id}
+  </update>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+   UPDATE m_market_combo set is_delete = 'Y' WHERE id = #{id}
+  </delete>
+    <!-- 查询 -->
+    <select id="queryCouponList" parameterType="map" resultType="dto">
+        SELECT a.*,b.`name` as shopname,
+        (case a.status when 1 then '失效' when '0' then '启用' END) as statusval,
+        a.the_products,
+        (case a.type when 1 then '代金券' when 2 then '折扣券' when 3 then '免单券' else '其他' END)as typeval,
+        (
+        CASE a.type
+        WHEN 1 THEN
+        CONCAT('订单满',a.full_money,'可用')
+        WHEN 2 THEN
+        CONCAT('最大折扣金额', a.max_money)
+        WHEN 3 THEN
+        CONCAT('免单购买份数',a.buy_number)
+        ELSE
+        ''
+        END
+        ) AS show_desc,
+        s.username as creatorname,s1.username as updatorname,
+        mcc.coupon_id
+        FROM m_market_coupon a
+        LEFT JOIN m_shop b ON a.shop_id = b.id
+        LEFT JOIN sys_user s ON a.creator = s.id
+        LEFT JOIN sys_user s1 ON a.updator = s1.id
+        LEFT JOIN m_market_combo_coupon mcc on mcc.coupon_id= a.id and mcc.combo_id=#{comboid}
+        WHERE 1=1 and a.is_delete = 'N' and a.stores&gt;0 and (now()&lt;DATE(a.endtime) or now()&lt;DATE(a.coupon_end_time))
+        ORDER BY a.id desc
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <select id="queryCouponListCount" parameterType="map" resultType="dto">
+        SELECT count(1) as total
+        from
+         m_market_coupon a
+        LEFT JOIN m_shop b ON a.shop_id = b.id
+        LEFT JOIN sys_user s ON a.creator = s.id
+        LEFT JOIN sys_user s1 ON a.updator = s1.id
+        LEFT JOIN m_market_combo_coupon mcc on mcc.coupon_id= a.id  and mcc.combo_id=#{comboid}
+        WHERE 1=1 and a.is_delete = 'N' and a.stores&gt;0 and (now()&lt;DATE(a.endtime) or now()&lt;DATE(a.coupon_end_time))
+    </select>
+
+    <!-- 删除 -->
+    <delete id="deleteComboCoupon" parameterType="map">
+        delete  from m_market_combo_coupon
+        WHERE
+            combo_id = #{combo_id}
+    </delete>
+
+    <!-- 插入 -->
+    <insert id="saveComboCoupon" parameterType="dto">
+        insert into  m_market_combo_coupon (
+    combo_id,
+    coupon_id
+        )
+        values (
+        #{combo_id},
+        #{coupon_id}
+     )
+  </insert>
+
+</mapper>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="cmnMessage">
+  
+  <sql id="sql_where">
+          <if test="''!=id and null!=id">
+              and a.id = #{id}
+          </if>
+          <if test="''!=title and null!=title">
+              and a.title LIKE CONCAT('%', #{title}, '%')
+          </if>
+          <if test="''!=status and null!=status">
+              and a.status = #{status}
+          </if>
+   </sql>
+
+  <!-- 查询 -->
+  <select id="queryList" parameterType="map" resultType="dto">
+    SELECT a.*,m.telephone
+      FROM m_cmn_message a
+      LEFT JOIN m_member m ON a.member_id = m.id
+      WHERE 1=1 AND a.is_delete = 'N'
+      <include refid="sql_where"/>
+      <if test="''!=telephone and null!=telephone">
+         and  m.telephone LIKE CONCAT('%', #{telephone}, '%')
+      </if>
+      <if test="''!=member_id and null!=member_id">
+         and a.member_id = #{member_id}
+      </if>
+    ORDER BY id desc
+  </select>
+  
+  <!-- 插入 -->
+  <insert id="saveInfo" parameterType="dto">
+     insert into m_cmn_message (member_id, title, 
+      content, status, create_time, 
+      creator, update_time, updator, 
+      is_delete)
+    values (#{member_id}, #{title},
+      #{content}, 0, now(),
+      #{creator}, now(), #{creator},
+      'N')
+  </insert>
+  
+  <!-- 删除 -->
+  <delete id="deleteInfo" parameterType="map">
+    UPDATE m_cmn_message set is_delete = 'Y' WHERE id = #id#
+  </delete>
+  
+  <!-- 修改 -->
+  <update id="updateInfo" parameterType="dto">
+      update m_cmn_message
+      set
+      <if test="member_id">
+          member_id = #{member_id},
+      </if>
+      <if test="title">
+          title = #{title},
+      </if>
+      <if test="content">
+          content = #{content},
+      </if>
+      <if test="status">
+          status = #{status},
+      </if>
+      <if test="updator">
+          updator = #{updator},
+      </if>
+          update_time = now()
+      where id = #id#
+  </update>
+  
+  <!-- 查询 -->
+  <select id="getInfo" parameterType="map" resultType="dto">
+    SELECT a.*,m.telephone
+      FROM m_cmn_message a
+      LEFT JOIN m_member m ON a.member_id = m.id
+      WHERE 1=1
+      <include refid="sql_where"/>
+      limit 0,1
+  </select>
+
+</mapper>

@@ -1,0 +1,516 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="shop">
+
+    <sql id="sql_where">
+        <if test="''!=name and null!=name">
+            and  a.name like CONCAT('%', #{name}, '%')
+        </if>
+         <if test="''!=memberName and null!=memberName">
+          and  mem.username like CONCAT('%', #{memberName}, '%')
+        </if>
+        <if test="''!=id and null!=id">
+            and  a.id=#{id}
+        </if>
+        <if test="''!=is_selected and null!=is_selected">
+            and  a.is_selected=#{is_selected}
+        </if>
+        <if test="''!=is_quality and null!=is_quality">
+            and  a.is_quality=#{is_quality}
+        </if>
+        <if test="''!=startTime and null!=startTime">
+            and a.open_begin_time &gt;= #{startTime}
+        </if>
+        <if test="''!=endTime and null!=endTime">
+            and a.end_begin_time &lt;= #{endTime}
+        </if>
+        <if test="''!=status and null!=status">
+            and  a.status=#{status}
+        </if>
+        <if test="''!=number_status and null!=number_status">
+            and  a.number_status=#{number_status}
+        </if>
+        <if test="''!=member_id and null!=member_id">
+            and  a.member_id=#{member_id}
+        </if>
+        <if test="''!=name and null!=name">
+            and  a.name like CONCAT('%', #{name}, '%')
+        </if>
+        <if test="''!=license_number and null!=license_number">
+            and  a.license_number like CONCAT('%', #{license_number}, '%')
+        </if>
+        <if test="''!=legal_name and null!=legal_name">
+            and  a.legal_name like CONCAT('%', #{legal_name}, '%')
+        </if>
+        <if test="''!=legal_number and null!=legal_number">
+            and  a.legal_number like CONCAT('%', #{legal_number}, '%')
+        </if>
+        <if test="''!=mobile and null!=mobile">
+            and  a.mobile like CONCAT('%', #{mobile}, '%')
+        </if>
+        <if test="''!=examine and null!=examine">
+            and  a.register_num!=''
+        </if>
+        <if test="''!=statusadd and null!=statusadd">
+            and  (a.status=0 or a.status=1)
+        </if>
+        <if test="''!=pname and null!=pname">
+            and  pro.`name` like CONCAT('%', #{pname}, '%')
+        </if>
+        <if test="''!=examineNum and null!=examineNum">
+            and  a.number!=''
+        </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT  mem.username as memberName,
+        su1.username AS creator,
+        a.*
+        FROM
+        m_shop a
+        LEFT JOIN sys_user su1 ON a.creator = su1.id and su1.is_delete='N'
+        left join m_member mem on a.member_id = mem.id and mem.is_delete='N'
+        LEFT JOIN m_product as pro on(a.id=pro.shop_id) and pro.is_delete='N'
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        group by a.id
+        order by
+        <if test="''!=popularity and null!=popularity">
+            a.popularity desc,
+        </if>
+        <if test="''!=create_time and null!=create_time">
+             a.create_time desc,
+        </if>
+        a.id desc
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+
+        SELECT   count(1) as total
+        FROM
+        m_shop a
+        LEFT JOIN sys_user su1 ON a.creator = su1.id and su1.is_delete='N'
+        left join m_member mem on a.member_id = mem.id and mem.is_delete='N'
+
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N'
+
+        <include refid="sql_where"/>
+    </select>
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT  mem.username as memberName,
+        su1.username AS creator,
+        a.*
+        FROM
+        m_shop a
+        LEFT JOIN sys_user su1 ON a.creator = su1.id and su1.is_delete='N'
+        left join m_member mem on a.member_id = mem.id and mem.is_delete='N'
+        WHERE a.is_delete = 'N'
+        <include refid="sql_where"/>
+        LIMIT 1
+    </select>
+
+    <!-- 插入 -->
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+        INSERT INTO m_shop
+        (
+        <if test="name!=null and ''!=name">
+            name,
+        </if>
+        <if test="code!=null and ''!=code">
+            code,
+        </if>
+        <if test="member_id!=null and ''!=member_id">
+            member_id,
+        </if>
+        <if test="address!=null and ''!=address">
+            address,
+        </if>
+        <if test="pic!=null and ''!=pic">
+            pic,
+        </if>
+        <if test="license_number!=null and ''!=license_number">
+            license_number,
+        </if>
+        <if test="legal_name!=null and ''!=legal_name">
+            legal_name
+        </if>
+        <if test="legal_number!=null and ''!=legal_number">
+            ,legal_number
+        </if>
+        <if test="register_capital!=null and ''!=register_capital">
+            ,register_capital
+        </if>
+        <if test="scope!=null and ''!=scope">
+            ,scope
+        </if>
+        <if test="mobile!=null and ''!=mobile">
+            ,mobile
+        </if>
+        <if test="pro_evaluate!=null and ''!=pro_evaluate">
+            ,pro_evaluate
+        </if>
+        <if test="open_begin_time!=null and ''!=open_begin_time">
+            ,open_begin_time
+        </if>
+        <if test="end_begin_time!=null and ''!=end_begin_time">
+            ,end_begin_time
+        </if>
+        <if test="desc!=null and ''!=desc">
+            ,`desc`
+        </if>
+        <if test="longitude!=null and ''!=longitude">
+            ,longitude
+        </if>
+        <if test="latitude!=null and ''!=latitude">
+            ,latitude
+        </if>
+        <if test="popularity!=null and ''!=popularity">
+            ,popularity
+        </if>
+        <if test="is_selected!=null and ''!=is_selected">
+            ,is_selected
+        </if>
+        <if test="is_quality!=null and ''!=is_quality">
+            ,is_quality
+        </if>
+        <if test="status!=null and ''!=status">
+            ,status
+        </if>
+        <if test="number!=null and ''!=number">
+            ,`number`
+        </if>
+        ,create_time
+        <if test="creator!=null and ''!=creator">
+            ,creator
+        </if>
+        ,code
+        ,is_delete
+        )
+        VALUES
+        (
+        <if test="name!=null and ''!=name">
+            #{name},
+        </if>
+        <if test="code!=null and ''!=code">
+            #{code},
+        </if>
+        <if test="member_id!=null and ''!=member_id">
+            #{member_id},
+        </if>
+        <if test="address!=null and ''!=address">
+            #{address},
+        </if>
+        <if test="pic!=null and ''!=pic">
+            #{pic},
+        </if>
+        <if test="license_number!=null and ''!=license_number">
+            #{license_number},
+        </if>
+        <if test="legal_name!=null and ''!=legal_name">
+            #{legal_name}
+        </if>
+        <if test="legal_number!=null and ''!=legal_number">
+            ,#{legal_number}
+        </if>
+        <if test="register_capital!=null and ''!=register_capital">
+            ,#{register_capital}
+        </if>
+        <if test="scope!=null and ''!=scope">
+            ,#{scope}
+        </if>
+        <if test="mobile!=null and ''!=mobile">
+            ,#{mobile}
+        </if>
+        <if test="pro_evaluate!=null and ''!=pro_evaluate">
+            ,#{pro_evaluate}
+        </if>
+        <if test="open_begin_time!=null and ''!=open_begin_time">
+            ,#{open_begin_time}
+        </if>
+        <if test="end_begin_time!=null and ''!=end_begin_time">
+            ,#{end_begin_time}
+        </if>
+        <if test="desc!=null and ''!=desc">
+            ,#{desc}
+        </if>
+        <if test="longitude!=null and ''!=longitude">
+            ,#{longitude}
+        </if>
+        <if test="latitude!=null and ''!=latitude">
+            ,#{latitude}
+        </if>
+        <if test="popularity!=null and ''!=popularity">
+            ,#{popularity}
+        </if>
+        <if test="is_selected!=null and ''!=is_selected">
+            ,#{is_selected}
+        </if>
+        <if test="is_quality!=null and ''!=is_quality">
+            ,#{is_quality}
+        </if>
+        <if test="status!=null and ''!=status">
+            ,#{status}
+        </if>
+        <if test="number!=null and ''!=number">
+            ,#{number}
+        </if>
+        ,now()
+        <if test="creator!=null and ''!=creator">
+            ,#{creator}
+        </if>
+        ,(
+        SELECT
+        *
+        FROM
+        (
+        SELECT
+        unix_timestamp() + MAX(id)+floor(500+rand()*1500) as num
+        FROM
+        m_shop
+        ) AS b
+        )
+        ,'N')
+        <selectKey resultType="java.lang.Long" keyProperty="id">
+            SELECT LAST_INSERT_ID() as id
+        </selectKey>
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_shop a
+        set
+        <if test="''!=name and null!=name">
+            a.name=#{name},
+        </if>
+        <if test="''!=mobile and null!=mobile">
+            a.mobile=#{mobile},
+        </if>
+        <if test="''!=address and null!=address">
+            a.address=#{address},
+        </if>
+        <if test="''!=pic and null!=pic">
+            a.pic=#{pic},
+        </if>
+        <if test="''!=license_number and null!=license_number">
+            a.license_number=#{license_number},
+        </if>
+        <if test="''!=legal_name and null!=legal_name">
+            a.legal_name=#{legal_name},
+        </if>
+        <if test="''!=legal_number and null!=legal_number">
+            a.legal_number=#{legal_number},
+        </if>
+        <if test="''!=register_capital and null!=register_capital">
+            a.register_capital=#{register_capital},
+        </if>
+        <if test="''!=scope and null!=scope">
+            a.scope=#{scope},
+        </if>
+        <if test="''!=status and null!=status">
+            a.status=#{status},
+        </if>
+        <if test="''!=number_status and null!=number_status">
+            a.number_status=#{number_status},
+        </if>
+        <if test="''!=open_begin_time and null!=open_begin_time">
+            a.open_begin_time=#{open_begin_time},
+        </if>
+        <if test="''!=end_begin_time and null!=end_begin_time">
+            a.end_begin_time=#{end_begin_time},
+        </if>
+        <if test="''!=longitude and null!=longitude">
+            a.longitude=#{longitude},
+        </if>
+        <if test="''!=latitude and null!=latitude">
+            a.latitude=#{latitude},
+        </if>
+        <if test="''!=desc and null!=desc">
+            a.desc=#{desc},
+        </if>
+        <if test="''!=popularity and null!=popularity">
+            a.popularity=a.popularity+1,
+        </if>
+        <if test="''!=is_selected and null!=is_selected">
+            a.is_selected=#{is_selected},
+        </if>
+        <if test="''!=is_quality and null!=is_quality">
+            a.is_quality=#{is_quality},
+        </if>
+        <if test="''!=license_name and null!=license_name">
+            a.license_name=#{license_name},
+        </if>
+        <if test="''!=license_positive and null!=license_positive">
+            a.license_positive=#{license_positive},
+        </if>
+        <if test="''!=license_negative and null!=license_negative">
+            a.license_negative=#{license_negative},
+        </if>
+        <if test="''!=license_type and null!=license_type">
+            a.license_type=#{license_type},
+        </if>
+        <if test="''!=register_num and null!=register_num">
+            a.register_num=#{register_num},
+        </if>
+        <if test="''!=register_data and null!=register_data">
+            a.register_data=#{register_data},
+        </if>
+        <if test="''!=licens_begin_time and null!=licens_begin_time">
+            a.licens_begin_time=#{licens_begin_time},
+        </if>
+        <if test="''!=licens_end_time and null!=licens_end_time">
+            a.licens_end_time=#{licens_end_time},
+        </if>
+        <if test="''!=is_pay and null!=is_pay">
+            a.is_pay=#{is_pay},
+        </if>
+        <if test="''!=code and null!=code">
+            a.code=#{code},
+        </if>
+        <if test="''!=is_delete and null!=is_delete">
+            a.is_delete = #{is_delete},
+        </if>
+        <if test="''!=number and null!=number">
+            a.number = #{number},
+        </if>
+        a.update_time = now()
+        where
+        <if test="''!=id and null!=id">
+            a.id=#{id}
+        </if>
+
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        delete from m_shop where  id = #{id}
+    </delete>
+    <!-- 审核 -->
+    <update id="updateShopStatus" parameterType="dto">
+        update m_shop set status = #{status} where  id = #{id}
+    </update>
+    <!-- 店铺门牌号审核 -->
+    <update id="updateShopNumberStatus" parameterType="dto">
+        update m_shop set number_status = #{number_status} where  id = #{id}
+    </update>
+
+
+
+
+
+
+
+    <!-- 查询 -->
+    <select id="searchContentList" parameterType="map" resultType="dto">
+        SELECT
+        mem.username AS memberName,
+        su1.username AS creator,
+        a.*,
+        mss.showroom_type_id
+        FROM
+        m_shop a
+        LEFT JOIN sys_user su1 ON a.creator = su1.id
+        AND su1.is_delete = 'N'
+        LEFT JOIN m_member mem ON a.member_id = mem.id
+        AND mem.is_delete = 'N'
+        LEFT JOIN m_showroom_shop mss ON mss.shop_id = a.id AND  mss.showroom_type_id = #{showroom_type_id}
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N' AND a.status = 1
+        <include refid="sql_where"/>
+        <if test="''!=startTime and null!=startTime">
+            and a.open_begin_time &gt;= #{startTime}
+        </if>
+        GROUP BY a.id
+        order by
+        <if test="''!=popularity and null!=popularity">
+            a.popularity desc,
+        </if>
+        <if test="''!=create_time and null!=create_time">
+            a.create_time desc,
+        </if>
+        a.id desc
+
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+
+
+    <!-- 查询 -->
+    <select id="searchContentListOne" parameterType="map" resultType="dto">
+        SELECT
+        mem.username AS memberName,
+        su1.username AS creator,
+        a.*,
+        mss.showroom_type_id
+        FROM
+        m_shop a
+        LEFT JOIN sys_user su1 ON a.creator = su1.id
+        AND su1.is_delete = 'N'
+        LEFT JOIN m_member mem ON a.member_id = mem.id
+        AND mem.is_delete = 'N'
+        LEFT JOIN m_showroom_shop mss ON mss.shop_id = a.id
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N' AND a.status = 1 AND  mss.id is NULL
+        <include refid="sql_where"/>
+        <if test="''!=startTime and null!=startTime">
+            and a.open_begin_time &gt;= #{startTime}
+        </if>
+        GROUP BY a.id
+        order by
+        <if test="''!=popularity and null!=popularity">
+            a.popularity desc,
+        </if>
+        <if test="''!=create_time and null!=create_time">
+            a.create_time desc,
+        </if>
+        a.id desc
+
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+
+    <!-- 查询 -->
+    <select id="searchContentListOneCount" parameterType="map" resultType="dto">
+        SELECT
+        count(DISTINCT a.id) as total
+        FROM
+        m_shop a
+        LEFT JOIN sys_user su1 ON a.creator = su1.id
+        AND su1.is_delete = 'N'
+        LEFT JOIN m_member mem ON a.member_id = mem.id
+        AND mem.is_delete = 'N'
+        LEFT JOIN m_showroom_shop mss ON mss.shop_id = a.id
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N' AND a.status = 1 AND  mss.id is NULL
+        <include refid="sql_where"/>
+        <if test="''!=startTime and null!=startTime">
+            and a.open_begin_time &gt;= #{startTime}
+        </if>
+        order by
+        <if test="''!=popularity and null!=popularity">
+            a.popularity desc,
+        </if>
+        <if test="''!=create_time and null!=create_time">
+            a.create_time desc,
+        </if>
+        a.id desc
+    </select>
+
+</mapper>

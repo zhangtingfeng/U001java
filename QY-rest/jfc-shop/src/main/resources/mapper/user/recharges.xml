@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="recharges">
+  
+  <sql id="sql_where">
+
+        <if test="''!=id and null!=id">
+          and a.id = #{id}
+        </if>
+        <if test="''!=username and null!=username">
+          and b.username LIKE CONCAT('%', #{username}, '%')
+        </if>
+        <if test="''!=charge_num and null!=charge_num">
+          and a.charge_num LIKE CONCAT('%', #{charge_num}, '%')
+        </if>
+
+    </sql>
+  
+  <!-- 查询 -->
+  <select id="queryList" parameterType="map" resultType="dto">
+    SELECT
+    a.*, b.username
+    FROM
+    m_recharges a
+    LEFT JOIN m_member b ON a.member_id = b.id
+    WHERE
+    1 = 1
+    <include refid="sql_where"/>
+    ORDER BY id
+  </select>
+  
+  <select id="getInfo" parameterType="map" resultType="dto">
+    SELECT
+    a.*, b.username
+    FROM
+    m_recharges a
+    LEFT JOIN m_member b ON a.member_id = b.id
+    WHERE
+    1 = 1
+    <include refid="sql_where"/>
+    ORDER BY id
+  </select>
+  
+  <select id="queryListCount" parameterType="map" resultType="java.lang.Integer">
+    SELECT count(1) as count FROM m_recharges a left join m_member b
+      on a.member_id = b.id
+      WHERE 1=1
+    <include refid="sql_where"/> 
+  </select>
+  
+  <!-- 插入 -->
+  <insert id="saveInfo" parameterType="dto">
+    insert into m_recharges
+    (
+      member_id,
+      charge_num,
+      charge_type,
+      charge_time,
+      status,
+      create_time,
+      creator,
+      update_time,
+      updator,
+      is_delete
+    )
+    values
+      (
+        #{member_id},
+        #{charge_num},
+        #{charge_type},
+        now(),
+        #{status},
+        now(),
+        #{creator},
+        now(),
+        #{updator},
+        'N'
+      )
+  </insert>
+  
+  <!-- 修改 -->
+  <update id="updateInfo" parameterType="dto">
+    update m_recharges a
+    set
+    <if test="member_id">
+      member_id = #{member_id},
+    </if>
+    <if test="charge_num">
+      charge_num = #{charge_num},
+    </if>
+    <if test="charge_type">
+      charge_type = #{charge_type},
+    </if>
+    <if test="charge_time">
+      charge_time = #{charge_time},
+    </if>
+    <if test="status">
+      status = #{status},
+    </if>
+    <if test="create_time">
+      create_time = #{create_time},
+    </if>
+    <if test="creator">
+      creator = #{creator},
+    </if>
+    <if test="updator">
+      updator = #{updator},
+    </if>
+    <if test="is_delete">
+      is_delete = #{is_delete},
+    </if>
+    update_time = now()
+    where a.id = #{id}
+  </update>
+  
+  <!-- 删除 -->
+  <delete id="deleteInfo" parameterType="map">
+    DELETE FROM m_recharges WHERE id = #{id}
+  </delete>
+  
+</mapper>

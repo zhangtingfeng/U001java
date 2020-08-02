@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="memberPointsLog">
+
+    <sql id="sql_where">
+        <if test="''!=id and null!=id">
+            and a.id = #{id}
+        </if>
+        <if test="''!=member_id and null!=member_id">
+            and a.member_id = #{member_id}
+        </if>
+        <if test="''!=types and null!=types">
+            and a.types = #{types}
+        </if>
+        <if test="''!=types and null!=month">
+            and  DATE_FORMAT( a.create_time, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' )
+        </if>
+        <if test="''!=types and null!=lastMonth">
+            and DATE_FORMAT( a.create_time, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' )
+        </if>
+
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT a.*
+        FROM m_member_points_log a
+        WHERE
+        1 = 1  AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY id desc
+    </select>
+
+    <!-- 查询 -->
+    <select id="queryUnionAllList" parameterType="map" resultType="dto">
+        SELECT a.id,a.member_id,a.types,a.points,a.change_reason,a.create_time,('1') as flag
+        FROM m_member_points_log a
+        WHERE
+        1 = 1 and a.types = #types# and  a.member_id = #member_id# and
+        DATE_FORMAT( a.create_time, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' )
+        UNION  ALL
+        SELECT a.id,a.member_id,a.types,a.points,a.change_reason,a.create_time,('') as flag
+        FROM m_member_points_log a
+        WHERE
+        1 = 1 and a.types = #types# and  a.member_id = #member_id# and
+        DATE_FORMAT( a.create_time, '%Y%m' ) &lt; DATE_FORMAT( CURDATE( ) , '%Y%m' )
+        ORDER BY id desc
+    </select>
+
+    <!-- 查询 -->
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT a.*
+        FROM m_member_points_log a
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 1
+    </select>
+
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+        insert into m_member_points_log (
+        member_id,types,points,change_reason,
+        create_time,
+        <if test="creator">creator,</if>
+        is_delete)
+        values (
+        #{member_id},#{types},#{points},#{change_reason},
+        now(),
+        <if test="creator">#{creator},</if>
+        'N')
+        <selectKey resultType="java.lang.Long" keyProperty="id">
+            SELECT LAST_INSERT_ID() as id
+        </selectKey>
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_member_points_log a
+        set
+        <if test="member_id">
+            member_id = #{member_id},
+        </if>
+        <if test="typces">
+            typces = #{typces},
+        </if>
+        <if test="types">
+            points = #{points},
+        </if>
+        <if test="typchange_reasones">
+            typchange_reasones = #{typchange_reasones},
+        </if>
+        a.update_time = now()
+        where a.id = #{id}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+	UPDATE m_member_points_log m
+	SET m.is_delete = 'Y'
+	WHERE
+		m.id = #{id}
+  </delete>
+
+</mapper>

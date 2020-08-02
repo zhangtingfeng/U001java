@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="product">
+	<sql id="sql_where">
+		<if test="''!=name and null!=name">
+			and a.name LIKE concat('%',#{name},'%')
+		</if>
+		<if test="''!=shop_id and null!=shop_id">
+			and a.shop_id=#{shop_id}
+		</if>
+		<if test="''!=type and null!=type">
+			and a.type_id in (${type})
+		</if>
+		<if test="''!=status and null!=status">
+			and a.status=#{status}
+		</if>
+		<if test="''!=id and null!=id">
+			and a.id=#{id}
+		</if>
+	</sql>
+
+	<!-- 查询 -->
+	<select id="queryList" parameterType="map" resultType="dto">
+		SELECT
+		a.*,su1.member_id as member_id,su1.pic as pic,su1.popularity,su1.scope as scope,su1.name as shopname,su1.address as shop_address,su1.mobile as shop_mobile,su1.longitude as longitude,su1.latitude as latitude
+		FROM
+		m_product a
+		LEFT JOIN m_shop su1 ON a.shop_id = su1.id
+		WHERE 1 = 1
+		<include refid="sql_where" />
+		<if test="''!=create_time and null!=create_time">
+			order by a.create_time desc
+		</if>
+		<if test="''!=browse_num and null!=browse_num">
+			order by a.browse_num desc
+		</if>
+		<if test="null!=start">
+			limit ${start},${end}
+		</if>
+	</select>
+
+	<select id="queryListCount" parameterType="map" resultType="dto">
+		SELECT count(1) as total FROM m_product a WHERE 1=1
+		<include refid="sql_where" />
+	</select>
+
+	<!-- 查询单个商品详情信息 -->
+	<select id="getInfo" parameterType="map" resultType="dto">
+		SELECT
+		a.*,su1.scope as scope,su1.name as shopname,su1.address as shop_address,su1.mobile as shop_mobile,su1.longitude as longitude,su1.latitude as latitude
+		FROM
+		m_product a
+		LEFT JOIN m_shop su1 ON a.shop_id = su1.id
+		WHERE
+		1 = 1
+		<include refid="sql_where" /> limit 1
+	</select>
+
+	<!-- 插入 -->
+	<insert id="saveInfo" parameterType="dto" useGeneratedKeys="true" keyProperty="id">
+		insert into m_product
+		(
+		<if test="''!=name and null!=name">
+		       name,
+		</if>
+		<if test="''!=shop_id and null!=shop_id">
+			shop_id,
+		</if>
+		<if test="''!=pic and null!=pic">
+			pic,
+		</if>
+		<if test="''!=imgs and null!=imgs">
+			imgs,
+		</if>
+		<if test="''!=type and null!=type">
+			type,
+		</if>
+		<if test="''!=content and null!=content">
+			content,
+		</if>
+		<if test="''!=status and null!=status">
+			status,
+		</if>
+		<if test="''!=min_price and null!=min_price">
+			min_price,
+		</if>
+		<if test="''!=max_price and null!=max_price">
+			max_price,
+		</if>
+		<if test="''!=type_id and null!=type_id">
+			type_id,
+		</if>
+
+		<if test="''!=polishability and null!=polishability">
+			polishability,
+		</if>
+		<if test="''!=density and null!=density">
+			density,
+		</if>
+		<if test="''!=width and null!=width">
+			width,
+		</if>
+		<if test="''!=texture and null!=texture">
+			texture,
+		</if>
+		<if test="''!=gram_numbe and null!=gram_numbe">
+			gram_numbe,
+		</if>
+
+		create_time,
+		creator,
+		is_delete
+		)
+		values (
+		<if test="''!=name and null!=name">
+		#{name},
+		</if>
+		<if test="''!=shop_id and null!=shop_id">
+		#{shop_id},
+		</if>
+		<if test="''!=pic and null!=pic">
+			#{pic},
+		</if>
+		<if test="''!=imgs and null!=imgs">
+			#{imgs},
+		</if>
+		<if test="''!=type and null!=type">
+			#{type},
+		</if>
+		<if test="''!=content and null!=content">
+			#{content},
+		</if>
+		<if test="''!=status and null!=status">
+			#{status},
+		</if>
+		<if test="''!=min_price and null!=min_price">
+			#{min_price},
+		</if>
+		<if test="''!=max_price and null!=max_price">
+			#{max_price},
+		</if>
+		<if test="''!=type_id and null!=type_id">
+			#{type_id},
+		</if>
+
+		<if test="''!=polishability and null!=polishability">
+			#{polishability},
+		</if>
+		<if test="''!=density and null!=density">
+			#{density},
+		</if>
+		<if test="''!=width and null!=width">
+			#{width},
+		</if>
+		<if test="''!=texture and null!=texture">
+			#{texture},
+		</if>
+		<if test="''!=gram_numbe and null!=gram_numbe">
+			#{gram_numbe},
+		</if>
+		now(),
+		#{creator},
+		'N'
+		)
+	</insert>
+
+	<!-- 修改 -->
+	<update id="updateInfo" parameterType="dto">
+		update m_product a
+		set
+		<if test="''!=name and null!=name">
+			a.name=#{name},
+		</if>
+		<if test="''!=pic and null!=pic">
+			a.pic=#{pic},
+		</if>
+		<if test="''!=imgs and null!=imgs">
+			a.imgs=#{imgs},
+		</if>
+		<if test="''!=type and null!=type">
+			a.type=#{type},
+		</if>
+		<if test="''!=type_id and null!=type_id">
+			a.type_id=#{type_id},
+		</if>
+		<if test="''!=content and null!=content">
+			a.content=#{content},
+		</if>
+		<if test="''!=status and null!=status">
+			a.status=#{status},
+		</if>
+		<if test="''!=browse_num and null!=browse_num">
+			a.browse_num=#{browse_num},
+		</if>
+
+		<if test="''!=min_price and null!=min_price">
+			a.min_price=#{min_price},
+		</if>
+		<if test="''!=max_price and null!=max_price">
+			a.max_price=#{max_price},
+		</if>
+		<if test="''!=polishability and null!=polishability">
+			a.polishability=#{polishability},
+		</if>
+		<if test="''!=density and null!=density">
+			a.density=#{density},
+		</if>
+		<if test="''!=width and null!=width">
+			a.width=#{width},
+		</if>
+		<if test="''!=texture and null!=texture">
+			a.texture=#{texture},
+		</if>
+		<if test="''!=gram_numbe and null!=gram_numbe">
+			a.gram_numbe=#{gram_numbe},
+		</if>
+		<if test="''!=shop_id and null!=shop_id">
+			a.shop_id=#{shop_id},
+		</if>
+		a.update_time = now()
+		where id = #{id}
+	</update>
+
+
+	<!-- 删除 -->
+	<delete id="deleteInfo" parameterType="dto">
+		delete from m_product  WHERE id = #{id}
+	</delete>
+
+	<!-- 更新状态 -->
+	<update id="updateStatus" parameterType="map">
+		update m_product a
+		set status = #{status},
+		update_time = now()
+		WHERE a.id in (${ids})
+		<if test="oldStatus!=null and ''!=oldStatus">
+			and a.status = #{oldStatus}
+		</if>
+	</update>
+</mapper>

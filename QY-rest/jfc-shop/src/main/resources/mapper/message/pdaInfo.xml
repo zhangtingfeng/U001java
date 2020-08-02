@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pdaInfo">
+    <!--条件 -->
+    <sql id="whereCondition">
+        <where>
+            <if test="id!=null and ''!=id">
+                AND a.id=#{id}
+            </if>
+            <if test="name!=null and ''!=name">
+                AND a.name like CONCAT ('%',#{name},'%')
+            </if>
+            <if test="imei!=null and ''!=imei">
+                AND a.imei like CONCAT ('%',#{imei},'%')
+            </if>
+            <if test="''!=startTime and null!=startTime">
+                and a.create_time &gt;= #{startTime}
+            </if>
+            <if test="''!=endTime and null!=endTime">
+                and a.create_time &lt;= #{endTime}
+            </if>
+            AND  a.is_delete= 'N'
+        </where>
+    </sql>
+    <!--数据插入 -->
+    <insert id="saveInfo" parameterType="map" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO pda_info
+        (
+        <if test="name!=null and ''!=name">
+            name,
+        </if>
+        <if test="imei!=null and ''!=imei">
+            imei,
+        </if>
+        <if test="creator!=null and ''!=creator">
+            creator,
+        </if>
+        create_time
+        )
+        VALUES
+        (
+        <if test="name!=null and ''!=name">
+            #{name},
+        </if>
+        <if test="imei!=null and ''!=imei">
+            #{imei},
+        </if>
+        <if test="type!=creator and ''!=creator">
+            #{creator},
+        </if>
+        now()
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update pda_info
+        set
+        <if test="null!=name">
+            name = #{name},
+        </if>
+        <if test="null!=imei">
+            imei = #{imei},
+        </if>
+        update_time = now()
+        where id = #{id}
+    </update>
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+        a.*
+        FROM
+        pda_info a
+        <include refid="whereCondition"/>
+        ORDER BY a.id desc
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        select *
+        from pda_info a
+        <include refid="whereCondition"/>
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        select count(1) as total
+        from pda_info a
+        <include refid="whereCondition"/>
+    </select>
+
+    <select id="queryInfo" parameterType="map" resultType="dto">
+        select *
+        from pda_info a
+        <include refid="whereCondition"/>
+    </select>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        update pda_info SET is_delete = 'Y' WHERE id = #{id}
+    </delete>
+
+</mapper>

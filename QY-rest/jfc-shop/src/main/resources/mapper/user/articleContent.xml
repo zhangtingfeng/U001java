@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="articleContent">
+
+  <sql id="sql_where">
+              <if test="''!=id and null!=id">
+                  and a.id = #{id}
+              </if>
+              <if test="''!=number and null!=author">
+                  and a.author LIKE CONCAT('%', #{author}, '%')
+              </if>
+              <if test="''!=number and null!=title">
+                  and a.title LIKE CONCAT('%', #{title}, '%')
+              </if>
+              <if test="''!=categoryid and null!=categoryid">
+                  and a.categoryid = #{categoryid}
+              </if>
+    </sql>
+  
+  <!-- 查询 -->
+  <select id="queryList" parameterType="map" resultType="dto">
+      SELECT
+      a.*, b.val AS categoryname
+      FROM
+      m_article_content a
+      LEFT JOIN sys_config b ON a.categoryid = b.id
+      WHERE
+      1 = 1
+      AND a.is_delete = 'N'
+      <include refid="sql_where"/> 
+    ORDER BY id
+  </select>
+  
+  <select id="queryListCount" parameterType="map" resultType="java.lang.Integer">
+    SELECT count(1) as count FROM m_article_content a WHERE 1=1 AND a.is_delete = 'N'
+    <include refid="sql_where"/> 
+  </select>
+  
+  <select id="getInfo" parameterType="map" resultType="dto">
+      SELECT
+      a.*, b.val AS categoryname
+      FROM
+      m_article_content a
+      LEFT JOIN sys_config b ON a.categoryid = b.id
+      WHERE
+      1 = 1
+      AND a.is_delete = 'N'
+      <include refid="sql_where"/> 
+    ORDER BY id
+  </select>
+  
+  <!-- 插入 -->
+  <insert id="saveInfo" parameterType="dto">
+    insert into m_article_content
+    (
+        author,
+        title,
+        subtitle,
+        content,
+        sort,
+        describes,
+        categoryid,
+        create_time,
+        creator,
+        update_time,
+        is_delete
+    )
+    values
+    (
+        #{author},
+        #{title},
+        #{subtitle},
+        #{content},
+        #{sort},
+        #{describes},
+        #{categoryid},
+        now(),
+        #{creator},
+        now(),
+        'N'
+    )
+  </insert>
+  
+  <!-- 修改 -->
+  <update id="updateInfo" parameterType="dto">
+    update m_article_content a
+    set
+      <if test="author">
+          a.author = #{author},
+      </if>
+      <if test="title">
+          a.title = #{title},
+      </if>
+      <if test="subtitle">
+          a.subtitle = #{subtitle},
+      </if>
+      <if test="content">
+          a.content = #{content},
+      </if>
+      <if test="sort">
+          a.sort = #{sort},
+      </if>
+      <if test="describes">
+          a.describes = #{describes},
+      </if>
+      <if test="categoryid">
+          a.categoryid = #{categoryid},
+      </if>
+      <if test="create_time">
+          a.create_time = #{create_time},
+      </if>
+      <if test="creator">
+          a.creator = #{creator},
+      </if>
+      <if test="updator">
+          a.updator = #{updator},
+      </if>
+      <if test="is_delete">
+          a.is_delete = #{is_delete},
+      </if>
+      a.update_time = now()
+    where a.id = #{id}
+  </update>
+  
+  <!-- 删除 -->
+  <delete id="deleteInfo" parameterType="map">
+    UPDATE m_article_content m
+	SET m.is_delete = 'Y'
+	WHERE
+		m.id = #{id}
+  </delete>
+  
+</mapper>

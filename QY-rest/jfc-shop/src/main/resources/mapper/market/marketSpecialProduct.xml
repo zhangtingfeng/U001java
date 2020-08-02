@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="marketSpecialProduct">
+
+    <sql id="sql_where">
+        <if test="''!=id and null !=id">
+            and a.id=#{id}
+        </if>
+        <if test="''!=shopid and null!=shopid">
+            and a.shop_id = #{shopid}
+        </if>
+        <if test="''!=startMoney and null!=startMoney">
+            and a.money &gt;= #{startMoney}
+        </if>
+        <if test="''!=startendMoneyMoney and null!=endMoney">
+            and a.money  &lt;=  #{endMoney}
+        </if>
+        <if test="''!=startIntegral and null!=startIntegral">
+            and a.integral &gt;= #{startIntegral}
+        </if>
+        <if test="''!=startIntegral and null!=startIntegral">
+            and  a.integral  &lt;=  #{endIntegral}
+        </if>
+        <if test="''!=startDate and null!=startDate">
+            and DATE(m.start) &gt;= #{startDate}
+        </if>
+        <if test="''!=endDate and null!=endDate">
+            and DATE(m.start) &lt;= #{endDate}
+        </if>
+        <if test="''!=startTime and null!=startTime">
+            and DATE(m.end) &gt;= #{startTime}
+        </if>
+        <if test="''!=endTime and null!=endTime">
+            and  DATE(m.end) &lt;= #{endTime}
+        </if>
+        <if test="''!=status and null!=status">
+            and a.status = #{status}
+        </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT a.*,b.name as shopname,m.start,m.end,
+        (case a.status when 1 then '生效' when '0' then '失效' END) as status1,
+        s.username as creatorname,s1.username as updatorname
+        FROM m_market_special_product a
+        LEFT JOIN m_shop b ON a.shop_id = b.id
+        LEFT JOIN m_market_special m ON a.specialp_id = m.id
+        LEFT JOIN sys_user s ON a.creator = s.id
+        LEFT JOIN sys_user s1 ON a.updator = s1.id
+        WHERE 1=1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY id
+    </select>
+
+    <!-- 查询 -->
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT a.*,m.start,m.end
+        FROM m_market_special_product a
+        LEFT JOIN m_market_special m ON a.specialp_id = m.id
+        WHERE 1=1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 0,1
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+       insert into m_market_special_product
+          (product_id, shop_id, 
+          specialp_id, numbers, money, 
+          integral, status, create_time, 
+          creator, is_delete)
+       values (#{product_id}, #{shop_id},
+          #{specialp_id}, #{numbers}, #{money},
+          #{integral}, #{status}, now(),
+          #{creator}, 'N')
+    </insert>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        UPDATE m_market_special_product set is_delete = 'Y' WHERE id = #{id}
+    </delete>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_market_special_product
+        set
+        <if test="product_id">
+            product_id = #{product_id},
+        </if>
+        <if test="shop_id">
+            shop_id = #{shop_id},
+        </if>
+        <if test="specialp_id">
+            specialp_id = #{specialp_id},
+        </if>
+        <if test="numbers">
+            numbers = #{numbers},
+        </if>
+        <if test="money">
+            money = #{money},
+        </if>
+        <if test="integral">
+            integral = #{integral},
+        </if>
+        <if test="status">
+            status = #{status},
+        </if>
+        <if test="updator">
+            updator = #{updator},
+        </if>
+        update_time = now()
+        where id = #{id}
+    </update>
+
+
+    <select id="getSpecialProList" parameterType="map" resultType="dto">
+        SELECT a.*,b.start,b.end,p.name as proname,s.`name` as shopname
+        FROM m_market_special_product a
+        LEFT JOIN m_market_special b ON a.specialp_id = b.id
+        LEFT JOIN m_product p ON a.product_id = p.id
+        LEFT JOIN m_shop s ON a.shop_id = s.id
+        WHERE 1=1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        <if test="null!=start">
+            limit ${start},${limit}
+        </if>
+    </select>
+
+    <!-- 查询 -->
+    <select id="getSpecialProListCount" parameterType="map" resultType="dto">
+        SELECT count(1) as total
+        FROM m_market_special_product a
+        LEFT JOIN m_market_special b ON a.specialp_id = b.id
+        LEFT JOIN m_product p ON a.product_id = p.id
+        LEFT JOIN m_shop s ON a.shop_id = s.id
+        WHERE 1=1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 1
+    </select>
+</mapper>

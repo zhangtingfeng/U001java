@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="showroomVideo">
+	<sql id="sql_where">
+		<if test="''!=name and null!=name">
+			and a.name LIKE concat('%',#{name},'%')
+		</if>
+		<if test="''!=id and null!=id">
+			and a.id=#{id}
+		</if>
+	</sql>
+
+	<!-- 查询 -->
+	<select id="queryList" parameterType="map" resultType="dto">
+		SELECT
+		a.*
+		FROM
+		m_showroom_video a
+		WHERE 1 = 1
+		<include refid="sql_where" />
+		<if test="''!=popularity and null!=popularity">
+			order by a.popularity desc
+		</if>
+		<if test="''!=create_time and null!=create_time">
+			order by a.create_time desc
+		</if>
+		<if test="''!=sort and null!=sort">
+			order by a.sort desc
+		</if>
+		<if test="null!=start">
+			limit ${start},${end}
+		</if>
+	</select>
+
+	<select id="queryListCount" parameterType="map" resultType="dto">
+		SELECT count(1) as total FROM m_showroom_video a WHERE 1=1
+		<include refid="sql_where" />
+	</select>
+
+	<!-- 查询单个商品详情信息 -->
+	<select id="getInfo" parameterType="map" resultType="dto">
+		SELECT
+		a.*
+		FROM
+		m_showroom_video a
+		WHERE
+		1 = 1
+		<include refid="sql_where" />
+	</select>
+
+	<!-- 插入 -->
+	<insert id="saveInfo" parameterType="dto" useGeneratedKeys="true" keyProperty="id">
+		insert into m_showroom_video
+		(
+		<if test="''!=name and null!=name">
+		       name,
+		</if>
+		<if test="''!=vido and null!=vido">
+			vido,
+		</if>
+		<if test="''!=popularity and null!=popularity">
+			popularity,
+		</if>
+		<if test="''!=source and null!=source">
+			source,
+		</if>
+		<if test="''!=sort and null!=sort">
+			sort,
+		</if>
+		create_time,
+		creator,
+		is_delete
+		)
+		values (
+		<if test="''!=name and null!=name">
+		#{name},
+		</if>
+		<if test="''!=vido and null!=vido">
+		#{vido},
+		</if>
+		<if test="''!=popularity and null!=popularity">
+			#{popularity},
+		</if>
+		<if test="''!=source and null!=source">
+			#{source},
+		</if>
+		<if test="''!=sort and null!=sort">
+			#{sort},
+		</if>
+		now(),
+		#{creator},
+		'N'
+		)
+	</insert>
+
+	<!-- 修改 -->
+	<update id="updateInfo" parameterType="dto">
+		update m_showroom_video a
+		set
+		<if test="''!=name and null!=name">
+			a.name=#{name},
+		</if>
+		<if test="''!=vido and null!=vido">
+			a.vido=#{vido},
+		</if>
+		<if test="''!=popularity and null!=popularity">
+			a.popularity=a.popularity+1,
+		</if>
+		<if test="''!=source and null!=source">
+			a.source=#{source},
+		</if>
+		<if test="''!=sort and null!=sort">
+			a.sort=#{sort}
+		</if>
+		where id = #{id}
+	</update>
+
+
+	<!-- 删除 -->
+	<delete id="deleteInfo" parameterType="dto">
+		delete from m_showroom_video  WHERE id = #{id}
+	</delete>
+</mapper>

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="userNews">
+    <!--条件 -->
+    <sql id="sqlWhere">
+        <where>
+            <if test="id!=null and ''!=id">
+                AND a.id=#{id}
+            </if>
+
+            <if test="status!=null and ''!=status">
+                AND a.status=#{status}
+            </if>
+
+            <if test="type!=null and ''!=type">
+                AND a.type=#{type}
+            </if>
+            <if test="''!=startTime and null!=startTime">
+                and a.create_time &gt;= #{startTime}
+            </if>
+            <if test="''!=endTime and null!=endTime">
+                and a.create_time &lt;= #{endTime}
+            </if>
+            <if test="''!=shop_id and null!=shop_id">
+                and su1.id=#{shop_id}
+            </if>
+            AND a.is_delete= 'N'
+        </where>
+    </sql>
+
+    <select id="queryList" parameterType="map" resultType="dto">
+        select a.*,mem.username as memberName,DATE_FORMAT(a.create_time,'%Y-%m-%d') as time
+        from user_news as a LEFT JOIN m_member as mem on a.member_id = mem.id and mem.is_delete='N'
+        LEFT JOIN m_shop su1 ON a.member_id = su1.member_id AND  su1.is_delete='N'
+        <include refid="sqlWhere"/>
+        ORDER BY a.id desc
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        select a.*,mem.username as memberName
+        from user_news as a LEFT JOIN m_member as mem on a.member_id = mem.id and mem.is_delete='N'
+        LEFT JOIN m_shop su1 ON a.member_id = su1.member_id
+        where  a.id=#{id}
+        and a.is_delete='N'
+        limit 1
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        select count(1) as total
+        from user_news as a
+        <include refid="sqlWhere"/>
+    </select>
+
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        update user_news SET is_delete = 'Y' WHERE id = #{id}
+    </delete>
+
+    <insert id="saveInfo" parameterType="dto">
+        INSERT INTO user_news
+        (
+        <if test="member_id!=null and ''!=member_id">
+            member_id,
+        </if>
+        <if test="title!=null and ''!=title">
+            title,
+        </if>
+        <if test="content!=null and ''!=content">
+            content,
+        </if>
+        <if test="browse_num!=null and ''!=browse_num">
+            browse_num,
+        </if>
+        <if test="picture!=null and ''!=picture">
+            picture,
+        </if>
+        <if test="type!=null and ''!=type">
+            `type`
+        </if>
+        <if test="status!=null and ''!=status">
+            ,status
+        </if>
+        ,create_time
+        <if test="creator!=null and ''!=creator">
+            ,creator
+        </if>
+        ,is_delete
+        )
+        VALUES
+        (
+        <if test="member_id!=null and ''!=member_id">
+            #{member_id},
+        </if>
+        <if test="title!=null and ''!=title">
+            #{title},
+        </if>
+        <if test="content!=null and ''!=content">
+            #{content},
+        </if>
+        <if test="browse_num!=null and ''!=browse_num">
+            #{browse_num},
+        </if>
+        <if test="picture!=null and ''!=picture">
+            #{picture},
+        </if>
+        <if test="type!=null and ''!=type">
+            #{type},
+        </if>
+        <if test="status!=null and ''!=status">
+            #{status},
+        </if>
+        now()
+        <if test="creator!=null and ''!=creator">
+            ,#{creator}
+        </if>
+        ,'N')
+    </insert>
+
+    <update id="updateInfo" parameterType="map">
+        update user_news
+        <set >
+            <if test="member_id!=null and ''!=member_id">member_id=#{member_id},</if>
+            <if test="title!=null and ''!=title">title=#{title},</if>
+            <if test="content!=null and ''!=content">content=#{content},</if>
+            <if test="browse_num!=null and ''!=browse_num">browse_num=browse_num+1,</if>
+            <if test="picture!=null and ''!=picture">picture=#{picture},</if>
+            <if test="type!=null and ''!=type">type=#{type},</if>
+            <if test="status!=null and ''!=status">status=#{status},</if>
+            <if test="create_time!=null and ''!=create_time">create_time=#{create_time},</if>
+            <if test="creator!=null and ''!=creator">creator=#{creator},</if>
+            update_time=NOW(),
+            <if test="updator!=null and ''!=updator">updator=#{updator},</if>
+            <if test="is_delete!=null and ''!=is_delete">is_delete=#{is_delete},</if>
+        </set>
+            WHERE
+            id=#{id}
+
+    </update>
+
+
+    <!-- 更新状态 -->
+    <update id="updateStatus" parameterType="map">
+        update user_news a
+        set status = #{status},
+        update_time = now()
+        WHERE a.id in (${ids})
+        <if test="oldStatus!=null and ''!=oldStatus">
+            and a.status = #{oldStatus}
+        </if>
+    </update>
+</mapper>

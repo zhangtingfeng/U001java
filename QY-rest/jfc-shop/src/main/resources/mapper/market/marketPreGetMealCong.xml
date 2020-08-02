@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"><!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="marketPreGetMealCong">
+    <sql id="sql_where">
+        <if test="''!=pre_id and null!=pre_id">
+            and a.pre_id = #{pre_id}
+        </if>
+        <if test="''!=id and null!=id">
+            and a.id= #{id}
+        </if>
+        <if test="''!=stores and null!=stores">
+            and a.stores= #{stores}
+        </if>
+    </sql>
+
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        select * from m_market_pre_getmeal_conf as a
+        where a.stores>0 and a.is_delete='N' ORDER BY a.`start`
+    </select>
+
+    <!-- 查询 -->
+    <select id="getInfo" parameterType="map" resultType="dto">
+        select * from m_market_pre_getmeal_conf as a where a.id=#{id} and a.is_delete='N'
+    </select>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_market_pre_getmeal_conf
+        set
+        stores =stores-1,
+        update_time = now()
+        where id = #{id}
+    </update>
+
+</mapper>

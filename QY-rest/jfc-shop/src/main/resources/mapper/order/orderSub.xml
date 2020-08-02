@@ -1,0 +1,721 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd"><!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="orderSub">
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT a.*, m.number AS pidnumber,
+        ms.NAME AS shopName,
+        mm.username AS memberName,
+        mm.telephone,
+        m.diningCode,
+        mp.NAME AS productName,
+        mp.number AS productNumber,
+        substring_index(mp.bigpic,',',1)as pics,
+        m.pay_type AS paytype,
+        su1.username AS creator,
+        su2.username AS updator,
+        s.val AS statusName,mp.smallpic,
+        mp.bigpic,mp.price,m.id AS pidId,
+        (SELECT GROUP_CONCAT(ps.`name`) FROM m_product_specs_shop AS ps
+        WHERE FIND_IN_SET(ps.id,a.product_property)) as propertys
+        FROM
+        m_order_sub a
+        LEFT JOIN m_order m ON m.id = a.pid
+        LEFT JOIN m_shop ms ON a.shop_id = ms.id
+        LEFT JOIN m_member mm ON a.member_id = mm.id
+        LEFT JOIN m_product mp ON a.product_id = mp.id
+        LEFT JOIN sys_user su1 ON su1.id = a.creator
+        LEFT JOIN sys_user su2 ON su2.id = a.updator
+        LEFT JOIN sys_config s ON s.id = a.`status`
+        WHERE 1=1
+        and a.is_delete = 'N'
+        <if test="null==flg or ''==flg">
+            AND mp.`name` != '包装袋'
+        </if>
+        <include refid="sql_where"/>
+        ORDER BY a.pid desc , FIELD(a.`status`, 50, 52, 51, 52, 53),a.create_time desc
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <!-- 查询 -->
+    <sql id="sql_where">
+        <if test="''!=memeber_id and null!=member_id">
+            and a.member_id=#{member_id}
+        </if>
+        <if test="''!=pidnumber and null!=pidnumber">
+            and m.number=#{pidnumber}
+        </if>
+        <if test="''!=diningCode and null!=diningCode">
+            and m.diningCode=#{diningCode}
+        </if>
+        <if test="''!=status and null!=status">
+            and a.status=#{status }
+        </if>
+        <if test="''!=is_evaluation and null!=is_evaluation">
+            and a.is_evaluation=#{is_evaluation }
+        </if>
+        <if test="''!=number and null!=number">
+            and a.number=#{number }
+        </if>
+        <if test="''!=create_time and null!=create_time">
+            and a.create_time> date_sub(NOW(),INTERVAL #{create_time} DAY_SECOND)
+        </if>
+        <if test="''!=id and null!=id">
+            and a.id=#{id}
+        </if>
+        <if test="''!=pid and null!=pid">
+            and a.pid=#{pid}
+        </if>
+        <if test="''!=recieverTel and null!=recieverTel">
+            and a.reciever_tel like concat('%', #{recieverTel}, '%')
+        </if>
+        <if test="''!=create_time and null!=create_time">
+            and DATE_FORMAT(a.create_time,'%Y-%m')=DATE_FORMAT(#{create_time},'%Y-%m')
+        </if>
+        <if test="''!=memberName and null!=memberName">
+            and mm.username like concat('%', #{memberName}, '%')
+        </if>
+        <if test="''!=productNumber and null!=productNumber">
+            and mp.number like concat('%', #{productNumber}, '%')
+        </if>
+        <if test="''!=orderNumber and null!=orderNumber">
+            and a.number like concat('%', #{orderNumber}, '%')
+        </if>
+        <if test="''!=shopid and null!=shopid">
+            and a.shop_id =#{shopid}
+        </if>
+        <if test="''!=shopName and null!=shopName">
+            and ms.name like concat('%', #{shopName}, '%')
+        </if>
+        <if test="''!=address and null!=address">
+            and a.address like concat('%', #{address}, '%')
+        </if>
+        <if test="''!=address and null!=address">
+            and a.address like concat('%', #{address}, '%')
+        </if>
+        <if test="''!=shopids and null!=shopids">
+            and FIND_IN_SET(a.shop_id,#shopids#)
+        </if>
+        <if test="''!=startDate and null!=startDate">
+            and DATE(a.create_time) &gt;= #{startDate}
+        </if>
+        <if test="''!=endDate and null!=endDate">
+            and DATE(a.create_time) &lt;= #{endDate}
+        </if>
+    </sql>
+
+
+    <!-- 查询 -->
+    <select id="queryListExe" parameterType="map" resultType="dto">
+        SELECT a.*,
+        <![CDATA[ IF(a.is_evaluation!=null && a.is_evaluation=2,'评价','未评价') as test]]>,
+        m.number AS pidnumber,
+        ms.NAME AS shopName,
+        mm.username AS memberName,
+        mm.telephone,
+        m.diningCode,
+        mp.NAME AS productName,
+        mp.number AS productNumber,
+        substring_index(mp.bigpic,',',1)as pics,
+        m.pay_type AS paytype,
+        su1.username AS creator,
+        su2.username AS updator,
+        s.val AS statusName,mp.smallpic,
+        mp.bigpic,mp.price,m.id AS pidId,
+        (SELECT GROUP_CONCAT(ps.`name`) FROM m_product_specs_shop AS ps
+        WHERE FIND_IN_SET(ps.id,a.product_property)) as propertys,
+        cou.`name`,
+        cuser.create_time as cou_time,
+        (
+        SELECT
+        concat(
+        pack.`name`,
+        '_',
+        pack.create_time
+        )
+        FROM
+        m_market_package_coupon AS packcou
+        LEFT JOIN m_market_package_user AS packuser ON (
+        packuser.package_id = packcou.package_id
+        AND packuser.member_id = packuser.member_id
+        )
+        LEFT JOIN m_market_package AS pack ON (pack.id = packcou.package_id)
+        WHERE
+        packuser.member_id = m.member_id and packcou.coupon_id=m.coupon_id
+        LIMIT 1
+        ) as packname
+        FROM
+        m_order_sub a
+        LEFT JOIN m_order m ON m.id = a.pid
+        LEFT JOIN m_shop ms ON a.shop_id = ms.id
+        LEFT JOIN m_member mm ON a.member_id = mm.id
+        LEFT JOIN m_product mp ON a.product_id = mp.id
+        LEFT JOIN sys_user su1 ON su1.id = a.creator
+        LEFT JOIN sys_user su2 ON su2.id = a.updator
+        LEFT JOIN sys_config s ON s.id = a.`status`
+        LEFT JOIN m_market_coupon AS cou ON cou.id = m.coupon_id
+        LEFT JOIN m_market_coupon_user AS cuser ON (
+        cuser.coupon_id = cou.id
+        AND m.member_id = cuser.member_id
+        )
+        WHERE 1=1
+        and a.is_delete = 'N'
+        AND mp.`name` != '包装袋'
+        <include refid="sql_where"/>
+        ORDER BY a.pid desc , FIELD(a.`status`, 50, 52, 51, 52, 53),a.create_time desc
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+
+
+
+    <!-- 查询 -->
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        SELECT
+         COUNT(1) as total
+        FROM
+        (
+        SELECT a.*
+        FROM
+        m_order_sub a
+        LEFT JOIN m_order m ON m.id = a.pid
+        LEFT JOIN m_shop ms ON a.shop_id = ms.id
+        LEFT JOIN m_member mm ON a.member_id = mm.id
+        LEFT JOIN m_product mp ON a.product_id = mp.id
+        LEFT JOIN sys_user su1 ON su1.id = a.creator
+        LEFT JOIN sys_user su2 ON su2.id = a.updator
+        LEFT JOIN sys_config s ON s.id = a.`status`
+        WHERE 1=1
+        and a.is_delete = 'N'  AND mp.`name` != '包装袋'
+        <include refid="sql_where"/>
+        )a
+    </select>
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT a.*, ms.NAME AS shopname, mm.username AS membername,mp.NAME AS productname,m.pay_type as paytype,
+        a.product_num as productnum,a.mark as mark,a.send_time as sendtime,
+        (
+        SELECT
+        group_concat(ms.`name` SEPARATOR '+')
+        FROM
+        m_product_specs_shop AS ms
+        WHERE
+        FIND_IN_SET(ms.id,a.product_property)
+        ) AS property,
+        (case m.pay_type when 0 then '微信支付' when 1 then '支付宝支付' else '未知' end) as pay_type,
+        ms.printcode_tag,
+        ms.printcode_tag_two,
+        ms.printcode,
+        ms.printcode_two,
+        mp.is_charge
+        FROM m_order_sub a
+        LEFT JOIN m_order m ON m.id = a.pid
+        LEFT JOIN m_member mm ON a.member_id = mm.id
+        LEFT JOIN m_product mp ON a.product_id = mp.id
+        LEFT JOIN m_shop ms ON a.shop_id = ms.id
+        LEFT JOIN m_product_type mt ON mp.type_id = mt.id
+        WHERE 1=1
+        <include refid="sql_where"/>
+        limit 0,1
+    </select>
+
+    <!-- 插入 -->
+    <!--  <insert id="saveInfo" parameterType="dto">
+          insert into m_order_sub
+          (serveno, order_sub_id,member_id,product_id, pay_type, reciever,reciever_tel, reciever_address, status
+          )
+          values (#serveno#, #order_sub_id#, #member_id#,
+          #product_id,jdbcType=BIGINT#, #pay_type#, #reciever#,
+          #reciever_tel#, #reciever_address#, 8
+          )
+      </insert>-->
+
+    <update id="updateInfo" parameterType="dto">
+        update m_order_sub
+        set
+        <if test="null!=status">
+            status = #{status},
+        </if>
+        update_time = now()
+        where id = #{id}
+    </update>
+
+
+    <update id="updateSubStatus" parameterType="dto">
+        update m_order_sub
+        set
+        <if test="null!=status">
+            status = #{status},
+        </if>
+        <if test="null!=updator and ''!=updator">
+            updator = #{updator},
+        </if>
+        update_time = now()
+        where pid = #{pid}
+    </update>
+
+
+    <!-- 删除 -->
+    <update id="deleteInfo" parameterType="map">
+        update m_order_sub set is_delete = 'Y', update_time = now()
+        WHERE
+        id = #{id}
+    </update>
+
+    <!-- 删除 -->
+    <update id="deleteSubInfo" parameterType="map">
+        update m_order_sub set is_delete = 'Y',update_time = now()
+        WHERE pid = #{pid}
+    </update>
+
+
+    <!-- 获取全部订单 或某种状态下的订单 -->
+    <select id="allUserOrder" parameterType="map" resultType="dto">
+        SELECT a.*,count(os.id) as oslength,
+        (SELECT GROUP_CONCAT(substring_index(p.bigpic,',',1)) FROM m_product WHERE id = os.product_id) as pics,
+        (SELECT GROUP_CONCAT(p.name) FROM m_product WHERE id = os.product_id) as proname,
+        (case a.`status` when '53' then 'Y' end) as accomplish,(case a.`status` when '50' then 'color:#f33;' end) as
+        color,
+        (SELECT SUM(IF(status = '50', 1, 0)) FROM m_order WHERE is_delete = 'N' and member_id = a.member_id) AS payment,
+        (SELECT SUM(IF(status = '51', 1, 0)) FROM m_order WHERE is_delete = 'N' and member_id = a.member_id) AS
+        waitShip,
+        (SELECT SUM(IF(status = '52', 1, 0)) FROM m_order WHERE is_delete = 'N' and member_id = a.member_id) AS
+        alreadyShip,
+        (SELECT SUM(IF(status = '53', 1, 0)) FROM m_order WHERE is_delete = 'N' and member_id = a.member_id and
+        os.is_evaluation=1) AS appraise,
+        (SELECT SUM(IF(status = '54', 1, 0)) FROM m_order WHERE is_delete = 'N' and member_id = a.member_id) AS
+        cancelNums,
+        s.val AS statusName,
+        (SELECT GROUP_CONCAT(a.`name`) FROM m_product_specs_shop AS a WHERE FIND_IN_SET(a.id,os.product_property)) as
+        propertys
+        FROM m_order a
+        LEFT JOIN m_order_sub os ON a.id = os.pid
+        LEFT JOIN m_product p ON os.product_id = p.id
+        LEFT JOIN sys_config s ON s.id = a.`status`
+        WHERE 1 = 1 AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        GROUP BY a.id
+        ORDER BY FIELD(a.`status`, 50, 52, 51, 52, 53, 54),a.create_time desc
+    </select>
+
+    <!--查询商家下的订单列表-->
+    <select id="queryListShopOrders" parameterType="map" resultType="dto">
+        SELECT *  from (SELECT
+        a.*, b.`name`,
+        CONCAT((
+        SELECT
+        group_concat(ms.`name` SEPARATOR '+')
+        FROM
+        m_product_specs_shop AS ms
+        WHERE
+        FIND_IN_SET(ms.id, a.product_property)
+        ),'+',IFNULL(a.properties,'')) AS property,
+        (select mo.number from m_order as mo where mo.id=a.pid) as order_no
+        FROM
+        m_order_sub AS a
+        LEFT JOIN m_product AS b ON (a.product_id = b.id)
+        where
+        a.is_delete='N' and to_days(a.create_time) = to_days(now()) and a.product_id!=54
+        <if test="null!=shop_id and ''!=shop_id">
+            and a.shop_id=#{shop_id}
+        </if>
+        <if test="null!=conf_id and ''!=conf_id">
+            and a.product_id in (select pro.pro_id from sys_config_pro as pro where pro.conf_id = #{conf_id} and pro.is_delete='N')
+        </if>
+        <if test="null!=status">
+            and a.status=#{status}
+        </if>
+        order by a.create_time asc
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>) as a
+        order by a.create_time asc
+    </select>
+
+
+    <!--根据订单号更新主订单下的子订单状态-->
+    <update id="updateOrderProductByOrderNo" parameterType="dto">
+        UPDATE m_order_sub     AS a
+        SET a. STATUS = #{status},a.update_time = now()
+        WHERE
+            a.pid = (
+            SELECT
+            b.id
+            FROM
+            m_order AS b
+            WHERE
+            b.number = #{number}
+        )
+    </update>
+
+    <!--判断未制作完成的订单-->
+    <select id="orderComplete" parameterType="map" resultType="dto">
+        select b.*,t.is_charge from m_order_sub as b
+          LEFT JOIN m_product as p on(b.product_id=p.id)
+          LEFT JOIN m_product_type as t on(t.id=p.type_id)
+        where b.pid=(select a.pid from m_order_sub as a where a.id=#{id}) and b.status=51 and b.product_id!=54
+    </select>
+
+    <!--判断未制作完成的订单-->
+    <select id="orderCompleteJia" parameterType="map" resultType="dto">
+        select b.*,t.is_charge from m_order_sub as b
+          LEFT JOIN m_product as p on(b.product_id=p.id)
+          LEFT JOIN m_product_type as t on(t.id=p.type_id)
+        where b.pid=(select a.pid from m_order_sub as a where a.id=#{id}) and b.status=54 and b.product_id!=54
+    </select>
+
+    <!--查询订单下是否有包装-->
+    <select id="getOrderPackageInfo" parameterType="map" resultType="dto">
+        SELECT
+            *
+        FROM
+            m_order_sub as os where os.pid = (
+            SELECT
+                a.pid
+            FROM
+                m_order_sub AS a
+            WHERE
+                a.id = #{id}
+        ) and product_id=54 and os.status=51 limit 1
+    </select>
+
+    <!--判断未制作完成的订单-->
+    <select id="orderCompleteQm" parameterType="map" resultType="dto">
+        select b.*,p.is_charge from m_order_sub as b
+            LEFT JOIN m_product as p on(b.product_id=p.id)
+            LEFT JOIN m_product_type as t on(t.id=p.type_id)
+        where b.id=#{id} and b.status=51 and b.product_id!=54
+    </select>
+
+
+    <!--门店销售预估报表-->
+    <select id="getStoreSalesPredictionStatementInfo" parameterType="map" resultType="dto">
+        SELECT
+            a.saleTime ,
+            MONTH(a.saleTime) salMonth,
+            dayofweek(a.saleTime) salWeek,
+            IFNULL((SELECT sum(pay_money) FROM m_order_sub WHERE ( DATE_FORMAT(create_time, '%Y%m%d') =  DATE_FORMAT(DATE_SUB(a.saleTime,INTERVAL 1 MONTH) , '%Y%m%d') ) ),0) as lastMonth,
+            IFNULL((SELECT sum(pay_money) FROM m_order_sub WHERE ( DATE_FORMAT(create_time, '%Y%m%d') =   DATE_FORMAT(DATE_SUB(a.saleTime,INTERVAL 1 WEEK) , '%Y%m%d') ) ),0) as weekOne,
+            IFNULL((SELECT sum(pay_money) FROM m_order_sub WHERE ( DATE_FORMAT(create_time, '%Y%m%d') =   DATE_FORMAT(DATE_SUB(a.saleTime,INTERVAL 2 WEEK) , '%Y%m%d') ) ),0) as weekTwo,
+            IFNULL((SELECT sum(pay_money) FROM m_order_sub WHERE ( DATE_FORMAT(create_time, '%Y%m%d') =  DATE_FORMAT(DATE_SUB(a.saleTime,INTERVAL 3 WEEK) , '%Y%m%d') ) ),0) as weekThree,
+            IFNULL((SELECT sum(pay_money) FROM m_order_sub WHERE ( DATE_FORMAT(create_time, '%Y%m%d') =  DATE_FORMAT(DATE_SUB(a.saleTime,INTERVAL 4 WEEK) , '%Y%m%d') ) ),0) as weekFour,
+            IFNULL(sum( payMoney ),0) as total,
+            IFNULL((SELECT sum(pay_money) FROM m_order WHERE DATE_FORMAT(create_time, '%Y%m%d') = DATE_FORMAT(a.saleTime, '%Y%m%d')  and source in (0,1) ),0) as smallPprocedures
+        FROM
+        (
+            SELECT
+            DATE_FORMAT(create_time,"%Y-%m-%d") as saleTime,
+            SUM(pay_money) as payMoney
+            FROM
+            m_order_sub
+            WHERE 1 = 1
+            <if test="''!=startDate and null!=startDate">
+                and DATE(create_time) &gt;= #{startDate}
+            </if>
+            <if test="''!=endDate and null!=endDate">
+                and DATE(create_time) &lt;= #{endDate}
+            </if>
+            GROUP BY DATE_FORMAT(create_time,"%Y-%m-%d")
+            <if test="null!=start">
+                limit ${start},${end}
+            </if>
+        )a
+        GROUP BY a.saleTime
+        ORDER BY a.saleTime DESC
+    </select>
+
+
+    <!--门店销售预估报表-->
+    <select id="countStoreSalesPredictionStatementInfo" parameterType="map" resultType="dto">
+        SELECT
+            count(1) as total
+        FROM (
+            SELECT
+               a.saleTime
+            FROM
+            (
+                SELECT
+                    DATE_FORMAT(create_time,"%Y-%m-%d") as saleTime,
+                    SUM(pay_money) as payMoney
+                FROM
+                m_order_sub
+                WHERE 1 = 1
+                <if test="''!=startDate and null!=startDate">
+                    and DATE(create_time) &gt;= #{startDate}
+                </if>
+                <if test="''!=endDate and null!=endDate">
+                    and DATE(create_time) &lt;= #{endDate}
+                </if>
+                GROUP BY DATE_FORMAT(create_time,"%Y-%m-%d")
+            )a
+            GROUP BY a.saleTime
+        )a
+
+    </select>
+
+    <!--门店销售预估报表,产品数据-->
+    <select id="getStoreSalesPredictionStatementDetail" parameterType="map" resultType="dto">
+          SELECT
+                DATE_FORMAT(a.create_time, "%Y-%m-%d") AS saleTime,
+                SUM(a.pay_money) AS payMoney,
+                a.product_id AS productId
+          FROM
+                m_order_sub a
+          LEFT JOIN m_product b ON a.product_id = b.id
+          WHERE
+                b.`name` != "包装袋"
+          GROUP BY
+                DATE_FORMAT(a.create_time, "%Y-%m-%d"),
+                a.product_id
+    </select>
+
+
+    <!--门店销售预估报表,产品信息-->
+    <select id="getProductInfo" parameterType="map" resultType="dto">
+        SELECT
+          *
+        FROM
+          m_product
+        WHERE
+             `name` != "包装袋"
+    </select>
+
+
+
+
+    <!-- 查询 -->
+    <select id="queryListByOrderSub" parameterType="map" resultType="dto">
+        SELECT a.*, m.number AS pidnumber,
+        ms.NAME AS shopName,
+        mm.username AS memberName,
+        mm.telephone,
+        m.diningCode,
+        mp.NAME AS productName,
+        mp.number AS productNumber,
+        substring_index(mp.bigpic,',',1)as pics,
+        m.pay_type AS paytype,
+        su1.username AS creator,
+        su2.username AS updator,
+        s.val AS statusName,mp.smallpic,
+        mp.bigpic,mp.price,m.id AS pidId,
+        (SELECT GROUP_CONCAT(ps.`name`) FROM m_product_specs_shop AS ps
+        WHERE FIND_IN_SET(ps.id,a.product_property)) as propertys,
+        cou.`name`,
+        cuser.create_time as cou_time,
+        (
+        SELECT
+        concat(
+        pack.`name`,
+        '_',
+        pack.create_time
+        )
+        FROM
+        m_market_package_coupon AS packcou
+        LEFT JOIN m_market_package_user AS packuser ON (
+        packuser.package_id = packcou.package_id
+        AND packuser.member_id = packuser.member_id
+        )
+        LEFT JOIN m_market_package AS pack ON (pack.id = packcou.package_id)
+        WHERE
+        packuser.member_id = m.member_id and packcou.coupon_id=m.coupon_id
+        LIMIT 1
+        ) as packname
+        FROM
+        (
+          SELECT
+             *
+          FROM
+             m_order_sub a
+          WHERE
+          1=1
+          and a.is_delete = 'N'
+            <if test="''!=memeber_id and null!=member_id">
+                and a.member_id=#{member_id}
+            </if>
+            <if test="''!=status and null!=status">
+                and a.status=#{status }
+            </if>
+            <if test="''!=is_evaluation and null!=is_evaluation">
+                and a.is_evaluation=#{is_evaluation }
+            </if>
+            <if test="''!=number and null!=number">
+                and a.number=#{number }
+            </if>
+            <if test="''!=create_time and null!=create_time">
+                and a.create_time> date_sub(NOW(),INTERVAL #{create_time} DAY_SECOND)
+            </if>
+            <if test="''!=id and null!=id">
+                and a.id=#{id}
+            </if>
+            <if test="''!=pid and null!=pid">
+                and a.pid=#{pid}
+            </if>
+            <if test="''!=recieverTel and null!=recieverTel">
+                and a.reciever_tel like concat('%', #{recieverTel}, '%')
+            </if>
+            <if test="''!=create_time and null!=create_time">
+                and DATE_FORMAT(a.create_time,'%Y-%m')=DATE_FORMAT(#{create_time},'%Y-%m')
+            </if>
+
+            <if test="''!=orderNumber and null!=orderNumber">
+                and a.number like concat('%', #{orderNumber}, '%')
+            </if>
+            <if test="''!=shopid and null!=shopid">
+                and a.shop_id =#{shopid}
+            </if>
+
+            <if test="''!=address and null!=address">
+                and a.address like concat('%', #{address}, '%')
+            </if>
+            <if test="''!=address and null!=address">
+                and a.address like concat('%', #{address}, '%')
+            </if>
+            <if test="''!=shopids and null!=shopids">
+                and FIND_IN_SET(a.shop_id,#shopids#)
+            </if>
+            <if test="''!=startDate and null!=startDate">
+                and DATE(a.create_time) &gt;= #{startDate}
+            </if>
+            <if test="''!=endDate and null!=endDate">
+                and DATE(a.create_time) &lt;= #{endDate}
+            </if>
+            <if test="''!=diningCode and null!=diningCode">
+               AND  a.pid in (
+                  SELECT
+                     id
+                  FROM
+                      m_order
+                  WHERE
+                      diningCode = #{diningCode}
+                )
+            </if>
+            <if test="''!=pidnumber and null!=pidnumber">
+                AND  a.pid in (
+                SELECT
+                id
+                FROM
+                m_order
+                WHERE
+                 number=#{pidnumber}
+                )
+            </if>
+
+            ORDER BY a.pid desc , FIELD(a.`status`, 50, 52, 51, 52, 53),a.create_time desc
+            <if test="null!=start">
+                limit ${start},${end}
+            </if>
+
+
+        ) a
+        LEFT JOIN m_order m ON m.id = a.pid
+        LEFT JOIN m_shop ms ON a.shop_id = ms.id
+        LEFT JOIN m_member mm ON a.member_id = mm.id
+        LEFT JOIN m_product mp ON a.product_id = mp.id
+        LEFT JOIN sys_user su1 ON su1.id = a.creator
+        LEFT JOIN sys_user su2 ON su2.id = a.updator
+        LEFT JOIN sys_config s ON s.id = a.`status`
+        LEFT JOIN m_market_coupon AS cou ON cou.id = m.coupon_id
+        LEFT JOIN m_market_coupon_user AS cuser ON (
+        cuser.coupon_id = cou.id
+        AND m.member_id = cuser.member_id
+        )
+        WHERE 1=1
+        and a.is_delete = 'N'
+        AND mp.`name` != '包装袋'
+
+        ORDER BY a.pid desc , FIELD(a.`status`, 50, 52, 51, 52, 53),a.create_time desc
+
+    </select>
+
+
+
+
+    <!-- 查询 -->
+    <select id="queryListByOrderSubCount" parameterType="map" resultType="dto">
+
+        SELECT
+           COUNT(1) as total
+        FROM
+        m_order_sub a
+        WHERE
+        1=1
+        and a.is_delete = 'N'
+        <if test="''!=memeber_id and null!=member_id">
+            and a.member_id=#{member_id}
+        </if>
+        <if test="''!=status and null!=status">
+            and a.status=#{status }
+        </if>
+        <if test="''!=is_evaluation and null!=is_evaluation">
+            and a.is_evaluation=#{is_evaluation }
+        </if>
+        <if test="''!=number and null!=number">
+            and a.number=#{number }
+        </if>
+        <if test="''!=create_time and null!=create_time">
+            and a.create_time> date_sub(NOW(),INTERVAL #{create_time} DAY_SECOND)
+        </if>
+        <if test="''!=id and null!=id">
+            and a.id=#{id}
+        </if>
+        <if test="''!=pid and null!=pid">
+            and a.pid=#{pid}
+        </if>
+        <if test="''!=recieverTel and null!=recieverTel">
+            and a.reciever_tel like concat('%', #{recieverTel}, '%')
+        </if>
+        <if test="''!=create_time and null!=create_time">
+            and DATE_FORMAT(a.create_time,'%Y-%m')=DATE_FORMAT(#{create_time},'%Y-%m')
+        </if>
+
+        <if test="''!=orderNumber and null!=orderNumber">
+            and a.number like concat('%', #{orderNumber}, '%')
+        </if>
+        <if test="''!=shopid and null!=shopid">
+            and a.shop_id =#{shopid}
+        </if>
+
+        <if test="''!=address and null!=address">
+            and a.address like concat('%', #{address}, '%')
+        </if>
+        <if test="''!=address and null!=address">
+            and a.address like concat('%', #{address}, '%')
+        </if>
+        <if test="''!=shopids and null!=shopids">
+            and FIND_IN_SET(a.shop_id,#shopids#)
+        </if>
+        <if test="''!=startDate and null!=startDate">
+            and DATE(a.create_time) &gt;= #{startDate}
+        </if>
+        <if test="''!=endDate and null!=endDate">
+            and DATE(a.create_time) &lt;= #{endDate}
+        </if>
+        <if test="''!=diningCode and null!=diningCode">
+            AND  a.pid in (
+            SELECT
+            id
+            FROM
+            m_order
+            WHERE
+            diningCode = #{diningCode}
+            )
+        </if>
+        <if test="''!=pidnumber and null!=pidnumber">
+            AND  a.pid in (
+            SELECT
+            id
+            FROM
+            m_order
+            WHERE
+            number=#{pidnumber}
+            )
+        </if>
+        ORDER BY a.pid desc , FIELD(a.`status`, 50, 52, 51, 52, 53),a.create_time desc
+
+    </select>
+
+</mapper>

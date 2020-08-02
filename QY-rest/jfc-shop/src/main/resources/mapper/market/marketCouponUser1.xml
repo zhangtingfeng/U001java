@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="marketCouponUser1">
+
+    <sql id="sql_where">
+        <if test="''!=id and null !=id">
+            and a.id=#{id}
+        </if>
+        <if test="''!=member_id and null !=member_id">
+            and a.member_id=#{member_id}
+        </if>
+        <if test="''!=coupon_id and null!=coupon_id">
+            and a.coupon_id=#{coupon_id}
+        </if>
+        <if test="''!=status and null !=status">
+            and a.status=#{status}
+        </if>
+        <if test="''!=telephone and null!=telephone">
+            and a.telephone LIKE CONCAT('%', #{telephone}, '%')
+        </if>
+        <if test="''!=nickname and null!=nickname">
+            and a.nickname LIKE CONCAT('%', #{nickname}, '%')
+        </if>
+        <if test="''!=username and null!=username">
+            and a.username LIKE CONCAT('%', #{username}, '%')
+        </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+        a.*, b. NAME AS gradename,
+        (
+            SELECT
+                count(1) AS count
+            FROM
+                m_market_coupon_user c
+            WHERE
+                c.member_id = a.id
+        ) AS coupcount,
+        (
+            CASE a.`status`
+            WHEN '0' THEN
+                '正常使用'
+            ELSE
+                '已注销'
+            END
+        ) status_alias
+        FROM
+            m_member a
+        LEFT JOIN m_member_grade b ON a.grade_id = b.id
+        WHERE
+            1 = 1
+        AND a.is_delete = 'N'
+        AND (
+        a.fellshion NOT IN (273, 274, 275, 276)
+        OR a.fellshion IS NULL
+       )
+        <include refid="sql_where"/>
+       <!-- <if test="null!=start">
+            limit ${start},${limit}
+        </if>-->
+    </select>
+
+
+    <!--查询关联的优惠券-->
+    <select id="queryMemberCouponList" parameterType="map" resultType="dto">
+        SELECT
+        a.*,b.username as member_name,c.`name` as coupon_name,d.`username` as rmember_name,f.val as statusval
+        FROM
+        m_market_coupon_user a
+        LEFT JOIN m_member b on b.id=a.member_id
+        LEFT JOIN m_market_coupon c on c.id=a.coupon_id
+        LEFT JOIN m_member d on d.id=a.rmember
+        LEFT JOIN sys_config f on f.id=a.`status`
+        WHERE 1=1
+        and a.is_delete='N'
+        <include refid="sql_where"/>
+        <if test="null!=start">
+            limit ${start},${limit}
+        </if>
+    </select>
+
+    <!--查询关联的优惠券-->
+    <select id="queryMemberCouponCount" parameterType="map" resultType="dto">
+        SELECT
+        COUNT(1) as total
+        FROM
+        m_market_coupon_user a
+        LEFT JOIN m_member b on b.id=a.member_id
+        LEFT JOIN m_market_coupon c on c.id=a.coupon_id
+        LEFT JOIN m_member d on d.id=a.rmember
+        LEFT JOIN sys_config f on f.id=a.`status`
+        WHERE 1=1
+        and a.is_delete='N'
+        <include refid="sql_where"/>
+        <!--<if test="null!=start">
+            limit ${start},${limit}
+        </if>-->
+    </select>
+
+
+
+    <select id="queryUserCouponById" parameterType="map" resultType="dto">
+        SELECT
+	    *
+        FROM
+        m_market_coupon AS b
+        LEFT JOIN m_market_coupon_user AS a on (a.coupon_id=b.id)
+        WHERE
+            a.member_id = #{member_id}
+        AND a.coupon_id = #{coupon_id}
+        AND a.`status`= 180
+    </select>
+
+
+    <!--查看用户优惠券信息-->
+    <select id="getUserCouponInfo" parameterType="map" resultType="dto">
+        SELECT
+            b.*, (
+            CASE b. STATUS
+                WHEN 1 THEN
+                    '失效'
+                WHEN '0' THEN
+                    '启用'
+                END
+            ) AS statusval,
+            (
+                CASE b.the_products
+                    WHEN 1 THEN
+                        '本商铺通用'
+                    WHEN '0' THEN
+                        '全平台'
+                    ELSE
+                        "指定商品"
+                    END
+                ) AS theProducts,
+            (
+                CASE b.type
+                    WHEN 1 THEN
+                        '代金券'
+                    WHEN 2 THEN
+                        '折扣券'
+                    WHEN 3 THEN
+                        '免单券'
+                    ELSE
+                        '其他'
+                    END
+                ) AS typeval,
+            b.type,
+            b.description,
+            (
+                CASE b.type
+                    WHEN 1 THEN
+                        CONCAT('订单满',b.full_money,'可用')
+                    WHEN 2 THEN
+                        CONCAT('最大折扣金额', b.max_money)
+                    WHEN 3 THEN
+                        CONCAT('免单购买份数',b.buy_number)
+                    ELSE
+                        ''
+                    END
+                ) AS show_desc,
+            IF (
+            b.the_products = 2,
+            (
+            SELECT
+            GROUP_CONCAT(mcu.pro_id SEPARATOR ',')
+            FROM
+            m_market_coupon_pro AS mcu
+            WHERE
+            mcu.coupon_id = b.id
+            ),
+            ''
+            )as product_ids,
+            (select count(1) from m_order as saa where saa.member_id=#{member_id}) as orderTotal,
+            if(now()>=a.starttime,0,1) as is_ok
+        FROM
+            m_market_coupon_user AS a
+            LEFT JOIN m_market_coupon AS b ON (a.coupon_id = b.id)
+          where a.member_id=#{member_id} and a.status=180
+          <!--未过期   -->
+          <if test="null!=type and type==1">
+        <!--and now()>=a.starttime and now()&lt;=a.endtime -->
+            and now()&lt;=a.endtime
+        </if>
+    <!--已过期   -->
+          <if test="null!=type and type==2">
+              and now()&gt;a.endtime
+          </if>
+    </select>
+</mapper>

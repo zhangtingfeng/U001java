@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/jfc-common/jfc-common.iml" filepath="$PROJECT_DIR$/jfc-common/jfc-common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/jfc-rest.iml" filepath="$PROJECT_DIR$/.idea/jfc-rest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jfc-shop/jfc-shop.iml" filepath="$PROJECT_DIR$/jfc-shop/jfc-shop.iml" />
+    </modules>
+  </component>
+</project>

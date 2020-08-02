@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="morderBuysend">
+    <!--条件 -->
+	<sql id="whereCondition">
+		<where>
+            <if test="id!=null and ''!=id">
+                  AND id=#{id}
+            </if>
+            <if test="order_id!=null and ''!=order_id">
+                  AND order_id=#{order_id}
+            </if>
+            <if test="send_order_id!=null and ''!=send_order_id">
+                AND send_order_id=#{send_order_id}
+            </if>
+            <if test="buysend_id!=null and ''!=buysend_id">
+                  AND buysend_id=#{buysend_id}
+            </if>
+            <if test="send_id!=null and ''!=send_id">
+                  AND send_id=#{send_id}
+            </if> 
+            <if test="buy_id!=null and ''!=buy_id">
+                  AND buy_id=#{buy_id}
+            </if> 
+            <if test="status!=null and ''!=status">
+                  AND status=#{status}
+            </if> 
+
+		</where>
+	</sql>
+    <!--数据插入 -->
+	<insert id="saveInfo" parameterType="map">
+		INSERT INTO m_order_buysend
+		(
+            <if test="order_id!=null and ''!=order_id">
+                order_id,
+            </if>
+            <if test="send_order_id!=null and ''!=send_order_id">
+                send_order_id,
+            </if>
+           <if test="buysend_id!=null and ''!=buysend_id">
+                buysend_id,
+            </if> 
+            <if test="send_id!=null and ''!=send_id">
+                send_id,
+            </if> 
+            <if test="buy_id!=null and ''!=buy_id">
+                buy_id,
+            </if> 
+            <if test="status!=null and ''!=status">
+                status,
+            </if>
+          create_time
+		)
+		VALUES
+		(
+            <if test="order_id!=null and ''!=order_id">
+                #{order_id},
+            </if>
+            <if test="send_order_id!=null and ''!=send_order_id">
+                #{send_order_id},
+            </if>
+            <if test="buysend_id!=null and ''!=buysend_id">
+                #{buysend_id},
+            </if> 
+            <if test="send_id!=null and ''!=send_id">
+                #{send_id},
+            </if> 
+            <if test="buy_id!=null and ''!=buy_id">
+                #{buy_id},
+            </if> 
+            <if test="status!=null and ''!=status">
+                #{status},
+            </if>
+            now()
+		)
+	</insert>
+	<update id="updateInfo" parameterType="map">
+		update m_order_buysend 
+		set 
+            status=#{status}
+        WHERE
+            id=#{id}
+	</update>
+
+    <select id="getGradeInfo" parameterType="map" resultType="dto">
+        SELECT grade_id,incode,(select count(1) from m_member where recommond_id = #{member_id}) as ms,
+        ((select count(distinct member_id) from m_order where status in (51,52,53) and member_id in (select id from m_member where recommond_id = #{member_id})
+        and id not in (select order_id from m_order_buysend where buy_id = #{member_id})
+        )) as o1,
+        ((select count(distinct buy_id) from m_order_buysend where status = 2 and buy_id in (select id from m_member where recommond_id = #{member_id}))) as o2
+        FROM m_member where id = #{member_id}
+    </select>
+
+    <select id="queryList" resultType="dto" parameterType="map">
+        select * from m_order_buysend
+        <include refid="whereCondition"/>
+    </select>
+
+    <select id="queryInfo" resultType="dto" parameterType="map">
+        select * from m_order_buysend
+        <include refid="whereCondition"/>
+        limit 1
+    </select>
+
+
+    <!--获取是否超时、已邀请数量、总数量、剩余数量-->
+    <select id="getBuysendOrderTotal" parameterType="map" resultType="dto">
+        SELECT
+            IF (
+                        TIMESTAMPDIFF(HOUR, a.create_time, now()) >= (
+                        SELECT
+                            s.val
+                        FROM
+                            sys_config AS s
+                        WHERE
+                            s.type = 'out_time'
+                    ),
+                        1,
+                        0
+                ) AS isOut,
+            (
+                SELECT
+                    count(1)
+                FROM
+                    m_order_buysend AS b
+                WHERE
+                    b.order_id = #{order_id}
+            ) as total,
+            (select br.sends from m_market_buysend_rule br where br.buysend_id=#{buysend_id}) as sendCount,
+            (select br.sends from m_market_buysend_rule br where br.buysend_id=#{buysend_id})-(
+                SELECT
+                    count(1)
+                FROM
+                    m_order_buysend AS b
+                WHERE
+                    b.order_id = #{order_id}
+            ) as surplusCount
+        FROM
+            m_order AS a
+        WHERE
+            a.id = #{order_id}
+    </select>
+
+    <update id="updateInfoBySendId" parameterType="map">
+        update m_order_buysend
+        set
+            status=#{status}
+        WHERE
+            send_order_id=#{send_order_id}
+    </update>
+
+    <!--查看剩余分享数-->
+    <select id="getSurplusTotal" resultType="dto" parameterType="map">
+        SELECT
+            (ifnull((select b.sends from m_market_buysend_rule as b where b.buysend_id=5),0)-count(1)) as surplusToal,
+            (select b.posterpic from m_market_buysend as b where b.id=5 limit 1) as posterpic
+        FROM
+            m_order_buysend AS a
+        where a.buysend_id=5 and a.order_id=#{order_id}
+    </select>
+</mapper>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="showroomShop">
+    <sql id="sql_where">
+        <if test="''!=shop_id and null!=shop_id">
+            and a.shop_id=#{shop_id}
+        </if>
+        <if test="''!=name and null!=name">
+            and mst.name=#{name}
+        </if>
+        <if test="''!=showroom_type_id and null!=showroom_type_id">
+            and a.showroom_type_id=#{showroom_type_id}
+        </if>
+        <if test="''!=id and null!=id">
+            and a.id=#{id}
+        </if>
+        <if test="''!=is_selected and null!=is_selected">
+            and a.is_selected=#{is_selected}
+        </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+        a.*, su1.pic AS pic,
+        su1.popularity,
+        su1.scope AS scope,
+        su1. NAME AS shopname,
+        su1.address AS shop_address,
+        su1.mobile AS shop_mobile,
+        su1.longitude AS longitude,
+        su1.latitude AS latitude,
+        su1.member_id AS member_id,
+        mst.`name` as showroom_type_name
+        FROM
+        m_showroom_shop a
+        LEFT JOIN m_shop su1 ON a.shop_id = su1.id
+        LEFT JOIN m_showroom_type mst on mst.id = a.showroom_type_id
+        WHERE 1 = 1
+        <include refid="sql_where"/>
+        order by a.id DESC
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        SELECT count(1) as total FROM m_showroom_shop a WHERE 1=1
+        <include refid="sql_where"/>
+    </select>
+
+    <!-- 查询单个商品详情信息 -->
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT
+        a.*,su1.scope as scope,su1.name as shopname,su1.address as shop_address,su1.mobile as shop_mobile,su1.longitude
+        as longitude,su1.latitude as latitude,su1.member_id as member_id
+        FROM
+        m_showroom_shop a
+        LEFT JOIN m_shop su1 ON a.shop_id = su1.id
+        WHERE
+        1 = 1
+        <include refid="sql_where"/>
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto" useGeneratedKeys="true" keyProperty="id">
+        insert into m_showroom_shop
+        (
+        <if test="''!=shop_id and null!=shop_id">
+            shop_id,
+        </if>
+        <if test="''!=showroom_type_id and null!=showroom_type_id">
+            showroom_type_id,
+        </if>
+        <if test="''!=is_selected and null!=is_selected">
+            is_selected,
+        </if>
+        create_time,
+        creator,
+        is_delete
+        )
+        values (
+        <if test="''!=shop_id and null!=shop_id">
+            #{shop_id},
+        </if>
+        <if test="''!=showroom_type_id and null!=showroom_type_id">
+            #{showroom_type_id},
+        </if>
+        <if test="''!=is_selected and null!=is_selected">
+            #{is_selected},
+        </if>
+        now(),
+        #{creator},
+        'N'
+        )
+    </insert>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="dto">
+		delete from m_showroom_shop  WHERE id = #{id}
+	</delete>
+
+
+    <!-- 插入 -->
+    <insert id="saveInfoBySelect" parameterType="dto">
+		INSERT INTO m_showroom_shop
+        (shop_id,showroom_type_id,is_selected)
+        SELECT
+        a.id,#{showroom_type_id},#{is_selected}
+        FROM
+        m_shop a
+        LEFT JOIN
+        m_showroom_shop b on a.id = b.shop_id  AND  b.showroom_type_id =  #{showroom_type_id}
+        WHERE a.id in (${ids}) and  b.id is NULL
+        GROUP BY a.id
+	</insert>
+</mapper>

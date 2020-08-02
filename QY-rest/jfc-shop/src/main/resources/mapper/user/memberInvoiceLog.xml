@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="memberInvoiceLog">
+
+
+    <sql id="sql_where">
+            <if test="''!=id and null!=id">
+                and a.id = #{id}
+            </if>
+            <if test="''!=order_id and null!=order_id">
+                and a.order_id = #{order_id}
+            </if>
+            <if test="''!=number and null!=username">
+                and m.username LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <if test="''!=number and null!=mobile">
+                and a.mobile LIKE CONCAT('%', #{mobile}, '%')
+            </if>
+            <if test="''!=number and null!=number">
+                and o.number LIKE CONCAT('%', #{number}, '%')
+            </if>
+            <if test="''!=tax_number and null!=tax_number">
+                and a.tax_number LIKE CONCAT('%', #{tax_number}, '%')
+            </if>
+            <if test="''!=startTime and null!=startTime">
+                DATE(a.create_time) &gt;= #{start_time}
+            </if>
+            <if test="''!=endTime and null!=endTime">
+                DATE(a.create_time) &lt;= #{end_time}
+            </if>
+
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+        a.*,m.username,o.number,c.val
+        FROM
+        m_member_invoice_log a
+        LEFT JOIN m_member m ON a.member_id = m.id
+        LEFT JOIN m_order o ON a.order_id = o.id
+        LEFT JOIN sys_config c ON  a.status = c.id
+        WHERE
+        1 = 1 AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY id
+    </select>
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT
+        a.*,m.username,o.number,c.val
+        FROM
+        m_member_invoice_log a
+        LEFT JOIN m_member m ON a.member_id = m.id
+        LEFT JOIN m_order o ON a.order_id = o.id
+        LEFT JOIN sys_config c ON  a.status = c.id
+        WHERE
+        1 = 1 AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY id
+    </select>
+
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+        insert into m_member_invoice_log
+        (member_id,order_id,types,name,tax_number,detail,money,address_id,status,create_time,creator,is_delete)
+        values
+
+        (#{member_id},#{order_id},#{types},#{name},#{tax_number},#{detail},#{money},#{address_id},#{status},NOW(),#{creator},'N')
+
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_member_invoice_log a
+        set
+        <if test="member_id">
+            a.member_id = #{member_id},
+        </if>
+
+        <if test="order_id">
+            a.order_id = #{order_id},
+        </if>
+        <if test="types">
+            a.types = #{types},
+        </if>
+        <if test="name">
+            a.name = #{name},
+        </if>
+        <if test="tax_number">
+            a.tax_number = #{tax_number},
+        </if>
+        <if test="detail">
+            a.detail = #{detail},
+        </if>
+        <if test="money">
+            a.money = #{money},
+        </if>
+        <if test="address_id">
+            a.address_id = #{address_id},
+        </if>
+        <if test="status">
+            a.status = #{status},
+        </if>
+        <if test="creator">
+            a.creator = #{creator},
+        </if>
+        <if test="updator">
+            a.updator = #{updator},
+        </if>
+        <if test="is_delete">
+            a.is_delete = #{is_delete},
+        </if>
+        a.update_time = now()
+
+
+        where a.id = #{id}
+
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+
+
+        DELETE FROM m_member_invoice_log WHERE id = #{id}
+
+    </delete>
+
+</mapper>

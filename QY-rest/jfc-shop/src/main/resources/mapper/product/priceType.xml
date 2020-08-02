@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"><!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="priceType">
+ 
+  <sql id="sql_where">
+      <if test="''!=name and null!=name">
+          and a.name = #{name}
+      </if>
+      <if test="''!=shop_id and null!=shop_id">
+          and e.shop_id = #{shop_id}
+      </if>
+     
+      <if test="''!=status and null!=status">
+          and a.status = #{status}
+      </if>
+      <if test="''!=id and null!=id">
+          and a.id = #{id}
+      </if>
+         
+    </sql>
+  
+  <!-- 查询 -->
+  <select id="queryList" parameterType="map" resultType="dto">
+    SELECT a.*,e.name as shopname
+      FROM m_price_type a
+      LEFT JOIN m_shop e ON a.shop_id = e.id
+      WHERE 1=1
+      <include refid="sql_where"/> 
+    ORDER BY id
+  </select>
+  
+  <select id="queryListCount" parameterType="map" resultType="java.lang.Integer">
+    SELECT count(1) as count FROM m_price_type a WHERE 1=1
+    <include refid="sql_where"/> 
+  </select>
+  
+  <!-- 查询 -->
+  <select id="getInfo" parameterType="map" resultType="dto">
+    SELECT a.*
+      FROM m_price_type a
+      WHERE 1=1
+      <include refid="sql_where"/> 
+    ORDER BY id
+  </select>
+  
+  <!-- 插入 -->
+  <insert id="saveInfo" parameterType="dto">
+    insert into m_price_type (name, start,shop_id,
+      end, status,  create_time,
+           creator,
+       update_time,
+      is_delete)
+    values (#{name}, #{start}, #{shop_id},
+      #{end}, #{status},now(),
+          #{creator},
+      now(),
+     'N')
+  </insert>
+  
+  <!-- 修改 -->
+  <update id="updateInfo" parameterType="dto">
+    update m_price_type
+    set name = #{name},
+      start = #{start},
+      end = #{end},
+      status = #{status}
+    where id = #{id}
+  </update>
+  
+  <!-- 删除 -->
+  <delete id="deleteInfo" parameterType="map">
+    DELETE FROM m_price_type WHERE id = #{id}
+  </delete>
+  
+</mapper>

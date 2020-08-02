@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="hotel">
+    <sql id="sql_where">
+        <if test="''!=title and null!=title">
+            and a.title LIKE CONCAT('%', #{title}, '%')
+        </if>
+        <if test="''!=id and null!=id">
+            and a.id = #{id}
+        </if>
+        <if test="''!=is_selected and null!=is_selected">
+            and a.is_selected = #{is_selected}
+        </if>
+        <if test="''!=type and null!=type">
+            and a.type = #{type}
+        </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+        a.*
+        FROM
+        m_hotel a
+        where 1 = 1
+        and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        <if test="''!=fraction and null!=fraction">
+            order by a.fraction desc
+        </if>
+        <if test="''!=longitude and null!=longitude">
+           order by round((ROUND(
+            6378.138 * 2 * ASIN(
+            SQRT(
+            POW(
+            SIN(
+            (
+            #{latitude} * PI() / 180 - latitude * PI() / 180
+            ) / 2
+            ),
+            2
+            ) + COS(#{latitude} * PI() / 180) * COS(latitude * PI() / 180) * POW(
+            SIN(
+            (
+            #{longitude} * PI() / 180 - longitude * PI() / 180
+            ) / 2
+            ),
+            2
+            )
+            )
+            ) * 1000)/1000),2) desc
+        </if>
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        select count(1) as total
+        from m_hotel a
+        where 1=1 and a.is_delete='N'
+        <include refid="sql_where"/>
+    </select>
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT
+        a.*
+        FROM
+        m_hotel a
+        WHERE 1=1
+        and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 0,1
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+    insert into m_hotel (title, type,
+      fraction, pic, is_selected,longitude,latitude,create_time,creator,is_delete,carousel,description)
+    values (#{title}, #{type},
+      #{fraction}, #{pic}, #{is_selected},#{longitude},#{latitude},now(),#{creator},'N',#{carousel},#{description})
+  </insert>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+    update m_hotel
+    set
+        <if test="title!=null and ''!=title">
+            title = #{title},
+        </if>
+        <if test="number!=type and ''!=type">
+            type = #{type},
+        </if>
+        <if test="fraction!=null and ''!=fraction">
+            fraction = #{fraction},
+        </if>
+        <if test="pic!=null and ''!=pic">
+            pic = #{pic},
+        </if>
+        <if test="is_selected!=null and ''!=is_selected">
+            is_selected = #{is_selected},
+        </if>
+        <if test="longitude!=null and ''!=longitude">
+            longitude = #{longitude},
+        </if>
+        <if test="latitude!=null and ''!=latitude">
+            latitude = #{latitude},
+        </if>
+        <if test="carousel!=null and ''!=carousel">
+            carousel = #{carousel},
+        </if>
+        <if test="description!=null and ''!=description">
+            description = #{description},
+        </if>
+        update_time = now(),
+        updator = #{updator}
+    where id = #{id}
+  </update>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+    update m_hotel set is_delete = "Y" WHERE id = #{id}
+  </delete>
+</mapper>

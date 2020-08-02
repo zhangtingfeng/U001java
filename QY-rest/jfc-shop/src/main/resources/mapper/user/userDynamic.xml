@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="userDynamic">
+
+    <sql id="sql_where">
+        <if test="''!=member_id and null!=member_id">
+            and  a.member_id=#{member_id}
+        </if>
+        <if test="''!=id and null!=id">
+            and  a.id=#{id}
+        </if>
+        <if test="''!=type and null!=type">
+            and  a.type=#{type}
+        </if>
+        <if test="''!=status and null!=status">
+            and  a.status=#{status}
+        </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+        a.*,su1.id as shopId,su1.pic as pic,su1.scope as scope,su1.name as shopname,su1.address as shop_address,su1.mobile as shop_mobile,su1.longitude as longitude,su1.latitude as latitude
+        FROM
+        user_dynamic a
+        LEFT JOIN m_shop su1 ON a.member_id = su1.member_id
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        order by a.create_time desc
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        SELECT count(1) as total FROM user_dynamic a WHERE 1=1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+    </select>
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT
+        a.*,su1.scope as scope,su1.name as shopname,su1.address as shop_address,su1.mobile as shop_mobile,su1.longitude as longitude,su1.latitude as latitude
+        FROM
+        user_dynamic a
+        LEFT JOIN m_shop su1 ON a.member_id = su1.member_id
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        LIMIT 1
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+        INSERT INTO user_dynamic
+        (
+        <if test="member_id!=null and ''!=member_id">
+            member_id,
+        </if>
+        <if test="content!=null and ''!=content">
+            content,
+        </if>
+        <if test="good_num!=null and ''!=good_num">
+            good_num,
+        </if>
+        <if test="browse_num!=null and ''!=browse_num">
+            browse_num,
+        </if>
+        <if test="picture!=null and ''!=picture">
+            picture,
+        </if>
+        <if test="type!=null and ''!=type">
+            type,
+        </if>
+        <if test="status!=null and ''!=status">
+            status,
+        </if>
+        create_time
+        <if test="creator!=null and ''!=creator">
+            ,creator
+        </if>
+        <if test="fileid!=null and ''!=fileid">
+            ,fileid
+        </if>
+        <if test="task_id!=null and ''!=task_id">
+            ,task_id
+        </if>
+        ,is_delete
+        )
+        VALUES
+        (
+        <if test="member_id!=null and ''!=member_id">
+            #{member_id},
+        </if>
+        <if test="content!=null and ''!=content">
+            #{content},
+        </if>
+        <if test="good_num!=null and ''!=good_num">
+            #{good_num},
+        </if>
+        <if test="browse_num!=null and ''!=browse_num">
+            #{browse_num},
+        </if>
+        <if test="picture!=null and ''!=picture">
+            #{picture},
+        </if>
+        <if test="type!=null and ''!=type">
+            #{type},
+        </if>
+        <if test="status!=null and ''!=status">
+            #{status},
+        </if>
+        now()
+        <if test="creator!=null and ''!=creator">
+            ,#{creator}
+        </if>
+        <if test="fileid!=null and ''!=fileid">
+            ,#{fileid}
+        </if>
+        <if test="task_id!=null and ''!=task_id">
+            ,#{task_id}
+        </if>
+        ,'N')
+        <selectKey resultType="java.lang.Long" keyProperty="id">
+            SELECT LAST_INSERT_ID() as id
+        </selectKey>
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update user_dynamic a
+        set
+        <if test="''!=content and null!=content">
+            a.content=#{content},
+        </if>
+        <if test="''!=good_num and null!=good_num">
+            a.good_num=a.good_num+1,
+        </if>
+        <if test="''!=browse_num and null!=browse_num">
+            a.browse_num=a.browse_num+1,
+        </if>
+        <if test="''!=picture and null!=picture">
+            a.picture=#{picture},
+        </if>
+        <if test="''!=type and null!=type">
+            a.type=#{type},
+        </if>
+        <if test="''!=status and null!=status">
+            a.status=#{status},
+        </if>
+        <if test="''!=fileid and null!=fileid">
+            a.fileid=#{fileid},
+        </if>
+        <if test="''!=task_id and null!=task_id">
+            a.task_id=#{task_id},
+        </if>
+        a.update_time = now()
+        where id = #{id}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        update user_dynamic set is_delete = 'Y' where  id = #{id}
+    </delete>
+
+</mapper>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="cmnSearchs">
+    <sql id="sql_where">
+            <if test="''!=id and null!=id">
+                and a.id = #{id}
+            </if>
+            <if test="''!=name and null!=name">
+                and a.name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="''!=ip and null!=ip">
+                and  a.ip LIKE CONCAT('%', #{ip}, '%')
+            </if>
+            <if test="''!=startTime and null!=startTime">
+                and a.create_time &gt;= #{startTime}
+            </if>
+            <if test="''!=endTime and null!=endTime">
+                and  a.create_time &lt;= #{endTime}
+            </if>
+        
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT a.*
+        FROM m_cmn_searchs a
+        WHERE 1=1
+        <include refid="sql_where"/>
+        ORDER BY id DESC
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+        insert into m_cmn_searchs
+         (name, ip,create_time)
+        values
+         (#{name}, #{ip},NOW())
+    </insert>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        DELETE FROM m_cmn_searchs WHERE create_time &lt;= #{days}
+    </delete>
+
+    <!-- 查询 -->
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT a.*
+        FROM m_cmn_searchs a
+        WHERE 1=1
+        <include refid="sql_where"/>
+        limit 0,1
+    </select>
+
+    <select id="queryTotal" parameterType="map" resultType="dto">
+        SELECT
+        COUNT(a.id) AS total
+        FROM
+        m_cmn_searchs a where 1=1
+        <include refid="sql_where"/>
+    </select>
+
+    <!-- 搜索次数较多的 -->
+    <select id="querySearchsLog" parameterType="map" resultType="dto">
+        SELECT name, COUNT(1) AS number
+        FROM m_cmn_searchs
+        GROUP BY name
+        ORDER BY number DESC
+        LIMIT 6
+    </select>
+</mapper>

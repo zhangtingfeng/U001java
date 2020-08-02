@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="shopConfigBeautyMakeupM">
+
+    <sql id="sql_where">
+
+        <if test="''!=m_shop_config_beauty_makeup_m_template_id and null!=m_shop_config_beauty_makeup_m_template_id">
+            a.m_shop_config_beauty_makeup_m_template_id = #{m_shop_config_beauty_makeup_m_template_id}
+        </if>
+        
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        select a.*
+        from m_shop_config_beauty_makeup_m a
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY id desc
+    </select>
+
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        select a.*
+        from m_shop_config_beauty_makeup_m a
+        WHERE
+        1 = 1 AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        LIMIT 1
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+    insert into m_shop_config_beauty_makeup_m
+    (m_shop_config_template_id, market_coupon_id,product_id,create_time,creator,is_delete)
+    values (#{m_shop_config_template_id}, #{market_coupon_id},#{product_id},now(),#{creator},'N')
+        ON DUPLICATE KEY UPDATE
+        market_coupon_id=VALUES(market_coupon_id),product_id=VALUES(product_id),update_time=now()
+        <selectKey resultType="string" keyProperty="id">
+            select last_insert_id() as ID from m_shop_config_beauty_makeup_m limit 1
+        </selectKey>
+  </insert>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_shop_config_beauty_makeup_m
+        set
+
+        <if test="name">
+            name = #{name},
+        </if>
+        <if test="address">
+            address = #{address},
+        </if>
+        <if test="type">
+            type = #{type},
+        </if>
+        <if test="license_number">
+            license_number = #{license_number},
+        </if>
+        <if test="legal_name">
+            legal_name = #{legal_name},
+        </if>
+        <if test="legal_number">
+            legal_number = #{legal_number},
+        </if>
+        <if test="register_capital">
+            register_capital = #{register_capital},
+        </if>
+        <if test="scope">
+            scope = #{scope},
+        </if>
+        <if test="account_name">
+            account_name = #{account_name},
+        </if>
+        <if test="account_number">
+            account_number = #{account_number},
+        </if>
+        <if test="account_address">
+            account_address = #{account_address},
+        </if>
+        <if test="bail_flag">
+            bail_flag = #{bail_flag},
+        </if>
+        <if test="bail">
+            bail = #{bail},
+        </if>
+        <if test="status">
+            status = #{status},
+        </if>
+
+        update_time = now(),
+        updator = #{updator}
+        where id = #{id}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+    update m_shop_config_beauty_makeup_m set is_delete = 'Y' where  id = #{id}
+  </delete>
+
+</mapper>

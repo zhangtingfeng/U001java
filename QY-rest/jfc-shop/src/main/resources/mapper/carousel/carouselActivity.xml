@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"><!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="m_carousel_activity">
+    <sql id="sql_where">
+
+        <if test="''!=shopname and null!=shopname">
+            and b.name LIKE CONCAT('%', #{shopname}, '%')
+        </if>
+        <if test="''!=status and null!=status">
+            and a.status = #{status}
+        </if>
+        <if test="''!=bizno and null!=bizno">
+            and a.bizno  LIKE CONCAT('%', #{bizno}, '%')
+        </if>
+        <if test="''!=start_time and null!=start_time">
+            and   DATE(a.create_time) &gt;= #{start_time}
+        </if>
+        <if test="''!=end_time and null!=end_time">
+            and   DATE(a.create_time) &lt;= #{end_time}
+        </if>
+        <if test="''!=id and null!=id">
+            and a.id= #{id}
+        </if>
+
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT a.*
+        FROM m_carousel_activity a
+        WHERE 1=1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY sort desc,id
+    </select>
+
+    <!-- 查询 -->
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT a.*
+        FROM m_carousel_activity a
+        WHERE 1=1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 0,1
+    </select>
+
+    <!--&lt;!&ndash; 查询 &ndash;&gt;
+    <select id="getInfo1" parameterType="map" resultType="dto">
+        SELECT a.*
+        FROM m_cmn_image a
+        WHERE 1=1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 0,1
+    </select>-->
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+        insert into m_carousel_activity (bizno,title,
+          describes,author,status,
+          create_time,creator, is_delete,purl,jumpType
+          )
+        values (#{bizno},#{title},
+          #{describes},#{author},#{status},
+          now(),#{creator},'N',#{purl},#{jumpType}
+          )
+        <selectKey resultType="java.lang.Long" keyProperty="id">
+            SELECT LAST_INSERT_ID() as id
+        </selectKey>
+    </insert>
+
+    <!-- 插入 图片-->
+    <insert id="saveImageInfo" parameterType="dto">
+        insert into m_cmn_image (bizid, pic,
+        type, create_time,creator,
+         is_delete,
+            jurl
+        )
+        values (#{bizid}, #{pic},
+        #{type}, now(), #{creator},'N',
+        #{jurl}
+        )
+        <selectKey resultType="java.lang.Long" keyProperty="id">
+        SELECT LAST_INSERT_ID() as id
+       </selectKey>
+    </insert>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        UPDATE m_carousel_activity set is_delete = 'Y' WHERE id = #{id}
+    </delete>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_carousel_activity
+        set
+        <if test="bizno">
+            bizno = #{bizno},
+        </if>
+        <if test="title">
+            title = #{title},
+        </if>
+        <if test="describes">
+            describes = #{describes},
+        </if>
+        <if test="author">
+            author = #{author},
+        </if>
+        <if test="status">
+            status = #{status},
+        </if>
+        <if test="updator">
+            updator = #{updator},
+        </if>
+        <if test="jumpType">
+            jumpType = #{jumpType},
+        </if>
+        <if test="purl">
+            purl = #{purl},
+        </if>
+        update_time = now()
+        where id = #{id}
+    </update>
+
+</mapper>

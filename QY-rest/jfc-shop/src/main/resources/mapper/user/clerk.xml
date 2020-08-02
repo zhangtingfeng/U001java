@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="clerk">
+    <sql id="sql_where">
+        <if test="''!=id and null!=id">
+            and a.id = #{id}
+        </if>
+        <if test="''!=username and null!=username">
+            and a.username LIKE CONCAT('%', #{username}, '%')
+        </if>
+        <if test="''!=telephone and null!=telephone">
+            and a.telephone LIKE CONCAT(#{telephone}, '%')
+        </if>
+        <if test="''!=password and null!=password">
+            and a.password = MD5(#{password})
+        </if>
+        <if test="''!=status and null!=status">
+            and  a.status = #{status}
+        </if>
+        <if test="''!=wopenid and null!=wopenid">
+            and  a.wopenid = #{wopenid}
+        </if>
+        <if test="''!=hyname and null!=hyname">
+            and  b.name = #{hyname}
+        </if>
+        <if test="''!=integration and null!=integration">
+            and  DATE(a.integration) &gt;= #{integration}
+        </if>
+        <if test="''!=integration1 and null!=integration1">
+            and  DATE(a.integration) &lt;= #{integration1}
+        </if>
+        <if test="''!=zopenid and null!=zopenid">
+            and  a.zopenid = #{zopenid}
+        </if>
+        <if test="''!=fellshion and null!=fellshion">
+            and  a.fellshion = #{fellshion}
+        </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+        a.*,
+        b. NAME AS gradename,
+        (SELECT count(1) as count FROM m_market_coupon_user c WHERE c.member_id = a.id) as coupcount,
+        (
+        CASE a.`status`
+        WHEN '0' THEN
+        '正常使用'
+        ELSE
+        '已注销'
+        END
+        ) status_alias
+        FROM
+        m_member a
+        LEFT JOIN m_member_grade b ON a.grade_id = b.id
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N'
+        AND a.fellshion = 274
+        <include refid="sql_where"/>
+        ORDER BY id desc
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+
+    <!-- 未使用优惠券 -->
+    <select id="unusedCoupons" parameterType="map" resultType="dto">
+        SELECT
+        b.id,
+        b.member_id,
+        b.number,
+        b.money,
+        b.endtime,
+        b.remains,
+        b.`status`
+        FROM
+        m_member a,
+        m_coupon_user b
+        WHERE
+        a.id = b.member_id
+        AND remains > 0
+        AND b.endtime > NOW()
+        AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+    </select>
+
+    <!-- 过期优惠券 -->
+    <select id="expiredCoupon" parameterType="map" resultType="dto">
+        SELECT
+        b.id,
+        b.member_id,
+        b.number,
+        b.money,
+        b.endtime,
+        b.remains,
+        b.`status`
+        FROM
+        m_member a,
+        m_coupon_user b
+        WHERE
+        a.id = b.member_id
+        AND remains > 0
+        <![CDATA[
+		AND b.endtime < NOW()
+					]]>
+        <include refid="sql_where"/>
+    </select>
+
+    <!-- 已使用优惠券 -->
+    <select id="usedCoupons" parameterType="map" resultType="dto">
+        SELECT
+        b.id,
+        b.memberid,
+        b.usetime,
+        c.money,
+        c.number,
+        c.endtime,
+        c.remains,
+        b.`status`
+        FROM
+        m_member a,
+        m_coupon_uselog b,
+        m_coupon_user c
+        WHERE
+        a.id = b.memberid
+        AND b.couponid = c.id
+        <include refid="sql_where"/>
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        SELECT
+        count(1) as total
+        FROM m_member a
+        WHERE 1=1
+        AND a.is_delete = 'N'
+        AND a.fellshion = 274
+        <include refid="sql_where"/>
+    </select>
+
+    <!-- 查询 -->
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT a.*, b. NAME AS gradename,
+        (SELECT count(1) as count FROM m_market_coupon_user c
+        LEFT JOIN m_market_coupon m ON c.coupon_id = m.id
+        WHERE c.member_id = a.id AND c.is_delete = 'N' AND c.`status` =180 AND CURDATE() >= DATE(m.starttime) AND m.endtime >= CURDATE()) as coupcount,
+        (SELECT count(1) FROM m_member_collect cc WHERE  cc.member_id = a.id) as pronum,
+        (SELECT SUM(cc.product_num) FROM m_member_cart cc WHERE  cc.member_id = a.id) as cartnum,
+        (CASE a.`status` WHEN '0' THEN '正常使用' ELSE '已注销' END ) status_alias
+        FROM m_member a
+        LEFT JOIN m_member_grade b ON a.grade_id = b.id
+        WHERE 1 = 1 AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 1
+    </select>
+
+    <!-- 查询 -->
+    <select id="getPayPwdInfo" parameterType="map" resultType="dto">
+		SELECT a.*
+		FROM m_member a
+		WHERE 1 = 1 AND a.is_delete = 'N'
+		AND a.id = #{id} AND a.pay_password = MD5(#{paypwd})
+	</select>
+
+    <!-- 查询 -->
+    <select id="loginInfo" parameterType="map" resultType="dto">
+		SELECT
+		a.*,
+		 b. NAME AS gradename,
+		(SELECT count(1) as count FROM m_market_coupon_user c
+        LEFT JOIN m_market_coupon m ON c.coupon_id = m.id
+        WHERE c.member_id = a.id AND c.is_delete = 'N' AND c.`status` =180 AND CURDATE() >= DATE(m.starttime) AND m.endtime >= CURDATE()) as coupcount,
+        (SELECT count(1) FROM m_member_collect cc WHERE  cc.member_id = a.id) as pronum,
+        (SELECT SUM(cc.product_num) FROM m_member_cart cc WHERE  cc.member_id = a.id) as cartnum,
+		(
+		CASE a.`status`
+		WHEN '0' THEN
+		'正常使用'
+		ELSE
+		'已注销'
+		END
+		) status_alias
+		FROM
+		m_member a
+		LEFT JOIN m_member_grade b ON a.grade_id = b.id
+		WHERE
+		1 = 1
+		AND a.is_delete = 'N' AND  a.status = '0'
+		AND a.username = #{username} AND a.password = MD5(#{password})
+		limit 0,1
+	</select>
+
+
+    <!-- 查询 -->
+    <select id="msgLoginInfo" parameterType="map" resultType="dto">
+		SELECT
+		a.*,
+		 b. NAME AS gradename,
+		 (SELECT count(1) as count FROM m_market_coupon_user c WHERE  c.member_id = a.id) as coupcount,
+		(
+		CASE a.`status`
+		WHEN '0' THEN
+		'正常使用'
+		ELSE
+		'已注销'
+		END
+		) status_alias
+		FROM
+		m_member a
+		LEFT JOIN m_member_grade b ON a.grade_id = b.id
+		WHERE
+		1 = 1
+		AND a.is_delete = 'N'
+		AND a.username = #{username}
+		limit 0,1
+	</select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto" useGeneratedKeys="true" keyProperty="id">
+        insert into m_member (
+        recommond_id,
+        wopenid,
+        zopenid,
+        username,
+        password,
+        nickname,
+        telephone,
+        pic,
+        register_type,
+        register_time,
+        remainder,
+        grade_id,
+        integration, status,company,
+        create_time,
+        creator,
+        update_time,
+        is_delete,
+        incode)
+        values (
+        #{recommond_id},
+        #{wopenid},
+        #{zopenid},
+        #{username},
+        MD5(#{password}),
+        #{nickname},
+        #{telephone},
+        #{pic},
+        #{register_type},
+        now(),
+        0,
+        0,
+        0,
+        0,'斟茶记',
+        now(),
+        #{creator},
+        now(),
+        'N',
+        #{incode})
+        <selectKey resultType="java.lang.Long" keyProperty="id">
+            SELECT LAST_INSERT_ID() as id
+        </selectKey>
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_member
+        set
+        <if test="null!=username and ''!=username">
+            username = #{username},
+        </if>
+        <if test="null!=password and ''!=password">
+            password = MD5(#{password}),
+        </if>
+        <if test="null!=pay_password and ''!=pay_password">
+            pay_password = MD5(#{pay_password}),
+        </if>
+        <if test="null!=nickname and ''!=nickname">
+            nickname = #{nickname},
+        </if>
+        <if test="null!=telephone and ''!=telephone">
+            telephone = #{telephone},
+        </if>
+        <if test="null!=pic and ''!=pic">
+            pic = #{pic},
+        </if>
+        <if test="null!=sex and ''!=sex">
+            sex = #{sex},
+        </if>
+        <if test="null!=birth_date and ''!=birth_date">
+            birth_date = #{birth_date},
+        </if>
+        <if test="null!=register_type and ''!=register_type">
+            register_type = #{register_type},
+        </if>
+        <if test="null!=remainder and ''!=remainder">
+            remainder = #{remainder},
+        </if>
+        <if test="null!=grade_id and ''!=grade_id">
+            grade_id = #{grade_id},
+        </if>
+        <if test="null!=integration and ''!=integration">
+            integration = #{integration},
+        </if>
+        <if test="null!=status and ''!=status">
+            status = #{status},
+        </if>
+        <if test="null!=update_time and ''!=update_time">
+            update_time = #{update_time},
+        </if>
+        <if test="null!=company and ''!=company">
+            company = #{company},
+        </if>
+        <if test="null!=fellshion and ''!=fellshion">
+            fellshion = #{fellshion},
+        </if>
+        <if test="null!=updator and ''!=updator">
+            updator = #{updator},
+        </if>
+        <if test="null!=wopenid and ''!=wopenid">
+            wopenid = #{wopenid},
+        </if>
+        <if test="null!=zopenid and ''!=zopenid">
+            zopenid = #{zopenid},
+        </if>
+        <if test="null!=incode and ''!=incode">
+            incode = #{incode},
+        </if>
+        update_time = now()
+        where id = #{id}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        UPDATE m_member m
+        SET m.is_delete = 'Y'
+        WHERE
+            m.id = #{id}
+    </delete>
+
+    <!-- 修改 -->
+    <update id="updateUserIntegration" parameterType="dto">
+        update m_member a
+        set
+        a.integration =a.integration + #{integration},
+        a.update_time = now()
+        where a.id = #{id}
+    </update>
+
+    <!--查询用户推荐下已下单用户的数量-->
+    <select id="getUserPayOrderNum" resultType="dto" parameterType="map">
+        select count(1) as total from (
+              SELECT
+                  b.*
+              FROM
+                  m_order AS b
+              WHERE
+                      b.member_id IN (
+                      SELECT
+                          a.id
+                      FROM
+                          m_member AS a
+                      WHERE
+                          a.recommond_id = #{member_id}
+                  )
+              GROUP BY b.member_id
+          ) as alls
+    </select>
+
+
+</mapper>

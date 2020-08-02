@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="m_market_package_coupon">
+
+    <sql id="sql_where">
+        <if test="''!=number1 and null!=number1">
+            and a.number LIKE CONCAT('%', #{number1}, '%')
+        </if>
+        <if test="''!=startDate and null!=startDate">
+            and  DATE(a.create_time) &gt;= #{startDate}
+        </if>
+        <if test="''!=endDate and null!=endDate">
+            and  DATE(a.create_time) &gt;= #{startDate}
+        </if>
+        <if test="''!=startMoney and null!=startMoney">
+            and a.money &gt;= #{startMoney}
+        </if>
+        <if test="''!=endMoney and null!=endMoney">
+            and  a.money  &lt;= #{endMoney}
+        </if>
+        <if test="''!=startFullMoney and null!=startFullMoney">
+            and a.full_money &gt;= #{startFullMoney}
+        </if>
+        <if test="''!=endFullMoney and null!=endFullMoney">
+            and a.full_money  &lt;= #{endFullMoney}
+        </if>
+        <if test="''!=startNums and null!=startNums">
+            and  a.full_nums &gt;= #{startNums}
+        </if>
+        <if test="''!=endNums and null!=endNums">
+            and a.full_nums &gt;= #{endNums}
+        </if>
+        <if test="''!=endNums and null!=endNums">
+            and  a.full_nums  &lt;= #{endNums}
+        </if>
+        <if test="''!=shopname and null!=shopname">
+            and b.name LIKE CONCAT('%', #{shopname}, '%')
+        </if>
+        <if test="''!=shop_id and null!=shop_id">
+            and a.shop_id = #{shop_id}
+        </if>
+        <if test="''!=id and null!=id">
+            and a.id = #{id}
+        </if>
+
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT a.*,b.`name` as shopname,
+        (case a.status when 1 then '失效' when '0' then '启用' END) as statusval,
+        (case a.the_products when 1 then '本商铺通用' when '0' then '全平台'  else "指定商品" END) as theProducts,
+        s.username as creatorname,s1.username as updatorname
+        FROM m_market_coupon a
+        LEFT JOIN m_shop b ON a.shop_id = b.id
+        LEFT JOIN sys_user s ON a.creator = s.id
+        LEFT JOIN sys_user s1 ON a.updator = s1.id
+        WHERE 1=1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        <if test="''!=flag and null!=flag">
+          and ( 1 = #{flag} or a.shop_id = #{flag})
+        </if>
+        ORDER BY a.id
+    </select>
+
+    <select id="queryUseList" parameterType="map" resultType="dto">
+        SELECT * FROM m_market_coupon a
+        where 1=1 and a.the_products in (0,1,#{product_id})
+        and CURDATE() >= DATE(a.starttime)
+        and a.endtime >= CURDATE()
+        and a.is_delete = 'N'
+    </select>
+
+    <!-- 查询 -->
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT a.*,b.`name` as shopname,
+        (case a.status when 1 then '生效' when '0' then '失效' END) as statusval,
+        s.username as creatorname,s1.username as updatorname
+        FROM m_market_coupon a
+        LEFT JOIN m_shop b ON a.shop_id = b.id
+        LEFT JOIN sys_user s ON a.creator = s.id
+        LEFT JOIN sys_user s1 ON a.updator = s1.id
+        WHERE 1=1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 0,1
+    </select>
+
+    <!-- 查询购物车 -->
+    <select id="queryCartList" parameterType="map" resultType="dto">
+        SELECT
+        a.*,b.*
+        FROM
+        m_member_cart a
+        left join m_product b on a.product_id = b.id
+        WHERE
+        1 = 1
+        and FIND_IN_SET(a.id,#{ids})
+        ORDER BY a.id
+    </select>
+    <!--#{the_products},-->
+    <!--#{the_products},-->
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+       
+          insert into m_market_package_coupon (package_id, coupon_id
+		  )
+        values (#{package_id}, #{coupon_id})
+    </insert>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        UPDATE m_market_coupon set is_delete = 'Y' WHERE id = #{id}
+    </delete>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_market_package_coupon a
+        set
+        <if test="package_id">
+            a.package_id = #{package_id}
+        </if>
+        where coupon_id = #{coupon_id}
+    </update>
+
+
+    <!-- 修改 -->
+    <update id="updateInfoStores" parameterType="dto">
+        update m_market_coupon a
+        set
+        <if test="stores">
+            a.stores = #{stores},
+        </if>
+        <if test="updator">
+            a.updator = #{updator},
+        </if>
+        update_time = now()
+        where id = #{id}
+    </update>
+
+    <!--卡包是否包含免单券-->
+    <select id="getCouponUserPackageNo" resultType="dto" parameterType="map">
+        SELECT
+            *
+        FROM
+            m_market_package_coupon AS a
+            LEFT JOIN m_market_coupon as b on(a.coupon_id=b.id)
+        where a.package_id=#{package_id} and b.type=3
+    </select>
+
+    <!--卡包是否包含免单券-->
+    <select id="getCouponUserPackageInfoAll" resultType="dto" parameterType="map">
+        SELECT
+            a.*
+        FROM
+            m_market_package_coupon AS a
+        where a.package_id=#{package_id}
+    </select>
+
+    <!--卡包是否包含免单券-->
+    <select id="getCouponUserPackageInfo" resultType="dto" parameterType="map">
+        SELECT
+            a.*
+        FROM
+            m_market_package_coupon AS a
+                LEFT JOIN m_market_coupon as b on(a.coupon_id=b.id)
+        where a.package_id=#{package_id} and b.type!=3
+    </select>
+
+    <!--查询用户是否已经领取礼包-->
+    <select id="getUserPackInfo" parameterType="map" resultType="dto">
+        select * from m_market_package_user where member_id=#{member_id} and package_id=#{package_id}
+    </select>
+
+    <insert id="saveInfoUser" parameterType="dto">
+        insert into m_market_package_user (package_id, member_id
+        )
+        values (#{package_id}, #{member_id})
+    </insert>
+
+    <!--查询当前礼包信息-->
+    <select id="getCouponPackInfos" resultType="dto" parameterType="map">
+      select * from m_market_package where id=#{id} and is_delete='N'
+    </select>
+
+    <!-- 修改 -->
+    <update id="updateInfoUser" parameterType="dto">
+        update m_market_package a
+        set
+        a.stock =a.stock-1,
+        update_time = now()
+        where id = #{package_id}
+    </update>
+</mapper>

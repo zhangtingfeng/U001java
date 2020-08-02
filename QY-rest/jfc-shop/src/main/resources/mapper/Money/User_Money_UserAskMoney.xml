@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="User_Money_UserAskMoney">
+    <sql id="sql_where">
+        <if test="''!=memberName and null!=memberName">
+            and b.username LIKE CONCAT('%', #{memberName}, '%')
+        </if>
+
+        <if test="''!=number and null!=number">
+            and a.number LIKE CONCAT('%', #{number}, '%')
+        </if>
+
+
+        <if test="''!=good_num and null!=good_num">
+            and a.good_num = #{good_num}
+        </if>
+        <if test="''!=type and null!=type">
+            and a.type = #{type}
+        </if>
+        <if test="''!=shop_id and null!=shop_id">
+            and  su1.id=#{shop_id}
+        </if>
+        <if test="''!=status and null!=status">
+            and  a.status=#{status}
+        </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+        a.*,b.username,b.phone
+        FROM
+        user_account_extract a
+        left join user b on a.user_id=b.user_id
+        where 1 = 1
+        <include refid="sql_where"/>
+        ORDER BY a.id DESC
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        select count(1) as total
+        from user_account_extract a
+        left join user b on a.user_id=b.user_id
+        where 1=1
+        <include refid="sql_where"/>
+    </select>
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT
+        a.*
+        FROM
+        user_dynamic a
+        WHERE 1=1
+        and a.deleted = 1
+        <include refid="sql_where"/>
+        limit 0,1
+    </select>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+    update dynamic set deleted = 0 WHERE id = #{id}
+  </delete>
+
+
+    <!-- 更新状态 -->
+    <update id="updateStatus" parameterType="map">
+        update user_account_extract a
+        set a.status = #{status},
+        success_time = now(),modifytime = now(),update_by ='提现审核'
+        WHERE a.id in (${ids})
+        <if test="oldStatus!=null and ''!=oldStatus">
+            and a.status = #{oldStatus}
+        </if>
+    </update>
+</mapper>

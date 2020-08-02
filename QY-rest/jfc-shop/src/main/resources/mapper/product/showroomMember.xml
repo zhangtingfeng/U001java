@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="showroomMember">
+	<sql id="sql_where">
+		<if test="''!=member_id and null!=member_id">
+			and a.member_id=#{member_id}
+		</if>
+		<if test="''!=mobile and null!=mobile">
+			and a.mobile=#{mobile}
+		</if>
+		<if test="''!=id and null!=id">
+			and a.id=#{id}
+		</if>
+		<if test="''!=code and null!=code">
+			and a.code=#{code}
+		</if>
+	</sql>
+
+	<!-- 查询 -->
+	<select id="queryList" parameterType="map" resultType="dto">
+		SELECT
+		a.*
+		FROM
+		m_showroom_member a
+		WHERE 1 = 1
+		<include refid="sql_where" />
+		<if test="null!=start">
+			limit ${start},${end}
+		</if>
+	</select>
+
+	<select id="queryListCount" parameterType="map" resultType="dto">
+		SELECT count(1) as total FROM m_showroom_member a WHERE 1=1
+		<include refid="sql_where" />
+	</select>
+
+	<!-- 查询单个商品详情信息 -->
+	<select id="getInfo" parameterType="map" resultType="dto">
+		SELECT
+		a.*
+		FROM
+		m_showroom_member a
+		WHERE
+		1 = 1
+		<include refid="sql_where" />
+	</select>
+
+	<!-- 插入 -->
+	<insert id="saveInfo" parameterType="dto" useGeneratedKeys="true" keyProperty="id">
+		insert into m_showroom_member
+		(
+		 code,
+		<if test="''!=member_id and null!=member_id">
+			member_id,
+		</if>
+		<if test="''!=mobile and null!=mobile">
+			mobile,
+		</if>
+		<if test="''!=name and null!=name">
+			name,
+		</if>
+		<if test="''!=company and null!=company">
+			company,
+		</if>
+		<if test="''!=appellation and null!=appellation">
+			appellation,
+		</if>
+		<if test="''!=post and null!=post">
+			post,
+		</if>
+		<if test="''!=department and null!=department">
+			department,
+		</if>
+		<if test="''!=province and null!=province">
+			province,
+		</if>
+		<if test="''!=city and null!=city">
+			city,
+		</if>
+		<if test="''!=district and null!=district">
+			district,
+		</if>
+		<if test="''!=email and null!=email">
+			email,
+		</if>
+		<if test="''!=address and null!=address">
+			address,
+		</if>
+		<if test="''!=fax and null!=fax">
+			fax,
+		</if>
+		<if test="''!=telephone and null!=telephone">
+			telephone,
+		</if>
+		<if test="''!=company_address and null!=company_address">
+			company_address,
+		</if>
+		<if test="''!=work_nature and null!=work_nature">
+			work_nature,
+		</if>
+		<if test="''!=company_bus_scope and null!=company_bus_scope">
+			company_bus_scope,
+		</if>
+		<if test="''!=interest_product and null!=interest_product">
+			interest_product,
+		</if>
+		<if test="''!=channel_know and null!=channel_know">
+			channel_know,
+		</if>
+		create_time,
+		creator,
+		is_delete
+		)
+		values (
+		(select concat(unix_timestamp(now())*1000,CEILING(RAND()*900000+100000))),
+		<if test="''!=member_id and null!=member_id">
+			#{member_id},
+		</if>
+		<if test="''!=mobile and null!=mobile">
+			#{mobile},
+		</if>
+		<if test="''!=name and null!=name">
+			#{name},
+		</if>
+		<if test="''!=company and null!=company">
+			#{company},
+		</if>
+		<if test="''!=appellation and null!=appellation">
+			#{appellation},
+		</if>
+		<if test="''!=post and null!=post">
+			#{post},
+		</if>
+		<if test="''!=department and null!=department">
+			#{department},
+		</if>
+		<if test="''!=province and null!=province">
+			#{province},
+		</if>
+		<if test="''!=city and null!=city">
+			#{city},
+		</if>
+		<if test="''!=district and null!=district">
+			#{district},
+		</if>
+		<if test="''!=email and null!=email">
+			#{email},
+		</if>
+		<if test="''!=address and null!=address">
+			#{address},
+		</if>
+		<if test="''!=fax and null!=fax">
+			#{fax},
+		</if>
+		<if test="''!=telephone and null!=telephone">
+			#{telephone},
+		</if>
+		<if test="''!=company_address and null!=company_address">
+			#{company_address},
+		</if>
+		<if test="''!=work_nature and null!=work_nature">
+			#{work_nature},
+		</if>
+		<if test="''!=company_bus_scope and null!=company_bus_scope">
+			#{company_bus_scope},
+		</if>
+		<if test="''!=interest_product and null!=interest_product">
+			#{interest_product},
+		</if>
+		<if test="''!=channel_know and null!=channel_know">
+			#{channel_know},
+		</if>
+		now(),
+		#{creator},
+		'N'
+		)
+	</insert>
+
+	<!-- 修改 -->
+	<update id="updateInfo" parameterType="dto">
+		update m_showroom_member a
+		set
+		a.company_address =#{company_address},
+		a.work_nature =#{work_nature},
+		a.company_bus_scope =#{company_bus_scope},
+		a.interest_product =#{interest_product},
+		a.channel_know =#{channel_know}
+		where id = #{id}
+	</update>
+	<!-- 删除 -->
+	<delete id="deleteInfo" parameterType="dto">
+		delete from m_showroom_member  WHERE id = #{id}
+	</delete>
+</mapper>

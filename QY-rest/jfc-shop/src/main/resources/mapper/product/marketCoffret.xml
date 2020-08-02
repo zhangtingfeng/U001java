@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="marketCoffret">
+
+    <sql id="sql_where">
+        <if test="''!=shop_id and null!=shop_id">
+            and  a.shop_id=#{shop_id}
+        </if>
+        <if test="''!=typeid and null!=name">
+            and a.name like CONCAT ('%',#{name},'%')
+        </if>
+        <if test="''!=status and null!=status">
+            and  a.status=#{status}
+        </if>
+        <if test="''!=id and null!=id">
+            and a.id=#{id}
+        </if>
+       
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT a.*,p.`name` as shopname,pt.text
+        FROM m_market_coffret a
+        left JOIN m_shop p on p.id=a.shop_id
+        left  join m_product_type pt on pt.id=a.type_id
+        WHERE 1=1
+        AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY a.id desc
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        SELECT count(1) as total FROM m_market_coffret a
+        left JOIN m_shop p on p.id=a.shop_id
+        WHERE 1=1
+        AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+    </select>
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT a.*,p.`name` as pname,pt.text
+        FROM m_market_coffret a
+        left JOIN m_shop p on p.id=a.shop_id
+        left  join m_product_type pt on pt.id=a.type_id
+        WHERE 1=1
+        AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY a.id
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+        insert into m_market_coffret (shop_id, type_id, stock,
+        name,
+        spic,
+        bpic,
+        status,
+        sketch,
+        remark,
+        properties,
+        sort,
+        price,
+        create_time,
+        creator,
+        is_delete)
+        values (#{shop_id}, #{type_id}, #{stock},
+        #{name},#{spic},#{bpic},#{status},#{sketch},#{remark},#{properties},#{sort},#{price},now(),
+        #{creator},
+       'N')
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+    update m_market_coffret
+    set shop_id = #{shop_id},
+      type_id = #{type_id},
+      name = #{name},
+      stock = #{stock},
+      spic = #{spic},
+       bpic =#{bpic},
+      status =#{status},
+      sketch =#{sketch},
+      remark =#{remark},
+      properties =#{properties},
+      sort =#{sort},
+       price =#{price},
+      update_time = now()
+    where id = #{id}
+  </update>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+   UPDATE m_market_coffret set is_delete = 'Y' WHERE id = #{id}
+  </delete>
+</mapper>

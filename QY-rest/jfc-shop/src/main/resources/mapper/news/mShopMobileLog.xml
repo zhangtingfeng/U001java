@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mShopMobileLog">
+    <!--条件 -->
+    <sql id="sqlWhere">
+        <where>
+            <if test="id!=null and ''!=id">
+                AND a.id=#{id}
+            </if>
+            <if test="shop_id!=null and ''!=shop_id">
+                AND a.shop_id=#{shop_id}
+            </if>
+            <if test="mobile!=null and ''!=mobile">
+                AND a.mobile=#{mobile}
+            </if>
+            <if test="shop_name!=null and ''!=shop_name">
+                AND b.name LIKE CONCAT('%', #{shop_name}, '%')
+            </if>
+            AND a.is_delete= 'N'
+        </where>
+    </sql>
+
+    <select id="queryList" parameterType="map" resultType="dto">
+        select a.*,b.name as shop_name
+        from m_shop_mobile_log as a
+        left join m_shop as b on(a.shop_id=b.id)
+        <include refid="sqlWhere"/>
+        ORDER BY a.id desc
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        select a.*,b.name as shop_name
+        from m_shop_mobile_log as a
+         left join m_shop as b on(a.shop_id=b.id)
+        where  a.id=#{id}
+        and a.is_delete='N'
+        limit 1
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        select count(1) as total
+        from m_shop_mobile_log as a
+        <include refid="sqlWhere"/>
+    </select>
+
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        update m_shop_mobile_log SET is_delete = 'Y' WHERE id = #{id}
+    </delete>
+
+    <insert id="saveInfo" parameterType="dto">
+        INSERT INTO m_shop_mobile_log
+        (
+        <if test="shop_id!=null and ''!=shop_id">
+            shop_id,
+        </if>
+        <if test="mobile!=null and ''!=mobile">
+            mobile,
+        </if>
+        <if test="creator!=null and ''!=creator">
+            creator,
+        </if>
+        create_time
+        ,is_delete
+        )
+        VALUES
+        (
+        <if test="shop_id!=null and ''!=shop_id">
+            #{shop_id},
+        </if>
+        <if test="mobile!=null and ''!=mobile">
+            #{mobile},
+        </if>
+        <if test="creator!=null and ''!=creator">
+            #{creator},
+        </if>
+        now()
+        ,'N')
+    </insert>
+
+    <update id="updateInfo" parameterType="map">
+        update m_shop_mobile_log
+        <set >
+            <if test="shop_id!=null and ''!=shop_id">shop_id=#{shop_id},</if>
+            <if test="mobile!=null and ''!=mobile">mobile=#{mobile}</if>
+        </set>
+            WHERE
+            id=#{id}
+    </update>
+
+</mapper>

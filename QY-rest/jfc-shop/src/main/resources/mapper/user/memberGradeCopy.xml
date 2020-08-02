@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="memberGrades">
+  
+  <sql id="sql_where">
+      <if test="''!=id and null!=id">
+          and a.id = #{id}
+      </if>
+      <if test="''!=name and null!=name">
+          and a.name = #{name}
+      </if>
+      <if test="''!=status and null!=status">
+          and a.status = #{status}
+      </if>
+      <if test="''!=start_time and null!=start_time">
+          and DATE(a.create_time) &gt;= #{start_time}
+      </if>
+      <if test="''!=end_time and null!=end_time">
+          and DATE(a.create_time) &lt;= #{end_time}
+      </if>
+    </sql>
+  
+  <!-- 查询 -->
+  <select id="queryList" parameterType="map" resultType="dto">
+    SELECT
+      a.*
+    FROM m_member_grade a
+    WHERE 1=1 AND  a.is_delete = 'N'
+    <include refid="sql_where"/>
+    ORDER BY id
+  </select>
+  
+  <select id="queryListCount" parameterType="map" resultType="java.lang.Integer">
+    SELECT count(1) as count FROM m_member_grade a WHERE 1=1
+    <include refid="sql_where"/> 
+  </select>
+  
+  <select id="getInfo" parameterType="map" resultType="dto">
+      SELECT
+        a.*,s.val
+      FROM m_member_grade a
+      LEFT JOIN sys_config s ON  a.status = s.id
+      WHERE 1=1 AND  a.is_delete = 'N'
+      <include refid="sql_where"/> 
+    ORDER BY id
+  </select>
+  
+  <!-- 插入 -->
+  <insert id="saveInfo" parameterType="dto">
+    insert into m_member_grade
+    (`name`,describes,logo,dpic,hot_discount,other_discount,month_times,years,limits,members,order_flg,articles,remark,
+    status,create_time,creator,is_delete)
+    values
+    (#{name},#{describes},#{logo},#{dpic},#{hot_discount},#{other_discount},#{month_times},#{years},#{limits},#{members},#{order_flg},
+    #{articles},#{remark},#{status},NOW(),#{creator},'N')
+      <selectKey resultType="java.lang.Long" keyProperty="id">
+          SELECT LAST_INSERT_ID() as id
+      </selectKey>
+  </insert>
+
+<!-- 修改 -->
+<update id="updateInfo" parameterType="dto">
+    update m_member_grade
+       set
+    <if test="name">
+        name = #{name},
+    </if>
+    <if test="describes">
+        describes = #{describes},
+    </if>
+    <if test="logo">
+        logo = #{logo},
+    </if>
+    <if test="dpic">
+        dpic = #{dpic},
+    </if>
+    <if test="hot_discount">
+        hot_discount = #{hot_discount},
+    </if>
+    <if test="other_discount">
+        other_discount = #{other_discount},
+    </if>
+    <if test="month_times">
+        month_times = #{month_times},
+    </if>
+    <if test="years">
+        years = #{years},
+    </if>
+    <if test="limits">
+        limits = #{limits},
+    </if>
+    <if test="members">
+        members = #{members},
+    </if>
+    <if test="order_flg">
+        order_flg = #{order_flg},
+    </if>
+    <if test="articles">
+        articles = #{articles},
+    </if>
+    <if test="remark">
+        remark = #{remark},
+    </if>
+    <if test="status">
+        status = #{status},
+    </if>
+    update_time=now()
+    where id = #{id}
+</update>
+  <!-- 删除 -->
+  <delete id="deleteInfo" parameterType="map">
+    DELETE FROM m_member_grade WHERE id = #{id}
+  </delete>
+  
+</mapper>

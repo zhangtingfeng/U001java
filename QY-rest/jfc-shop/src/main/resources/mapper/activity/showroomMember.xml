@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="showMember">
+    <sql id="sql_where">
+        <if test="''!=name and null!=name">
+            and a.name LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="''!=company and null!=company">
+            and a.company LIKE CONCAT('%', #{company}, '%')
+        </if>
+        <if test="''!=mobile and null!=mobile">
+            and a.mobile LIKE CONCAT('%', #{mobile}, '%')
+        </if>
+        <if test="''!=telephone and null!=telephone">
+            and a.telephone LIKE CONCAT('%', #{telephone}, '%')
+        </if>
+
+        <if test="''!=shopid and null!=shopid">
+            and a.shop_id = #{shopid}
+        </if>
+        <if test="''!=id and null!=id">
+            and a.id = #{id}
+        </if>
+        <if test="''!=shopids and null!=shopids">
+            and a.shopids = #{shopids}
+        </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+        a.*,b.username as memberName
+        FROM
+        m_showroom_member a
+        left join m_member b on a.member_id=b.id
+        where 1 = 1
+        and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY id
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        select count(1) as total
+        from m_showroom_member a
+        left join m_member b on a.member_id=b.id
+        where 1=1 and a.is_delete='N'
+        <include refid="sql_where"/>
+    </select>
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT
+        a.*
+        FROM
+        m_showroom_member a
+        WHERE 1=1
+        and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 0,1
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+    insert into m_showroom_member (serveno, member_id,
+      proorder_sub_id, order_sub_id, status)
+    values (#{serveno}, #{member_id},
+      #{proorder_sub_id}, #{order_sub_id}, 1)
+  </insert>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+    update m_showroom_member
+    set status = #{status},
+        update_time = now(),
+        updator = #{updator}
+    where id = #{id}
+  </update>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+    update m_showroom_member set is_delete = "Y" WHERE id = #{id}
+  </delete>
+
+</mapper>

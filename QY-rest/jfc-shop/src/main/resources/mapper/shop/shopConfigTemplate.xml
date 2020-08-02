@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="shopConfigTemplate">
+
+    <sql id="sql_where">
+
+            <if test="''!=id and null!=id">
+                a.id = #{id}
+            </if>
+            <if test="''!=q_name and null!=q_name">
+                a.name LIKE CONCAT('%', #{q_name}, '%')
+            </if>
+            <if test="''!=q_type and null!=q_type">
+                a.type = #{q_type}
+            </if>
+            <if test="''!=legal_name and null!=legal_name">
+                a.legal_name LIKE CONCAT('%', #{legal_name}, '%')
+            </if>
+            <if test="''!=legal_name and null!=q_status">
+                a.status LIKE CONCAT('%', #{q_status}, '%')
+            </if>
+            <if test="''!=sysUserId and null!=sysUserId">
+                a.id in (SELECT a.shop_id FROM sys_user a WHERE a.id = #{sysUserId})
+            </if>
+
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        select a.* from m_shop_config_template a
+        WHERE 1 = 1 AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY id desc
+    </select>
+
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT
+        s.val AS STATUS,
+        su1.username AS creator,
+        su2.username AS updator,
+        (
+        CASE a.type
+        WHEN '0' THEN
+        "自营"
+        ELSE
+        "私营"
+        END
+        ) AS type,
+        (
+        CASE a.bail_flag
+        WHEN 'Y' THEN
+        "是"
+        ELSE
+        "否"
+        END
+        ) AS bail_flag_alias,
+        a.*
+        FROM
+        m_index_config a
+        LEFT JOIN sys_config s ON a. STATUS = s.id
+        LEFT JOIN sys_user su1 ON a.creator = su1.id
+        LEFT JOIN sys_user su2 ON a.updator = su2.id
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        LIMIT 1
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+    insert into m_shop_config_template
+    (name,create_time,creator,is_delete)
+    values (#name#,now(),#creator#,'N')
+  </insert>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_index_config
+        set
+        <if test="name">
+            name = #{name},
+        </if>
+        <if test="address">
+            address = #{address},
+        </if>
+        <if test="type">
+            type = #{type},
+        </if>
+        <if test="license_number">
+            license_number = #{license_number},
+        </if>
+        <if test="legal_name">
+            legal_name = #{legal_name},
+        </if>
+        <if test="legal_number">
+            legal_number = #{legal_number},
+        </if>
+        <if test="register_capital">
+            register_capital = #{register_capital},
+        </if>
+        <if test="scope">
+            scope = #{scope},
+        </if>
+        <if test="account_name">
+            account_name = #{account_name},
+        </if>
+        <if test="account_number">
+            account_number = #{account_number},
+        </if>
+        <if test="account_address">
+            account_address = #{account_address},
+        </if>
+        <if test="bail_flag">
+            bail_flag = #{bail_flag},
+        </if>
+        <if test="bail">
+            bail = #{bail},
+        </if>
+        <if test="status">
+            status = #{status},
+        </if>
+        update_time = now(),
+        updator = #{updator}
+        where id = #{id}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+    update m_index_config set is_delete = 'Y' where  id = #{id}
+  </delete>
+
+</mapper>

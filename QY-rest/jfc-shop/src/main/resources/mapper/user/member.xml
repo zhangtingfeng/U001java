@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="member">
+    <sql id="sql_where">
+        <if test="null!=sex">
+            and a.sex = #{sexh}
+        </if>
+        <if test="null!=id">
+            and a.id = #{id}
+        </if>
+        <if test="''!=username and null!=username">
+            and a.username LIKE CONCAT('%', #{username}, '%')
+        </if>
+        <if test="''!=telephone and null!=telephone">
+            and a.telephone=#{telephone}
+        </if>
+        <if test="''!=status and null!=status">
+            and  a.status = #{status}
+        </if>
+        <if test="''!=wopenid and null!=wopenid">
+            and  a.wopenid = #{wopenid}
+        </if>
+        <if test="''!=hyname and null!=hyname">
+            and  b.name = #{hyname}
+        </if>
+        <if test="''!=integration and null!=integration">
+            and  DATE(a.integration) &gt;= #{integration}
+        </if>
+        <if test="''!=integration1 and null!=integration1">
+            and  DATE(a.integration) &lt;= #{integration1}
+        </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+        a.*,
+        (
+        CASE a.`status`
+        WHEN '0' THEN
+        '正常使用'
+        ELSE
+        '已注销'
+        END
+        ) status_alias
+        FROM
+        m_member a
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY id desc
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        SELECT
+        count(1) as total
+        FROM m_member a
+        WHERE 1=1 and   a.is_delete = 'N'
+        <include refid="sql_where"/>
+    </select>
+
+    <!-- 查询 -->
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT a.*
+        FROM m_member a
+        WHERE 1 = 1 AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 1
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto" useGeneratedKeys="true" keyProperty="id">
+        insert into m_member (
+        wopenid,
+        username,
+        telephone,
+        pic,
+        integration,
+        status,
+        create_time,
+        creator,
+        update_time,
+        is_delete)
+        values (
+        #{wopenid},
+        #{username},
+        #{telephone},
+        #{pic},
+        #{integration},
+        0,
+        now(),
+        #{creator},
+        now(),
+        'N')
+        <selectKey resultType="java.lang.Long" keyProperty="id">
+            SELECT LAST_INSERT_ID() as id
+        </selectKey>
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_member
+        set
+        <if test="null!=username and ''!=username">
+            username = #{username},
+        </if>
+        <if test="null!=telephone and ''!=telephone">
+            telephone = #{telephone},
+        </if>
+        <if test="null!=pic and ''!=pic">
+            pic = #{pic},
+        </if>
+        <if test="null!=sex and ''!=sex">
+            sex = #{sex},
+        </if>
+        <if test="null!=birth_date and ''!=birth_date">
+            birth_date = #{birth_date},
+        </if>
+        <if test="null!=integration and ''!=integration">
+            integration = #{integration},
+        </if>
+        <if test="null!=status and ''!=status">
+            status = #{status},
+        </if>
+        <if test="null!=update_time and ''!=update_time">
+            update_time = #{update_time},
+        </if>
+        <if test="null!=updator and ''!=updator">
+            updator = #{updator},
+        </if>
+        <if test="null!=wopenid and ''!=wopenid">
+            wopenid = #{wopenid},
+        </if>
+        update_time = now()
+        where id = #{id}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        UPDATE m_member m
+        SET m.is_delete = 'Y'
+        WHERE
+            m.id = #{id}
+    </delete>
+</mapper>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="smsLog">
+
+    <sql id="sql_where">
+        <if test="''!=telephone and null!=telephone">
+            and a.telephone  LIKE CONCAT('%', #{telephone}, '%')
+        </if>
+        <if test="''!=status and null!=status">
+            and a.status = #{status}
+        </if>
+        <if test="''!=start_time and null!=start_time">
+            and   DATE(a.create_time) &gt;= #{start_time}
+        </if>
+        <if test="''!=end_time and null!=end_time">
+            and   DATE(a.create_time) &lt;= #{end_time}
+        </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+        a.*,(case a.status when "0" then "发送成功" when "1" then "发送失败" end ) as statusval
+        FROM
+        m_sms_log a
+        WHERE
+        1 = 1
+        <include refid="sql_where"/>
+        ORDER BY a.create_time
+        desc
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        SELECT count(1) as total FROM m_sms_log a WHERE 1=1
+        <include refid="sql_where"/>
+    </select>
+
+    <insert id="saveInfo" parameterType="map">
+        INSERT INTO m_cmn_sms_log
+        (
+        <if test="null!=mobile">mobile,</if>
+        <if test="null!=code">code,</if>
+        <if test="null!=type">type,</if>
+        retcode,retmsg,
+        <if test="null!=status">status,</if>
+        create_time,
+        <if test="null!=creator">creator,</if>
+        update_time,
+        <if test="null!=updator">updator,</if>
+        is_delete
+        )
+        VALUES
+        (
+        <if test="null!=mobile">#{mobile},</if>
+        <if test="null!=code">#{code},</if>
+        <if test="null!=type">#{type},</if>
+        #{retcode},#{retmsg},
+        <if test="null!=status">#{status},</if>
+        now(),
+        <if test="null!=creator">#{creator},</if>
+        now(),
+        <if test="null!=updator">#{updator},</if>
+        'N'
+        )
+    </insert>
+</mapper>

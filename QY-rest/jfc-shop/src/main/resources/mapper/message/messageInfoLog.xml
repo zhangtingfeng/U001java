@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="messageInfoLog">
+    <!--条件 -->
+    <sql id="whereCondition">
+        <where>
+            <if test="id!=null and ''!=id">
+                AND a.id=#{id}
+            </if>
+            <if test="member_id!=null and ''!=member_id">
+                AND a.member_id=#{member_id}
+            </if>
+            <if test="pda_name!=null and ''!=pda_name">
+                AND c.pda_name=#{pda_name}
+            </if>
+            <if test="imei!=null and ''!=imei">
+                AND c.imei=#{imei}
+            </if>
+            <if test="code!=null and ''!=code">
+                AND a.code=#{code}
+            </if>
+            <if test="status!=null and ''!=status">
+                AND a.status=#{status}
+            </if>
+            <if test="card_num!=null and ''!=card_num">
+                AND b.card_num=#{card_num}
+            </if>
+            <if test="''!=startTime and null!=startTime">
+                and a.create_time &gt;= #{startTime}
+            </if>
+            <if test="''!=endTime and null!=endTime">
+                and a.create_time &lt;= #{endTime}
+            </if>
+            AND  a.is_delete= 'N'
+        </where>
+    </sql>
+    <!--数据插入 -->
+    <insert id="saveInfo" parameterType="map" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO message_info_log
+        (
+        <if test="member_id!=null and ''!=member_id">
+            member_id,
+        </if>
+        code,
+        <if test="message_info_id!=null and ''!=message_info_id">
+            message_info_id,
+        </if>
+        <if test="status!=null and ''!=status">
+            status,
+        </if>
+        <if test="creator!=null and ''!=creator">
+            creator,
+        </if>
+        <if test="pda_id!=null and ''!=pda_id">
+            pda_id,
+        </if>
+        create_time
+        )
+        VALUES
+        (
+        <if test="member_id!=null and ''!=member_id">
+            #{member_id},
+        </if>
+        #{code},
+        <if test="message_info_id!=null and ''!=message_info_id">
+            #{message_info_id},
+        </if>
+        <if test="status!=null and ''!=status">
+            #{status},
+        </if>
+        <if test="type!=creator and ''!=creator">
+            #{creator},
+        </if>
+        <if test="type!=pda_id and ''!=pda_id">
+            #{pda_id},
+        </if>
+        now()
+        )
+    </insert>
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+        a.*, b.*,c.`name` as pda_name
+        FROM
+        message_info_log a
+        LEFT JOIN message_info b ON a.message_info_id = b.id
+        LEFT JOIN pda_info c on a.pda_id = c.id
+        <include refid="whereCondition"/>
+        ORDER BY a.id desc
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        select *
+        from message_info_log
+        <include refid="whereCondition"/>
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        select count(1) as total
+        from message_info_log a
+        LEFT JOIN message_info b ON a.message_info_id = b.id
+        LEFT JOIN pda_info c on a.pda_id = c.id
+        <include refid="whereCondition"/>
+    </select>
+
+    <select id="queryInfo" parameterType="map" resultType="dto">
+        select *
+        from message_info_log a
+        <include refid="whereCondition"/>
+    </select>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        update message_info_log SET is_delete = 'Y' WHERE id = #{id}
+    </delete>
+
+</mapper>

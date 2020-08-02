@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="messageInfo">
+    <!--条件 -->
+    <sql id="whereCondition">
+        <where>
+            <if test="id!=null and ''!=id">
+                AND id=#{id}
+            </if>
+            <if test="code!=null and ''!=code">
+                AND code=#{code}
+            </if>
+            <if test="member_id!=null and ''!=member_id">
+                AND member_id=#{member_id}
+            </if>
+            <if test="card_num!=null and ''!=card_num">
+                AND card_num=#{card_num}
+            </if>
+            <if test="type!=null and ''!=type">
+                AND type=#{type}
+            </if>
+            <if test="status!=null and ''!=status">
+                AND status=#{status}
+            </if>
+            <if test="''!=startTime and null!=startTime">
+                and create_time &gt;= #{startTime}
+            </if>
+            <if test="''!=endTime and null!=endTime">
+                and create_time &lt;= #{endTime}
+            </if>
+            AND is_delete= 'N'
+        </where>
+    </sql>
+    <!--数据插入 -->
+    <insert id="saveInfo" parameterType="map" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO message_info
+        (
+        <if test="member_id!=null and ''!=member_id">
+            member_id,
+        </if>
+        code,
+        <if test="company_name!=null and ''!=company_name">
+            company_name,
+        </if>
+        <if test="name!=null and ''!=name">
+            name,
+        </if>
+        <if test="type!=null and ''!=type">
+            type,
+        </if>
+        <if test="card_type!=null and ''!=card_type">
+            card_type,
+        </if>
+        <if test="card_num!=null and ''!=card_num">
+            card_num,
+        </if>
+        <if test="house!=null and ''!=house">
+            house,
+        </if>
+        <if test="contact!=null and ''!=contact">
+            contact,
+        </if>
+        <if test="address!=null and ''!=address">
+            address,
+        </if>
+        <if test="body_situation!=null and ''!=body_situation">
+            body_situation,
+        </if>
+        <if test="hwt_situation!=null and ''!=hwt_situation">
+            hwt_situation,
+        </if>
+        <if test="gather_situation!=null and ''!=gather_situation">
+            gather_situation,
+        </if>
+        <if test="epidemic_situation!=null and ''!=epidemic_situation">
+            epidemic_situation,
+        </if>
+        <if test="family_situation!=null and ''!=family_situation">
+            family_situation,
+        </if>
+        <if test="time!=null and ''!=time">
+            time,
+        </if>
+        <if test="shop_address!=null and ''!=shop_address">
+            shop_address,
+        </if>
+        <if test="status!=null and ''!=status">
+            status,
+        </if>
+        create_time
+        )
+        VALUES
+        (
+        <if test="member_id!=null and ''!=member_id">
+            #{member_id},
+        </if>
+        (
+            SELECT
+                  *
+            FROM
+            (
+            SELECT
+                unix_timestamp() + MAX(id) as num
+            FROM
+            message_info
+            ) AS b
+        ),
+        <if test="company_name!=null and ''!=company_name">
+            #{company_name},
+        </if>
+        <if test="name!=null and ''!=name">
+            #{name},
+        </if>
+        <if test="type!=null and ''!=type">
+            #{type},
+        </if>
+        <if test="card_type!=null and ''!=card_type">
+            #{card_type},
+        </if>
+        <if test="card_num!=null and ''!=card_num">
+            #{card_num},
+        </if>
+        <if test="house!=null and ''!=house">
+            #{house},
+        </if>
+        <if test="contact!=null and ''!=contact">
+            #{contact},
+        </if>
+        <if test="address!=null and ''!=address">
+            #{address},
+        </if>
+        <if test="body_situation!=null and ''!=body_situation">
+            #{body_situation},
+        </if>
+        <if test="hwt_situation!=null and ''!=hwt_situation">
+            #{hwt_situation},
+        </if>
+        <if test="gather_situation!=null and ''!=gather_situation">
+            #{gather_situation},
+        </if>
+        <if test="epidemic_situation!=null and ''!=epidemic_situation">
+            #{epidemic_situation},
+        </if>
+        <if test="family_situation!=null and ''!=family_situation">
+            #{family_situation},
+        </if>
+        <if test="time!=null and ''!=time">
+            #{time},
+        </if>
+        <if test="shop_address!=null and ''!=shop_address">
+            #{shop_address},
+        </if>
+        <if test="status!=null and ''!=status">
+            #{status},
+        </if>
+        now()
+        )
+    </insert>
+    <select id="queryList" parameterType="map" resultType="dto">
+        select *
+        from message_info
+        <include refid="whereCondition"/>
+        ORDER BY id desc
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        select *
+        from message_info
+        <include refid="whereCondition"/>
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        select count(1) as total
+        from message_info
+        <include refid="whereCondition"/>
+    </select>
+
+    <select id="queryInfo" parameterType="map" resultType="dto">
+        select *
+        from message_info
+        <include refid="whereCondition"/>
+    </select>
+
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        update message_info SET is_delete = 'Y' WHERE id = #{id}
+    </delete>
+
+
+    <!-- 更新状态 -->
+    <update id="updateStatus" parameterType="map">
+        update message_info a
+        set status = #{status},
+        update_time = now()
+        WHERE a.id in (${ids})
+        <if test="oldStatus!=null and ''!=oldStatus">
+            and a.status = #{oldStatus}
+        </if>
+    </update>
+
+</mapper>

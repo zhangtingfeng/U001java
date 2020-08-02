@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="userDynamics">
+    <sql id="sql_where">
+        <if test="''!=memberName and null!=memberName">
+            and b.username LIKE CONCAT('%', #{memberName}, '%')
+        </if>
+        <if test="''!=title and null!=title">
+            and a.title LIKE CONCAT('%', #{title}, '%')
+        </if>
+        <if test="''!=number and null!=number">
+            and a.number LIKE CONCAT('%', #{number}, '%')
+        </if>
+
+        <if test="''!=id and null!=id">
+            and a.id = #{id}
+        </if>
+        <if test="''!=good_num and null!=good_num">
+            and a.good_num = #{good_num}
+        </if>
+        <if test="''!=type and null!=type">
+            and a.type = #{type}
+        </if>
+        <if test="''!=shop_id and null!=shop_id">
+            and  su1.id=#{shop_id}
+        </if>
+        <if test="''!=status and null!=status">
+            and  a.status=#{status}
+        </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+        a.*,b.username as memberName
+        FROM
+        user_dynamic a
+        left join m_member b on a.member_id=b.id
+        LEFT JOIN m_shop su1 ON a.member_id = su1.member_id and su1.is_delete = 'N'
+        where 1 = 1
+        and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY id DESC
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        select count(1) as total
+        from user_dynamic a
+        left join m_member b on a.member_id=b.id
+        LEFT JOIN m_shop su1 ON a.member_id = su1.member_id
+        where 1=1 and a.is_delete='N'
+        <include refid="sql_where"/>
+    </select>
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT
+        a.*
+        FROM
+        user_dynamic a
+        WHERE 1=1
+        and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 0,1
+    </select>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+    update user_dynamic set is_delete = "Y" WHERE id = #{id}
+  </delete>
+
+
+    <!-- 更新状态 -->
+    <update id="updateStatus" parameterType="map">
+        update user_dynamic a
+        set status = #{status},
+        update_time = now()
+        WHERE a.id in (${ids})
+        <if test="oldStatus!=null and ''!=oldStatus">
+            and a.status = #{oldStatus}
+        </if>
+    </update>
+</mapper>

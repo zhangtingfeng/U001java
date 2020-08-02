@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="memberCart">
+  
+  <sql id="sql_where">
+
+            <if test="''!=id and null!=id">
+              and a.id = #{id}
+            </if>
+            <if test="''!=member_id and null!=member_id">
+              and a.member_id = #{member_id}
+            </if>
+            <if test="''!=product_id and null!=product_id">
+              and a.product_id = #{product_id}
+            </if>
+            <if test="''!=property_shop_id and null!=property_shop_id">
+              and a.property_shop_id = #{property_shop_id}
+            </if>
+            <if test="''!=ids and null!=ids">
+              and FIND_IN_SET(a.id,#{ids})
+            </if>
+    </sql>
+  
+  <!-- 查询 -->
+  <select id="queryList" parameterType="map" resultType="dto">
+    SELECT
+    a.*,b.*,substring_index(b.bigpic,',',1)as pics
+    FROM
+      m_member_cart a
+    left join m_product b on a.product_id = b.id
+    WHERE
+    1 = 1
+    <include refid="sql_where"/>
+    ORDER BY a.id
+  </select>
+  
+  <select id="getInfo" parameterType="map" resultType="dto">
+    SELECT
+    a.*,b.*
+    FROM
+    m_member_cart a
+    left join m_product b on a.product_id = b.id
+    WHERE
+    1 = 1
+    <include refid="sql_where"/>
+    ORDER BY a.id
+  </select>
+
+  <select id="queryProInfo" parameterType="map" resultType="dto">
+    SELECT
+    a.*
+    FROM
+    m_product a
+    WHERE
+    1 = 1
+    and a.id = #{id}
+  </select>
+
+
+  <!-- 插入 -->
+  <insert id="saveInfo" parameterType="dto">
+    insert into m_member_cart
+    (
+      member_id,
+      product_id,
+      property_shop_id,
+      product_num,
+      product_money,
+      create_time,
+      creator,
+      update_time,
+      updator,
+      is_delete
+    )
+    values
+      (
+        #{member_id},
+        #{product_id},
+        #{property_shop_id},
+        #{product_num},
+        #{product_money},
+        now(),
+        #{member_id},
+        now(),
+        #{member_id},
+        'N'
+      )
+  </insert>
+  
+  <!-- 修改 -->
+  <update id="updateInfo" parameterType="dto">
+    update m_member_cart
+    set
+    <if test="member_id">
+      member_id = #{member_id},
+    </if>
+    <if test="product_id">
+      product_id = #{product_id},
+    </if>
+    <if test="property_shop_id">
+      property_shop_id = #{property_shop_id},
+    </if>
+    <if test="product_num">
+      product_num = #{product_num},
+    </if>
+    <if test="product_money">
+      product_money = #{product_money},
+    </if>
+    <if test="creator">
+      creator = #{creator},
+    </if>
+    <if test="updator">
+      updator = #{updator},
+    </if>
+    update_time = now()
+    where id = #{id}
+  </update>
+  
+  <!-- 删除 -->
+  <delete id="deleteInfo" parameterType="map">
+    DELETE FROM m_member_cart WHERE id = #{id}
+  </delete>
+
+  <!--查询商品属性-->
+  <select id="queryProAttrList" parameterType="map" resultType="dto">
+    SELECT
+    a.*
+    FROM
+    m_product_specs_shop a
+    WHERE
+    1 = 1
+    and FIND_IN_SET(a.id,#{attrIds})
+  </select>
+
+  <!--查询商品属性-->
+  <select id="queryUserCartNum" parameterType="map" resultType="dto">
+    SELECT  SUM(a.product_num) as num
+    FROM
+    m_member_cart a
+    WHERE
+    1 = 1 and a.member_id = #{member_id}
+  </select>
+
+  
+</mapper>

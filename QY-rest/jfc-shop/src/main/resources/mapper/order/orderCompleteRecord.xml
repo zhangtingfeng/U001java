@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="orderCompleteRecord">
+    <!-- 表字段 -->
+	<sql id="selectSql">
+        id AS id,
+        order_id AS order_id,
+        member_id AS member_id,
+        shop_id AS shop_id,
+        amount AS amount,
+        cost_amount AS cost_amount,
+        time AS time
+	</sql>
+    <!--条件 -->
+	<sql id="whereCondition">
+		<where>
+            <if test="id!=null and ''!=id">
+                  AND a.id=#{id}
+            </if> 
+            <if test="order_id!=null and ''!=order_id">
+                  AND a.order_id=#{order_id}
+            </if> 
+            <if test="member_id!=null and ''!=member_id">
+                  AND a.member_id=#{member_id}
+            </if> 
+            <if test="shop_id!=null and ''!=shop_id">
+                  AND a.shop_id=#{shop_id}
+            </if> 
+            <if test="amount!=null and ''!=amount">
+                  AND a.amount=#{amount}
+            </if> 
+            <if test="cost_amount!=null and ''!=cost_amount">
+                  AND a.cost_amount=#{cost_amount}
+            </if> 
+            <if test="time!=null and ''!=time">
+                  AND a.`time`=#{time}
+            </if>
+            <if test="''!=startDate and null!=startDate">
+                and a.time >=concat(#{startDate},' ','00:00:00')
+            </if>
+            <if test="''!=endDate and null!=endDate">
+                and a.time &lt;= concat(#{endDate},' ','23:59:59')
+            </if>
+		</where>
+	</sql>
+    <!--数据插入 -->
+	<insert id="saveInfo" parameterType="map">
+		INSERT INTO m_order_complete_record
+		(
+            <if test="order_id!=null and ''!=order_id">
+                order_id,
+            </if> 
+            <if test="member_id!=null and ''!=member_id">
+                member_id,
+            </if> 
+            <if test="shop_id!=null and ''!=shop_id">
+                shop_id,
+            </if> 
+            <if test="amount!=null and ''!=amount">
+                amount,
+            </if> 
+            <if test="cost_amount!=null and ''!=cost_amount">
+                cost_amount,
+            </if> 
+            `time`
+		)
+		VALUES
+		(
+            <if test="order_id!=null and ''!=order_id">
+                #{order_id},
+            </if> 
+            <if test="member_id!=null and ''!=member_id">
+                #{member_id},
+            </if> 
+            <if test="shop_id!=null and ''!=shop_id">
+                #{shop_id},
+            </if> 
+            <if test="amount!=null and ''!=amount">
+                #{amount},
+            </if> 
+            <if test="cost_amount!=null and ''!=cost_amount">
+                #{cost_amount},
+            </if> 
+            now()
+		)
+	</insert>
+	<update id="updateInfo" parameterType="map">
+		update m_order_complete_record 
+		set 
+            order_id=#{order_id},
+            member_id=#{member_id},
+            shop_id=#{shop_id},
+            amount=#{amount},
+            cost_amount=#{cost_amount},
+            time=#{time}
+        WHERE
+            id=#{id}		
+	</update>
+	<select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+                a.*, b.username,
+                c.number,
+                d.`name` as shopname,
+                e.product_list
+        FROM
+                m_order_complete_record AS a
+        LEFT JOIN m_order AS c ON (a.order_id = c.id)
+        LEFT JOIN sys_user AS b ON (a.member_id = b.id)
+        LEFT JOIN m_shop as d on(d.id=b.shop_id)
+        LEFT JOIN (
+            SELECT
+                a.pid as pid,
+                GROUP_CONCAT(DISTINCT(b.`name`)) as product_list
+            FROM
+                 m_order_sub a
+            LEFT JOIN m_product b ON a.product_id = b.id
+            WHERE b.`name` != '包装袋'
+            GROUP BY a.pid
+        ) e  on a.order_id = e.pid
+        <include refid="whereCondition"/>
+		<if test="null!=start">
+            limit ${start},${end}
+		</if>
+	</select>
+
+	<select id="queryListCount" parameterType="map" resultType="dto">
+		select count(1) as total
+		from m_order_complete_record as a
+		<include refid="whereCondition"/>
+	</select>
+
+    <select id="getOrderCompleteTotal" parameterType="map" resultType="dto">
+        SELECT
+            sum(a.amount) AS total_amount,
+            sum(a.cost_amount) AS cost_amount
+        FROM
+            m_order_complete_record AS a
+        <include refid="whereCondition"/>
+    </select>
+	<select id="queryInfo" parameterType="map" resultType="dto">
+		select
+		<include refid="selectSql"/>
+		from m_order_complete_record
+		<include refid="whereCondition"/>
+	</select>
+
+</mapper>

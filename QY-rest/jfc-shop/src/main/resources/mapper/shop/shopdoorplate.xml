@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="shop_doorplate">
+
+    <sql id="sql_where">
+
+        <if test="''!=id and null!=id">
+            and  a.id=#{id}
+        </if>
+        <if test="''!=number and null!=number">
+            and  a.number like CONCAT(#{number}, '%')
+        </if>
+    </sql>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="map">
+        insert into m_shop_doorplate (number,is_map,create_time,creator,is_delete
+        )
+        values (#{number},#{is_map},now(), #{creator}, 'N'
+               )
+    </insert>
+
+
+    <update id="updateInfo" parameterType="map">
+        update m_shop_doorplate
+        <set >
+            <if test="number!=null and ''!=number">number=#{number}</if>
+            <if test="is_map!=null and ''!=is_map">is_map=#{is_map}</if>
+            <if test="creator!=null and ''!=creator">,creator=#{creator}</if>
+            <if test="is_delete!=null and ''!=is_delete">,is_delete=#{is_delete}</if>
+            WHERE
+            id=#{id}
+        </set>
+    </update>
+    <select id="queryList" parameterType="map" resultType="dto">
+        select
+        *
+        from m_shop_doorplate a
+        where 1=1 and is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY a.id DESC
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        select count(1) as total
+        from m_shop_doorplate a
+        where 1=1 and is_delete = 'N'
+        <include refid="sql_where"/>
+    </select>
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        select
+        *
+        from m_shop_doorplate a
+        where 1=1 and is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 1
+    </select>
+
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        update m_shop_doorplate a  SET  a.is_delete = 'Y'
+        where 1=1
+        <include refid="sql_where"/>
+    </delete>
+
+</mapper>

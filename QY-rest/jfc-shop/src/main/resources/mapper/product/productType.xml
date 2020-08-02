@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="productType">
+	<sql id="sql_where">
+		<if test="''!=name and null!=name">
+			and a.name LIKE concat('%',#{name},'%')
+		</if>
+		<if test="''!=id and null!=id">
+			and a.id=#{id}
+		</if>
+		<if test="''!=byId and null!=byId">
+			and a.pid=#{byId}
+		</if>
+		<if test="''!=pid and null!=pid">
+			and a.pid=#{pid}
+		</if>
+		<if test="''!=type and null!=type">
+			and a.type=#{type}
+		</if>
+	</sql>
+	<resultMap id="getProductTypes" type="com.jfc.base.ProductTypeOne">
+		<id column="id" property="id"></id>
+		<result column="name" property="name"></result>
+		<collection property="list" ofType="com.jfc.base.ProductTypeTwo">
+			<id column="bid" property="id"></id>
+			<result column="bpid" property="pid"></result>
+			<result column="bname" property="name"></result>
+			<collection property="list" ofType="com.jfc.base.ProductTypeThree">
+				<id column="cid" property="id"></id>
+				<result column="cpid" property="pid"></result>
+				<result column="cname" property="name"></result>
+			</collection>
+		</collection>
+	</resultMap>
+
+	<!-- 查询 -->
+	<select id="queryList" parameterType="map" resultType="dto">
+		SELECT
+		a.*,a1.name as pname
+		FROM
+		m_product_type a
+		left join m_product_type a1 on  a1.id=a.pid
+		WHERE 1 = 1 AND  a.is_delete = 'N'
+		<include refid="sql_where" />
+		order by a.create_time DESC
+		<if test="null!=start">
+			limit ${start},${end}
+		</if>
+
+	</select>
+
+	<select id="queryListCount" parameterType="map" resultType="dto">
+		SELECT count(1) as total FROM m_product_type a WHERE 1=1
+		<include refid="sql_where" />
+	</select>
+
+	<!-- 查询单个商品详情信息 -->
+	<select id="getInfo" parameterType="map" resultType="dto">
+		SELECT
+		a.*
+		FROM
+		m_product_type a
+		WHERE
+		1 = 1
+		<include refid="sql_where" />
+	</select>
+
+	<!-- 插入 -->
+	<insert id="saveInfo" parameterType="dto" useGeneratedKeys="true" keyProperty="id">
+		insert into m_product_type
+		(
+		<if test="''!=name and null!=name">
+		       name,
+		</if>
+		<if test="''!=pid and null!=pid">
+			pid,
+		</if>
+		<if test="''!=type and null!=type">
+			type,
+		</if>
+		create_time,
+		creator,
+		is_delete
+		)
+		values (
+		<if test="''!=name and null!=name">
+		#{name},
+		</if>
+		<if test="''!=pid and null!=pid">
+		#{pid},
+		</if>
+		<if test="''!=type and null!=type">
+			#{type},
+		</if>
+		now(),
+		#{creator},
+		'N'
+		)
+	</insert>
+
+	<!-- 修改 -->
+	<update id="updateInfo" parameterType="dto">
+		update m_product_type a
+		set
+		<if test="''!=name and null!=name">
+			a.name=#{name},
+		</if>
+		<if test="''!=pid and null!=pid">
+			a.pid=#{pid},
+		</if>
+		a.update_time=now()
+		where id = #{id}
+	</update>
+
+
+	<!-- 删除 -->
+	<delete id="deleteInfo" parameterType="dto">
+		delete from m_product_type  WHERE id = #{id}
+	</delete>
+
+	<select id="getProductTypeList" parameterType="map" resultMap="productType.getProductTypes">
+		SELECT
+			a.id,
+			a.`name`,
+			b.id as bid,
+			b.pid as bpid,
+			b.`name` as bname,
+			c.id as cid,
+			c.pid as cpid,
+			c.`name` as cname
+		FROM
+			m_product_type AS a
+			LEFT JOIN m_product_type AS b ON (a.id = b.pid AND b.type = 2)
+			LEFT JOIN m_product_type AS c ON (b.id = c.pid AND c.type = 3)
+		WHERE
+			a.pid = #{pid}
+		  AND a.type = 1
+	</select>
+</mapper>

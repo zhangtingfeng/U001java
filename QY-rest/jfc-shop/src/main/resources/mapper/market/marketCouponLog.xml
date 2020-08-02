@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="marketCouponLog">
+    <sql id="sql_where">
+        <if test="''!=shopId and null!=shopId">
+            and c.id=#{shopId}
+        </if>
+        <if test="''!=id and null!=id">
+            and  a.id=#{id}
+        </if>
+        <if test="''!=orderno and null!=orderno">
+            and d.number LIKE CONCAT('%', #{orderno}, '%')
+        </if>
+        <if test="''!=nickname and null!=nickname">
+            and m.nickname LIKE CONCAT('%', #{nickname}, '%')
+        </if>
+        <if test="''!=id and null!=id">
+            and a.id=#{id}
+        </if>
+       <if test="''!=telephone and null!=telephone">
+            and m.telephone=#{telephone}
+        </if>
+        <if test="''!=couponNumber and null!=couponNumber">
+            and b.number LIKE CONCAT('%', #{couponNumber}, '%')
+        </if>      
+        <if test="''!=startDate and null!=startDate">
+            and  a.usetime &gt;= #{startDate}
+        </if>
+        <if test="''!=endDate and null!=endDate">
+            and   a.usetime &lt;= #{endDate}
+        </if>
+          
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+        a.*,d.order_money as money,
+       d.coupon_money as coupon_money,
+        b.number,
+        c.`name`,
+        d.number AS orderno,
+        m.nickname,
+        m.telephone,
+        s.username AS creatorname,
+        (select mpa.name from m_market_package_coupon as pc left join m_market_package as mpa on(pc.package_id=mpa.id) where pc.coupon_id=a.coupon_id limit 1) as packname
+        FROM
+        m_market_coupon_user a
+        LEFT JOIN m_market_coupon b ON a.coupon_id = b.id
+        LEFT JOIN m_shop c ON b.shop_id = c.id
+        LEFT JOIN m_order d ON a.coupon_id = d.coupon_id
+        LEFT JOIN m_member m ON a.member_id = m.id
+        LEFT JOIN sys_user s ON a.creator = s.id
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N' and a.status=181
+        <include refid="sql_where"/>
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <!-- 查询 -->
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        SELECT
+        count(1) as total
+        FROM
+        m_market_coupon_user a
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N' and a.status=181
+        <include refid="sql_where"/>
+        ORDER BY id
+    </select>
+
+    <!-- 查询 -->
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT
+        a.*, b.money,
+        b.number,
+        c.`name`,
+        d.number AS orderno,
+        p.`name` AS proname,
+        m.nickname,
+        m.telephone,
+        s.username AS creatorname
+        FROM
+        m_market_coupon_log a
+        LEFT JOIN m_market_coupon b ON a.coupon_id = b.id
+        LEFT JOIN m_shop c ON b.shop_id = c.id
+        LEFT JOIN m_order_sub d ON a.order_sub_id = d.id
+        LEFT JOIN m_product p ON d.product_id = p.id
+        LEFT JOIN m_member m ON a.member_id = m.id
+        LEFT JOIN sys_user s ON a.creator = s.id
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 0,1
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+        insert into m_market_coupon_log
+          (
+           <if test="null!=order_sub_id">
+               order_sub_id,
+           </if>
+           <if test="null!=coupon_id">
+              coupon_id,
+           </if>
+            <if test="null!=member_id">
+               member_id,
+            </if>
+           usetime,
+            <if test="null!=status">
+               status,
+            </if>
+               create_time,
+            <if test="null!=member_id">
+               creator,
+            </if>
+               is_delete
+               )
+            values (
+            <if test="null!=order_sub_id">
+                #{order_sub_id},
+            </if>
+            <if test="null!=coupon_id">
+                #{coupon_id},
+            </if>
+            <if test="null!=member_id">
+                #{member_id},
+            </if>
+                now(),
+            <if test="null!=status">
+                #{status},
+            </if>
+                now(),
+            <if test="null!=member_id">
+                #{member_id},
+            </if>
+            'N'
+        )
+    </insert>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        UPDATE m_market_coupon_log set is_delete = 'Y' WHERE id = #{id}
+    </delete>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_market_coupon_log a
+        set
+        <if test="orderid">
+            a.order_sub_id = #{order_sub_id},
+        </if>
+        <if test="couponid">
+            a.coupon_id = #{coupon_id},
+        </if>
+        <if test="memberid">
+            a.member_id = #{member_id},
+        </if>
+        <if test="usetime">
+            a.usetime = #{usetime},
+        </if>
+        <if test="status">
+            a.status = #{status},
+        </if>
+        <if test="updator">
+            a.updator = #{updator},
+        </if>
+        update_time = now()
+        where id = #{id}
+    </update>
+
+</mapper>

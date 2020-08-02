@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="m_market_package">
+    <sql id="sql_where">
+                <if test="''!=id and null!=id">
+                    and a.id = #{id}
+                </if>
+                <if test="''!=username and null!=username">
+                    and a.username LIKE CONCAT('%', #{username}, '%')
+                </if>
+                <if test="''!=telephone and null!=telephone">
+                    and a.telephone LIKE CONCAT('%', #{telephone}, '%')
+                </if>
+                <if test="''!=password and null!=password">
+                    and a.password = MD5(#{password})
+                </if>
+                <if test="''!=status and null!=status">
+                    and  a.status = #{status}
+                </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+    	SELECT
+        a.* ,b. NAME AS shoopName
+        FROM
+        m_market_package a
+         LEFT JOIN m_shop b ON a.shop_id = b.id
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N'
+        <if test="''!=shop_id and null!=shop_id">
+          and a.shop_id = #{shop_id}
+        </if>
+        <if test="''!=startDate and null!=startDate">
+          and  DATE(a.create_time) &gt;= #{startDate}
+        </if>
+        <if test="''!=endDate and null!=endDate"> 
+           and  DATE(a.create_time) &lt;= #{endDate}
+        </if>
+        <include refid="sql_where"/>
+        order by a.create_time desc
+    </select>
+
+    <!-- 未使用优惠券 -->
+    <select id="unusedCoupons" parameterType="map" resultType="dto">
+        SELECT
+        b.id,
+        b.member_id,
+        b.number,
+        b.money,
+        b.endtime,
+        b.remains,
+        b.`status`
+        FROM
+        m_member a,
+        m_coupon_user b
+        WHERE
+        a.id = b.member_id
+        AND remains > 0
+        AND b.endtime > NOW()
+        AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+    </select>
+
+    <!-- 过期优惠券 -->
+    <select id="expiredCoupon" parameterType="map" resultType="dto">
+        SELECT
+        b.id,
+        b.member_id,
+        b.number,
+        b.money,
+        b.endtime,
+        b.remains,
+        b.`status`
+        FROM
+        m_member a,
+        m_coupon_user b
+        WHERE
+        a.id = b.member_id
+        AND remains > 0
+        <![CDATA[
+		AND b.endtime < NOW()
+					]]>
+        <include refid="sql_where"/>
+    </select>
+
+    <!-- 已使用优惠券 -->
+    <select id="usedCoupons" parameterType="map" resultType="dto">
+        SELECT
+        b.id,
+        b.memberid,
+        b.usetime,
+        c.money,
+        c.number,
+        c.endtime,
+        c.remains,
+        b.`status`
+        FROM
+        m_member a,
+        m_coupon_uselog b,
+        m_coupon_user c
+        WHERE
+        a.id = b.memberid
+        AND b.couponid = c.id
+        <include refid="sql_where"/>
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="java.lang.Integer">
+        SELECT
+        count(1) as count
+        FROM m_member a
+        WHERE 1=1
+        <include refid="sql_where"/>
+    </select>
+
+    <!-- 查询 -->
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT a.*, b. NAME AS gradename,
+        (SELECT count(1) as count FROM m_market_coupon_user c
+        LEFT JOIN m_market_coupon m ON c.coupon_id = m.id
+        WHERE c.member_id = a.id AND c.is_delete = 'N' AND c.`status` =180 AND CURDATE() >= DATE(m.starttime) AND m.endtime >= CURDATE()) as coupcount,
+        (SELECT count(1) FROM m_member_collect cc WHERE  cc.member_id = a.id) as pronum,
+        (SELECT SUM(cc.product_num) FROM m_member_cart cc WHERE  cc.member_id = a.id) as cartnum,
+        (CASE a.`status` WHEN '0' THEN '正常使用' ELSE '已注销' END ) status_alias
+        FROM m_member a
+        LEFT JOIN m_member_grade b ON a.grade_id = b.id
+        WHERE 1 = 1 AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 1
+    </select>
+
+    <!-- 查询 -->
+    <select id="getPayPwdInfo" parameterType="map" resultType="dto">
+		SELECT a.*
+		FROM m_member a
+		WHERE 1 = 1 AND a.is_delete = 'N'
+		AND a.id = #{id} AND a.pay_password = MD5(#{paypwd})
+	</select>
+
+    <!-- 查询 -->
+    <select id="loginInfo" parameterType="map" resultType="dto">
+		SELECT
+		a.*,
+		 b. NAME AS gradename,
+		(SELECT count(1) as count FROM m_market_coupon_user c
+        LEFT JOIN m_market_coupon m ON c.coupon_id = m.id
+        WHERE c.member_id = a.id AND c.is_delete = 'N' AND c.`status` =180 AND CURDATE() >= DATE(m.starttime) AND m.endtime >= CURDATE()) as coupcount,
+        (SELECT count(1) FROM m_member_collect cc WHERE  cc.member_id = a.id) as pronum,
+        (SELECT SUM(cc.product_num) FROM m_member_cart cc WHERE  cc.member_id = a.id) as cartnum,
+		(
+		CASE a.`status`
+		WHEN '0' THEN
+		'正常使用'
+		ELSE
+		'已注销'
+		END
+		) status_alias
+		FROM
+		m_member a
+		LEFT JOIN m_member_grade b ON a.grade_id = b.id
+		WHERE
+		1 = 1
+		AND a.is_delete = 'N' AND  a.status = '0'
+		AND a.username = #{username} AND a.password = MD5(#{password})
+		limit 0,1
+	</select>
+
+
+    <!-- 查询 -->
+    <select id="msgLoginInfo" parameterType="map" resultType="dto">
+		SELECT
+		a.*,
+		 b. NAME AS gradename,
+		 (SELECT count(1) as count FROM m_market_coupon_user c WHERE  c.member_id = a.id) as coupcount,
+		(
+		CASE a.`status`
+		WHEN '0' THEN
+		'正常使用'
+		ELSE
+		'已注销'
+		END
+		) status_alias
+		FROM
+		m_member a
+		LEFT JOIN m_member_grade b ON a.grade_id = b.id
+		WHERE
+		1 = 1
+		AND a.is_delete = 'N'
+		AND a.username = #{username}
+		limit 0,1
+	</select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+        insert into m_market_package (
+        shop_id,
+        name,
+        stock,
+        status,
+        sketch,
+        photoex,
+        remark,
+        create_time,
+        creator,
+        update_time,
+        updator,
+        is_delete 
+        )
+        values (
+        #{shop_id},
+        #{name},
+        #{stock},
+        #{status},
+        #{sketch},
+        #{photoex},
+        #{remark},
+        now(),
+        #{creator},
+        now(),
+        #{creator},
+        'N')
+        <selectKey resultType="java.lang.Long" keyProperty="id">
+            SELECT LAST_INSERT_ID() as id
+        </selectKey>
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_market_package
+        set
+        <if test="null!=shop_id">
+            shop_id = #{shop_id},
+        </if>
+        <if test="null!=name">
+            name =  #{name},
+        </if>
+        <if test="null!=stock">
+            stock =  #{stock},
+        </if>
+        <if test="null!=sketch">
+            sketch =  #{sketch},
+        </if>
+        <if test="null!=photoex">
+            photoex =  #{photoex},
+        </if>
+        <if test="null!=status">
+            status = #{status},
+        </if>
+        <if test="null!=remark">
+            telephone = #{remark},
+        </if>
+        update_time = now()
+        where id = #{id}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        UPDATE m_market_package m
+        SET m.is_delete = 'Y'
+        WHERE
+            m.id = #{id}
+    </delete>
+
+    <!-- 删除 -->
+    <delete id="deletePackgeCoupon" parameterType="map">
+        delete  from m_market_package_coupon
+        WHERE
+            package_id = #{packgeid}
+    </delete>
+
+    <!-- 插入 -->
+    <insert id="savePackgeCoupon" parameterType="dto">
+        insert into  m_market_package_coupon (
+    package_id,
+    coupon_id
+        )
+        values (
+        #{package_id},
+        #{coupon_id}
+     )
+  </insert>
+
+    <!-- 查询 -->
+    <select id="queryCouponList" parameterType="map" resultType="dto">
+        SELECT a.*,b.`name` as shopname,
+        (case a.status when 1 then '失效' when '0' then '启用' END) as statusval,
+        a.the_products,
+        (case a.type when 1 then '代金券' when 2 then '折扣券' when 3 then '免单券' else '其他' END)as typeval,
+        (
+        CASE a.type
+        WHEN 1 THEN
+        CONCAT('订单满',a.full_money,'可用')
+        WHEN 2 THEN
+        CONCAT('最大折扣金额', a.max_money)
+        WHEN 3 THEN
+        CONCAT('免单购买份数',a.buy_number)
+        ELSE
+        ''
+        END
+        ) AS show_desc,
+        s.username as creatorname,s1.username as updatorname,
+        mpc.coupon_id
+        FROM m_market_coupon a
+        LEFT JOIN m_shop b ON a.shop_id = b.id
+        LEFT JOIN sys_user s ON a.creator = s.id
+        LEFT JOIN sys_user s1 ON a.updator = s1.id
+        LEFT JOIN m_market_package_coupon mpc on mpc.coupon_id= a.id and mpc.package_id=#{package_id}
+        WHERE 1=1 and a.is_delete = 'N' and a.stores&gt;0 and (now()&lt;DATE(a.endtime) or now()&lt;DATE(a.coupon_end_time))
+        ORDER BY a.id desc
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <!-- 查询 -->
+    <select id="queryCouponNewList" parameterType="map" resultType="dto">
+        SELECT a.*,b.`name` as shopname,
+        (case a.status when 1 then '失效' when '0' then '启用' END) as statusval,
+        a.the_products,
+        (case a.type when 1 then '代金券' when 2 then '折扣券' when 3 then '免单券' else '其他' END)as typeval,
+        (
+        CASE a.type
+        WHEN 1 THEN
+        CONCAT('订单满',a.full_money,'可用')
+        WHEN 2 THEN
+        CONCAT('最大折扣金额', a.max_money)
+        WHEN 3 THEN
+        CONCAT('免单购买份数',a.buy_number)
+        ELSE
+        ''
+        END
+        ) AS show_desc,
+        s.username as creatorname,s1.username as updatorname,
+        mpc.coupon_id
+        FROM m_market_coupon a
+        LEFT JOIN m_shop b ON a.shop_id = b.id
+        LEFT JOIN sys_user s ON a.creator = s.id
+        LEFT JOIN sys_user s1 ON a.updator = s1.id
+        LEFT JOIN m_market_package_coupon mpc on mpc.coupon_id= a.id and mpc.package_id=#{package_id}
+        WHERE 1=1 and a.is_delete = 'N'
+        ORDER BY a.id desc
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <!-- 查询 -->
+    <select id="queryCouponListNewCount" parameterType="map" resultType="dto">
+        SELECT count(1) as total
+        FROM m_market_coupon a
+                 LEFT JOIN m_shop b ON a.shop_id = b.id
+                 LEFT JOIN sys_user s ON a.creator = s.id
+                 LEFT JOIN sys_user s1 ON a.updator = s1.id
+                 LEFT JOIN m_market_package_coupon mpc on mpc.coupon_id= a.id
+        WHERE 1=1 and a.is_delete = 'N'
+        ORDER BY a.id
+    </select>
+
+    <select id="queryCouponListCount" parameterType="map" resultType="dto">
+        SELECT count(1) as total
+        FROM m_market_coupon a
+        LEFT JOIN m_shop b ON a.shop_id = b.id
+        LEFT JOIN sys_user s ON a.creator = s.id
+        LEFT JOIN sys_user s1 ON a.updator = s1.id
+        LEFT JOIN m_market_package_coupon mpc on mpc.coupon_id= a.id
+        WHERE 1=1 and a.is_delete = 'N'  and a.stores&gt;0 and (now()&lt;DATE(a.endtime) or now()&lt;DATE(a.coupon_end_time))
+        ORDER BY a.id
+    </select>
+
+
+</mapper>

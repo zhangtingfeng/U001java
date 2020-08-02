@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="memberCollect">
+  
+  <sql id="sql_where">
+              <if test="''!=id and null!=id">
+                  and a.id = #{id}
+              </if>
+              <if test="''!=member_id and null!=member_id">
+                  and  a.member_id = #{member_id}
+              </if>
+              <if test="''!=product_id and null!=product_id">
+                  and a.product_id = #{product_id}
+              </if>
+        
+    </sql>
+  
+  <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT a.*,b.name as proname,b.price,b.price2,b.price3,b.smallpic,b.bigpic,if(LENGTH(b.name)>25,concat(left(b.name,13),'...'),b.name)as pname,
+        if(LENGTH(b.introduction)>29,concat(left(b.introduction,17),'...'),b.introduction)as pintroduction,substring_index(b.bigpic,',',1)as pics
+        FROM m_member_collect a
+        LEFT JOIN m_product b ON a.product_id = b.id
+        WHERE 1=1 AND a.shop_id is null
+        <include refid="sql_where"/>
+        ORDER BY id
+    </select>
+
+    <!-- 获取当前用户的 -->
+    <select id="queryShopList" parameterType="map" resultType="dto">
+        SELECT
+           a.*,s.name,s.pic
+        FROM
+            m_member_collect a
+            LEFT JOIN m_shop s ON a.shop_id = s.id
+            WHERE 1 = 1  AND a.product_id is null
+        <include refid="sql_where"/>
+        ORDER BY id
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="java.lang.Integer">
+    SELECT count(1) as count FROM m_member_collect a WHERE 1=1
+    <include refid="sql_where"/> 
+  </select>
+  
+  <select id="getInfo" parameterType="map" resultType="dto">
+      SELECT a.*
+      FROM m_member_collect a
+      WHERE 1=1
+      <include refid="sql_where"/> 
+    ORDER BY id
+  </select>
+  
+  <!-- 插入 -->
+  <insert id="saveInfo" parameterType="dto" useGeneratedKeys="true" keyProperty="id">
+    insert into m_member_collect
+    (member_id,product_id,shop_id,create_time)
+    values
+    (#{creator},#{product_id},#{shop_id},now())
+  </insert>
+
+<!-- 修改 -->
+<update id="updateInfo" parameterType="dto">
+    update m_member_collect 
+      set
+    <if test="member_id">
+        member_id = #{member_id},
+    </if>
+    <if test="product_id">
+        product_id = #{product_id},
+    </if>
+    
+    where id = #{id}
+</update>
+  <!-- 删除 -->
+  <delete id="deleteInfo" parameterType="map">
+    DELETE FROM m_member_collect WHERE id = #{id}
+  </delete>
+  
+</mapper>

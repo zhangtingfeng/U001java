@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="videoLog">
+
+    <sql id="sql_where">
+        <if test="''!=member_id and null!=member_id">
+            and a.member_id=#{member_id}
+        </if>
+        <if test="''!=ip and null!=ip">
+            and a.ip=#{ip}
+        </if>
+        <if test="''!=fieid and null!=fieid">
+            and a.fieid=#{fieid}
+        </if>
+        <if test="''!=username and null!=username">
+            and mem.username LIKE CONCAT('%', #{username}, '%')
+        </if>
+        <if test="''!=shopname and null!=shopname">
+            and ud.member_id in (SELECT
+            member_id
+            FROM
+            m_shop
+            WHERE `name` LIKE CONCAT('%', #{shopname}, '%'))
+        </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT mem.username as memberName,
+        a.*
+        FROM
+        m_video_log a
+        left join m_member mem on a.member_id = mem.id and mem.is_delete='N'
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        <if test="''!=create_time and null!=create_time">
+            order by a.create_time desc
+        </if>
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+
+        SELECT count(1) as total
+        FROM
+        m_video_log a
+        left join m_member mem on a.member_id = mem.id and mem.is_delete='N'
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N'
+
+        <include refid="sql_where"/>
+    </select>
+
+
+    <!-- 查询 -->
+    <select id="queryVideoList" parameterType="map" resultType="dto">
+        SELECT
+        ud.*,
+        COUNT(a.id) AS total_num,
+        mem.username,
+        (
+        SELECT
+        `name`
+        FROM
+        m_shop
+        WHERE
+        member_id = ud.member_id
+        AND is_delete = 'N'
+        ) AS shop_name
+        FROM
+        user_dynamic ud
+        LEFT JOIN m_video_log a ON ud.fileid = a.fieid
+        LEFT JOIN m_member mem on ud.member_id = mem.id
+        WHERE
+        ud.type = 1
+        <include refid="sql_where"/>
+        GROUP BY
+        ud.fileid
+        ORDER BY
+        COUNT(a.id) DESC
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <select id="queryVideoListCount" parameterType="map" resultType="dto">
+        SELECT count(1) as total
+        FROM
+        (
+        SELECT
+        ud.member_id,
+        ud.fileid,
+        mem.username,
+        (
+        SELECT
+        `name`
+        FROM
+        m_shop
+        WHERE
+        member_id = ud.member_id
+        AND is_delete = 'N'
+        ) AS shop_name
+        FROM
+        user_dynamic ud
+        LEFT JOIN m_video_log a ON ud.fileid = a.fieid
+        LEFT JOIN m_member mem on ud.member_id = mem.id
+        WHERE
+        ud.type = 1
+        <include refid="sql_where"/>
+        GROUP BY
+        ud.fileid
+        )a
+    </select>
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT mem.username as memberName,
+        a.*
+        FROM
+        m_video_log a
+        left join m_member mem on a.member_id = mem.id and mem.is_delete='N'
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        LIMIT 1
+    </select>
+
+    <!-- 插入 -->
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+        INSERT INTO m_video_log
+        (
+        <if test="member_id!=null and ''!=member_id">
+            member_id,
+        </if>
+        <if test="ip!=null and ''!=ip">
+            ip,
+        </if>
+        <if test="fieid!=null and ''!=fieid">
+            fieid,
+        </if>
+        <if test="creator!=null and ''!=creator">
+            creator,
+        </if>
+        <if test="type!=null and ''!=type">
+            `type`,
+        </if>
+        create_time
+        ,is_delete
+        )
+        VALUES
+        (
+        <if test="member_id!=null and ''!=member_id">
+            #{member_id},
+        </if>
+        <if test="ip!=null and ''!=ip">
+            #{ip},
+        </if>
+        <if test="fieid!=null and ''!=fieid">
+            #{fieid},
+        </if>
+        <if test="creator!=null and ''!=creator">
+            #{creator},
+        </if>
+        <if test="type!=null and ''!=type">
+            #{type},
+        </if>
+        now()
+        ,'N')
+        <selectKey resultType="java.lang.Long" keyProperty="id">
+            SELECT LAST_INSERT_ID() as id
+        </selectKey>
+    </insert>
+</mapper>

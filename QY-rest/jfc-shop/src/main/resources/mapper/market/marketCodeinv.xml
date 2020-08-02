@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="marketCodeinv">
+
+    <sql id="sql_where">
+
+        <if test="''!=start_time and null!=start_time">
+            and  DATE(a.create_time) &gt;= #{start_time}
+        </if>
+        <if test="''!=end_time and null!=end_time">
+            and  DATE(a.create_time) &gt;= #{end_time}
+        </if>
+        <if test="''!=startMoney and null!=startMoney">
+            and a.money &gt;= #{startMoney}
+        </if>
+        <if test="''!=endMoney and null!=endMoney">
+            and  a.money  &lt;= #{endMoney}
+        </if>
+        <if test="''!=name and null!=name">
+            and a.name LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="''!=shop_id and null!=shop_id">
+            and a.shop_id = #{shop_id}
+        </if>
+        <if test="''!=id and null!=id">
+            and a.id = #{id}
+        </if>
+        <if test="''!=bno and null!=bno">
+            and a.bno = #{bno}
+        </if>
+        <if test="''!=incode and null!=incode">
+            and a.codeno = #{incode}
+        </if>
+        <if test="''!=telephone and null!=telephone">
+            and d.telephone = #{telephone}
+        </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+            a.*, c. NAME AS shop_name,
+            b.val AS member_name,
+            d.telephone,
+            d.id
+        FROM
+            m_market_codeinv a
+        LEFT JOIN sys_config b ON a.member_id = b.id
+        LEFT JOIN m_shop c ON a.shop_id = c.id
+        LEFT JOIN m_member d ON a.codeno = d.incode
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY a.id desc
+    </select>
+
+    <!-- 查询 -->
+    <select id="queryLogo" parameterType="map" resultType="dto">
+        SELECT
+        a.*,b.username as member_name
+        FROM
+        m_market_codeinv_log a
+        left join m_member b on a.member_id=b.id
+        WHERE
+        1 = 1
+        <include refid="sql_where"/>
+        ORDER BY a.id desc
+    </select>
+
+
+    <!-- 查询 -->
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT a.*
+        FROM m_market_codeinv a
+        LEFT JOIN sys_config b on a.member_id=b.id
+        LEFT JOIN m_shop c on a.shop_id=c.id
+        WHERE 1=1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 0,1
+    </select>
+
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+          insert into m_market_codeinv (shop_id,name,bno,nums,member_id,
+           codeno,start_time,end_time,status,remark,create_time,creator, is_delete)
+        values (#{shop_id}, #{name},#{bno}, #{nums},
+          #{member_id}, #{codeno},#{start_time},#{end_time},#{status},#{remark},now(),
+          #{creator}, 'N')
+    </insert>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        UPDATE m_market_codeinv set is_delete = 'Y' WHERE bno = #{bno}
+    </delete>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_market_codeinv a
+        set
+        <if test="shop_id">
+            a.shop_id = #{shop_id},
+        </if>
+        <if test="name">
+            a.name = #{name},
+        </if>
+        <if test="bno">
+            a.bno = #{bno},
+        </if>
+        <if test="nums">
+            a.nums = #{nums},
+        </if>
+        <if test="member_id">
+            a.member_id = #{member_id},
+        </if>
+        <if test="codeno">
+            a.codeno = #{codeno},
+        </if>
+        <if test="start_time">
+            a.start_time = #{start_time},
+        </if>
+        <if test="end_time">
+            a.end_time = #{end_time},
+        </if>
+        <if test="status">
+            a.status = #{status},
+        </if>
+        <if test="remark">
+            a.remark = #{remark},
+        </if>
+        <if test="updator">
+            a.updator = #{updator},
+        </if>
+        update_time = now()
+        where bno = #{bno}
+    </update>
+
+    <!-- 查询未配置邀请码会员的数量-->
+    <select id="queryCodeByMemberType" parameterType="map" resultType="dto">
+        SELECT count(*) as nums
+        FROM m_member a
+        WHERE 1=1 and a.is_delete = 'N' and a.fellshion=#{fellshion} and (a.incode is  null or a.incode='')
+    </select>
+
+    <!-- 查询未配置邀请码会员的数量-->
+    <select id="queryMember" parameterType="map" resultType="dto">
+        SELECT a.*
+        FROM m_member a
+        WHERE 1=1 and a.is_delete = 'N' and a.fellshion=#{fellshion} and (a.incode is  null or a.incode='')
+    </select>
+    <!-- 查询 -->
+    <select id="queryListThis" parameterType="map" resultType="dto">
+        SELECT
+        a.*,c.name as shop_name,b.val as member_name
+        FROM
+        m_market_codeinv a
+        LEFT JOIN sys_config b on a.member_id=b.id
+        LEFT JOIN m_shop c on a.shop_id=c.id
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N' and a.bno=#{bno}
+        ORDER BY a.id desc
+    </select>
+
+</mapper>

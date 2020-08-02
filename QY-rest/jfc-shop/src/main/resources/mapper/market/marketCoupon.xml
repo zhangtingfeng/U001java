@@ -1,0 +1,662 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="marketCoupon">
+
+    <sql id="sql_where">
+        <if test="''!=number1 and null!=number1">
+            and a.number LIKE CONCAT('%', #{number1}, '%')
+        </if>
+        <if test="''!=startDate and null!=startDate">
+            and  DATE(a.create_time) &gt;= #{startDate}
+        </if>
+        <if test="''!=endDate and null!=endDate">
+            and  DATE(a.create_time) &gt;= #{startDate}
+        </if>
+        <if test="''!=startMoney and null!=startMoney">
+            and a.money &gt;= #{startMoney}
+        </if>
+        <if test="''!=endMoney and null!=endMoney">
+            and  a.money  &lt;= #{endMoney}
+        </if>
+        <if test="''!=startFullMoney and null!=startFullMoney">
+            and a.full_money &gt;= #{startFullMoney}
+        </if>
+        <if test="''!=endFullMoney and null!=endFullMoney">
+            and a.full_money  &lt;= #{endFullMoney}
+        </if>
+        <if test="''!=startNums and null!=startNums">
+            and  a.full_nums &gt;= #{startNums}
+        </if>
+        <if test="''!=endNums and null!=endNums">
+            and a.full_nums &gt;= #{endNums}
+        </if>
+        <if test="''!=endNums and null!=endNums">
+            and  a.full_nums  &lt;= #{endNums}
+        </if>
+        <if test="''!=shopname and null!=shopname">
+            and b.name LIKE CONCAT('%', #{shopname}, '%')
+        </if>
+        <if test="''!=shop_id and null!=shop_id">
+            and a.shop_id = #{shop_id}
+        </if>
+        <if test="''!=id and null!=id">
+            and a.id = #{id}
+        </if>
+        <if test="''!=btype and null!=btype">
+            and a.btype = #{btype}
+        </if>
+        <if test="''!=name and null!=name">
+            and a.name = #{name}
+        </if>
+        <if test="''!=date and null!=date">
+            and to_days(a.endtime)>=to_days(now())
+        </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT a.*,b.`name` as shopname,
+        (case a.status when 1 then '失效' when '0' then '启用' END) as statusval,
+        a.the_products,
+        (case a.type when 1 then '代金券' when 2 then '折扣券' when 3 then '免单券' else '其他' END)as typeval,
+        (
+        CASE a.type
+        WHEN 1 THEN
+        CONCAT('订单满',a.full_money,'可用')
+        WHEN 2 THEN
+        CONCAT('最大折扣金额', a.max_money)
+        WHEN 3 THEN
+        CONCAT('免单购买份数',a.buy_number)
+        ELSE
+        ''
+        END
+        ) AS show_desc,
+        s.username as creatorname,s1.username as updatorname
+        FROM m_market_coupon a
+        LEFT JOIN m_shop b ON a.shop_id = b.id
+        LEFT JOIN sys_user s ON a.creator = s.id
+        LEFT JOIN sys_user s1 ON a.updator = s1.id
+        WHERE 1=1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        <if test="''!=flag and null!=flag">
+            and ( 1 = #{flag} or a.shop_id = #{flag})
+        </if>
+        ORDER BY a.id desc
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        SELECT count(1) as total
+        FROM m_market_coupon a
+        LEFT JOIN m_shop b ON a.shop_id = b.id
+        LEFT JOIN sys_user s ON a.creator = s.id
+        LEFT JOIN sys_user s1 ON a.updator = s1.id
+        WHERE 1=1 and a.is_delete = 'N'  and a.status=0
+        <include refid="sql_where"/>
+        <if test="''!=newuser_id and null!=newuser_id">
+            and a.id NOT in(SELECT a.coupon_id from m_market_newuser_coupon a
+            WHERE a.newuser_id=#{newuser_id})
+        </if>
+        <if test="''!=flag and null!=flag">
+            and ( 1 = #{flag} or a.shop_id = #{flag})
+        </if>
+        ORDER BY a.id
+    </select>
+
+    <select id="queryUseList" parameterType="map" resultType="dto">
+        SELECT * FROM m_market_coupon a
+        where 1=1 and a.the_products in (0,1,#{product_id})
+          and CURDATE() >= DATE(a.starttime)
+          and a.endtime >= CURDATE()
+          and a.is_delete = 'N'
+    </select>
+
+    <!-- 查询 -->
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT a.*,b.`name` as shopname,
+        (case a.status when 1 then '失效' when '0' then '启用' END) as statusval,
+        (case a.the_products when 1 then '本商铺通用' when '0' then '全平台'  else "指定商品" END) as theProducts,
+        (case a.type when 1 then '代金券' when 2 then '折扣券' when 3 then '免单券' else '其他' END)as typeval,
+        (
+        CASE a.type
+        WHEN 1 THEN
+        CONCAT('订单满',a.full_money,'可用')
+        WHEN 2 THEN
+        CONCAT('最大折扣金额', a.max_money)
+        WHEN 3 THEN
+        CONCAT('免单购买份数',a.buy_number)
+        ELSE
+        ''
+        END
+        ) AS show_desc,
+        IF (
+        a.the_products = 2,
+        (
+        SELECT
+        GROUP_CONCAT(mcu.pro_id SEPARATOR ',')
+        FROM
+        m_market_coupon_pro AS mcu
+        WHERE
+        mcu.coupon_id = a.id
+        ),
+        ''
+        )as product_ids,
+        s.username as creatorname,s1.username as updatorname
+        FROM m_market_coupon a
+        LEFT JOIN m_shop b ON a.shop_id = b.id
+        LEFT JOIN sys_user s ON a.creator = s.id
+        LEFT JOIN sys_user s1 ON a.updator = s1.id
+        WHERE 1=1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 0,1
+    </select>
+
+    <!-- 查询 -->
+    <select id="getInfo1" parameterType="map" resultType="dto">
+        SELECT a.*,b.`name` as shopname,
+        (case a.status when 1 then '生效' when '0' then '失效' END) as statusval,
+        (case a.type when 1 then '代金券' when '2' then '折扣券' when '3' then '免单券' END) as types,
+        s.username as creatorname,s1.username as updatorname
+        FROM m_market_coupon a
+        LEFT JOIN m_shop b ON a.shop_id = b.id
+        LEFT JOIN sys_user s ON a.creator = s.id
+        LEFT JOIN sys_user s1 ON a.updator = s1.id
+        WHERE 1=1 and a.is_delete = 'N'
+        <if test="''!=newuser_id and null!=newuser_id">
+            and a.id NOT in(SELECT a.coupon_id from m_market_newuser_coupon a
+            WHERE a.newuser_id=#{newuser_id})
+        </if>
+        <include refid="sql_where"/>
+        <if test="null!=start">
+            limit ${start},${limit}
+        </if>
+    </select>
+
+    <!-- <select id="queryListCount" parameterType="map" resultType="dto">
+         SELECT count(1) as total
+         FROM m_market_coupon a
+         LEFT JOIN m_shop b ON a.shop_id = b.id
+         LEFT JOIN sys_user s ON a.creator = s.id
+         LEFT JOIN sys_user s1 ON a.updator = s1.id
+         WHERE 1=1
+         and a.is_delete='N'
+         <if test="''!=newuser_id and null!=newuser_id">
+             and a.id NOT in(SELECT a.coupon_id from m_market_newuser_coupon a
+             WHERE a.newuser_id=#{newuser_id})
+         </if>
+         <include refid="sql_where" />
+     </select>-->
+
+
+    <!-- 查询购物车 -->
+    <select id="queryCartList" parameterType="map" resultType="dto">
+        SELECT
+            a.*,b.*
+        FROM
+            m_member_cart a
+                left join m_product b on a.product_id = b.id
+        WHERE
+            1 = 1
+          and FIND_IN_SET(a.id,#{ids})
+        ORDER BY a.id
+    </select>
+    <!--#{the_products},-->
+    <!--#{the_products},-->
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+        <!--  insert into m_market_coupon (shop_id, number,
+           money, full_money, full_nums,
+            starttime, endtime,
+           type, status, create_time,
+           creator, is_delete)
+         values (#{shop_id}, #{number},
+           #{money}, #{full_money}, #{full_nums},
+           #{coupon_create_time}, #{coupon_end_time},
+           #{type}, 1, now(),
+           #{creator}, 'N') -->
+        insert into m_market_coupon (
+        <if test="shop_id!=null ">
+            shop_id,
+        </if>
+        <if test="number!=null and ''!=number">
+            number,
+        </if>
+        <if test="money!=null and ''!=money">
+            money,
+        </if>
+        <if test="full_money!=null and ''!=full_money">
+            full_money,
+        </if>
+        <if test="starttime!=null and ''!=starttime">
+            starttime,
+        </if>
+        <if test="endtime!=null and ''!=endtime">
+            endtime,
+        </if>
+        <if test="free_rule!=null">
+            free_rule,
+        </if>
+        <if test="buy_number!=null">
+            buy_number,
+        </if>
+        <if test="free_nummber!=null">
+            free_nummber,
+        </if>
+        <if test="type!=null">
+            type,
+        </if>
+        <if test="status!=null">
+            status,
+        </if>
+        <if test="name!=null and ''!=name">
+            name,
+        </if>
+        <if test="atype!=null and ''!=atype">
+            atype,
+        </if>
+        <if test="max_money!=null and ''!=max_money">
+            max_money,
+        </if>
+            the_products,
+        <if test="stores!=null">
+            stores,
+        </if>
+        <if test="btype!=null and ''!=btype">
+            btype,
+        </if>
+        <if test="bmoney!=null and ''!=bmoney">
+            bmoney,
+        </if>
+        <if test="bstart!=null and ''!=bstart">
+            bstart,
+        </if>
+        <if test="bend!=null and ''!=bend">
+            bend,
+        </if>
+        <if test="numbers!=null">
+            numbers,
+        </if>
+        <if test="timesFlg!=null and ''!=timesFlg">
+            timesFlg,
+        </if>
+        <if test="days!=null">
+            days,
+        </if>
+        <if test="description!=null and ''!=description">
+            description,
+        </if>
+        <if test="coupon_create_time!=null and ''!=coupon_create_time">
+            coupon_create_time,
+        </if>
+        <if test=" coupon_end_time!=null and ''!= coupon_end_time">
+            coupon_end_time,
+        </if>
+        <if test=" photoex!=null and ''!= photoex">
+            photoex,
+        </if>
+        create_time,
+        creator, is_delete,adays
+        )
+        values (
+        <if test="shop_id!=null">
+            #{shop_id},
+        </if>
+        <if test="number!=null and ''!=number">
+            #{number},
+        </if>
+        <if test="money!=null and ''!=money">
+            #{money},
+        </if>
+        <if test="full_money!=null and ''!=full_money">
+            #{full_money},
+        </if>
+        <if test="starttime!=null and ''!=starttime">
+            #{starttime},
+        </if>
+        <if test="endtime!=null and ''!=endtime">
+            concat(#{endtime},' ','23-59-59'),
+        </if>
+        <if test="free_rule!=null">
+            #{free_rule},
+        </if>
+        <if test="buy_number!=null">
+            #{buy_number},
+        </if>
+        <if test="free_nummber!=null">
+            #{free_nummber},
+        </if>
+        <if test="type!=null">
+            #{type},
+        </if>
+        <if test="status!=null">
+            #{status},
+        </if>
+        <if test="name!=null and ''!=name">
+            #{name},
+        </if>
+        <if test="atype!=null and ''!=atype">
+            #{atype},
+        </if>
+        <if test="max_money!=null and ''!=max_money">
+            #{max_money},
+        </if>
+            '0',
+        <if test="stores!=null">
+            #{stores},
+        </if>
+        <if test="btype!=null and ''!=btype">
+            #{btype},
+        </if>
+        <if test="bmoney!=null and ''!=bmoney">
+            #{bmoney},
+        </if>
+        <if test="bstart!=null and ''!=bstart">
+            #{bstart},
+        </if>
+        <if test="bend!=null and ''!=bend">
+            #{bend},
+        </if>
+        <if test="numbers!=null">
+            #{numbers},
+        </if>
+        <if test="timesFlg!=null and ''!=timesFlg">
+            #{timesFlg},
+        </if>
+        <if test="days!=null">
+            #{days},
+        </if>
+        <if test="description!=null and ''!=description">
+            #{description},
+        </if>
+        <if test="coupon_create_time!=null and ''!=coupon_create_time">
+            #{coupon_create_time},
+        </if>
+        <if test="coupon_end_time!=null and ''!=coupon_end_time">
+            concat(#{coupon_end_time}, ' ' ,'23-59-59'),
+        </if>
+        <if test=" photoex!=null and ''!= photoex">
+            #{photoex},
+        </if>
+        now(),
+        #{creator}, 'N',#{adays})
+    </insert>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        UPDATE m_market_coupon set is_delete = 'Y' WHERE id = #{id}
+    </delete>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="map">
+        update m_market_coupon a
+        set
+        <if test="shop_id!=null and shop_id!=''">
+            a.shop_id = #{shop_id},
+        </if>
+        <if test="number!=null and number!=''">
+            a.number = #{number},
+        </if>
+        <if test="money!=null and money!=''">
+            a.money = #{money},
+        </if>
+        <if test="full_money!=null and full_money!=''">
+            a.full_money = #{full_money},
+        </if>
+        <if test="full_nums!=null and full_nums!=''">
+            a.full_nums = #{full_nums},
+        </if>
+        <if test="the_products!=null and the_products!=''">
+            a.the_products = #{the_products},
+        </if>
+        <if test="free_nummber!=null">
+            a.free_nummber = #{free_nummber},
+        </if>
+        <if test="buy_number!=null">
+            a.buy_number = #{buy_number},
+        </if>
+        <if test="free_rule!=null">
+            a.free_rule = #{free_rule},
+        </if>
+        <if test="starttime!=null and starttime!=''">
+            a.starttime =  #{starttime},
+        </if>
+        <if test="endtime!=null and endtime!=''">
+            a.endtime =#{endtime},
+        </if>
+        <if test="type!=null">
+            a.type = #{type},
+        </if>
+        <if test="description!=null and description!=''">
+            a.description = #{description},
+        </if>
+        <if test="status!=null">
+            a.status = #{status},
+        </if>
+        <if test="name!=null and name!=''">
+            a.name = #{name},
+        </if>
+        <if test="updator!=null and updator!=''">
+            a.updator = #{updator},
+        </if>
+        <if test="timesFlg!=null and timesFlg!=''">
+            a.timesFlg = #{timesFlg},
+        </if>
+        <if test="days!=null">
+            a.days = #{days},
+        </if>
+        <if test="bmoney!=null and bmoney!=''">
+            a.bmoney = #{bmoney},
+        </if>
+        <if test="bstart!=null and bstart!=''">
+            a.bstart = #{bstart},
+        </if>
+        <if test="max_money!=null and max_money!=''">
+            a.max_money = #{max_money},
+        </if>
+        <if test="coupon_create_time!=null and coupon_create_time!=''">
+            a.coupon_create_time = #{coupon_create_time},
+        </if>
+        <if test="coupon_end_time!=null and coupon_end_time!=''">
+            a.coupon_end_time = #{coupon_end_time},
+        </if>
+        <if test="bend!=null and bend!=''">
+            a.bend = #{bend},
+        </if>
+        <if test="stores!=null">
+            a.stores = #{stores},
+        </if>
+        update_time = now()
+        where id = #{id}
+    </update>
+
+
+    <!-- 修改 -->
+    <update id="updateInfoStores" parameterType="dto">
+        update m_market_coupon a
+        set
+        <if test="null!=stores  and ''!=stores">
+            a.stores = #{stores},
+        </if>
+        <if test="null!=updator and ''!=updator">
+            a.updator = #{updator},
+        </if>
+        update_time = now()
+        where id = #{id}
+    </update>
+
+
+    <!--查看用户优惠券信息-->
+    <select id="getCouponList" parameterType="map" resultType="dto">
+        SELECT
+        b.*, (
+        CASE b. STATUS
+        WHEN 1 THEN
+        '失效'
+        WHEN '0' THEN
+        '启用'
+        END
+        ) AS statusval,
+        (
+        CASE b.the_products
+        WHEN 1 THEN
+        '本商铺通用'
+        WHEN '0' THEN
+        '全平台'
+        ELSE
+        "指定商品"
+        END
+        ) AS theProducts,
+        (
+        CASE b.type
+        WHEN 1 THEN
+        '代金券'
+        WHEN 2 THEN
+        '折扣券'
+        WHEN 3 THEN
+        '免单券'
+        ELSE
+        '其他'
+        END
+        ) AS typeval,
+        b.type,
+        b.description,
+        (
+        CASE b.type
+        WHEN 1 THEN
+        CONCAT(
+        '订单满',
+        b.full_money,
+        '可用'
+        )
+        WHEN 2 THEN
+        CONCAT(
+        '最大折扣金额',
+        b.max_money
+        )
+        WHEN 3 THEN
+        CONCAT(
+        '免单购买份数',
+        b.buy_number
+        )
+        ELSE
+        ''
+        END
+        ) AS show_desc,
+        if((
+               SELECT
+                   count(1)
+               FROM
+                   m_market_coupon_user AS sa
+               WHERE
+                   sa.coupon_id = b.id
+                 AND sa.member_id = #{member_id}
+           )>=b.numbers,1,0) as iscoupon
+        FROM
+        m_market_coupon AS b
+         where b.btype=#{btype} and b.status=0 and b.is_delete='N'
+    </select>
+
+    <!--查看已有的优惠券列表-->
+    <select id="getCouponListById" parameterType="map" resultType="dto">
+        SELECT
+            b.*, (
+            CASE b. STATUS
+                WHEN 1 THEN
+                    '失效'
+                WHEN '0' THEN
+                    '启用'
+                END
+            ) AS statusval,
+            (
+                CASE b.the_products
+                    WHEN 1 THEN
+                        '本商铺通用'
+                    WHEN '0' THEN
+                        '全平台'
+                    ELSE
+                        "指定商品"
+                    END
+                ) AS theProducts,
+            (
+                CASE b.type
+                    WHEN 1 THEN
+                        '代金券'
+                    WHEN 2 THEN
+                        '折扣券'
+                    WHEN 3 THEN
+                        '免单券'
+                    ELSE
+                        '其他'
+                    END
+                ) AS typeval,
+            b.type,
+            b.description,
+            (
+                CASE b.type
+                    WHEN 1 THEN
+                        CONCAT(
+                                '订单满',
+                                b.full_money,
+                                '可用'
+                            )
+                    WHEN 2 THEN
+                        CONCAT(
+                                '最大折扣金额',
+                                b.max_money
+                            )
+                    WHEN 3 THEN
+                        CONCAT(
+                                '免单购买份数',
+                                b.buy_number
+                            )
+                    ELSE
+                        ''
+                    END
+                ) AS show_desc
+        FROM
+            m_market_coupon AS b
+        where FIND_IN_SET(b.id,#{ids})
+    </select>
+
+    <update id="subStock" parameterType="map">
+        update m_market_coupon set stores=stores-1 where id=#{id}
+    </update>
+
+    <select id="queryMebmer" parameterType="map" resultType="dto">
+        select *  from m_member where create_time>='2019-11-15 00:00:01' and id&lt;45095 and is_delete='N'
+    </select>
+
+    <insert id="saveInfoCor" parameterType="map">
+        INSERT INTO `m_market_coupon_user` (
+            `member_id`,
+            `coupon_id`,
+            `rmember`,
+            `starttime`,
+            `endtime`,
+            `status`,
+            `create_time`,
+            `creator`,
+            `update_time`,
+            `updator`,
+            `is_delete`
+        )
+        VALUES
+        (
+            #{member_id},
+            '86',
+            NULL,
+            '2019-12-29 00:00:00',
+            '2020-01-31 23:59:59',
+            '180',
+            '2019-12-30 10:16:46',
+            '0',
+            '2019-12-30 10:16:46',
+            '0',
+            'N'
+        );
+    </insert>
+</mapper>

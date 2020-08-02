@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="memberGrade">
+  
+  <sql id="sql_where">
+      <if test="''!=id and null!=id">
+          and a.id = #{id}
+      </if>
+      <if test="''!=name and null!=name">
+          and a.name = #{name}
+      </if>
+      <if test="''!=status and null!=status">
+          and a.status = #{status}
+      </if>
+      <if test="''!=startTime and null!=startTime">
+          and DATE(a.create_time) &gt;= #{start_time}
+      </if>
+      <if test="''!=endTime and null!=endTime">
+          and DATE(a.create_time) &lt;= #{end_time}
+      </if>
+    </sql>
+  
+  <!-- 查询 -->
+  <select id="queryList" parameterType="map" resultType="dto">
+    SELECT
+      a.*,s.val,u1.username AS creatorName,u2.username AS updatorName
+    FROM m_member_grade a
+    LEFT JOIN sys_config s ON  a.status = s.id
+    LEFT JOIN sys_user u1 ON a.creator = u1.id
+    LEFT JOIN sys_user u2 ON a.updator = u2.id
+    WHERE 1=1 AND  a.is_delete = 'N'
+    <include refid="sql_where"/>
+    ORDER BY id
+  </select>
+
+  <select id="queryListCount" parameterType="map" resultType="java.lang.Integer">
+    SELECT count(1) as count FROM m_member_grade a WHERE 1=1
+    <include refid="sql_where"/>
+  </select>
+  
+  <select id="getInfo" parameterType="map" resultType="dto">
+      SELECT
+        a.*,s.val
+      FROM m_member_grade a
+      LEFT JOIN sys_config s ON  a.status = s.id
+      WHERE 1=1 AND  a.is_delete = 'N'
+      <include refid="sql_where"/> 
+    ORDER BY id
+  </select>
+  
+  <!-- 插入 -->
+  <insert id="saveInfo" parameterType="dto">
+    insert into m_member_grade
+    (`name`,discount,costs,one_charge,status,create_time,creator,update_time,updator,is_delete)
+    values
+    (#{name},#{discount},#{costs},#{one_charge},#{status},NOW(),#{creator},NOW(),#{creator},'N')
+  </insert>
+
+<!-- 修改 -->
+<update id="updateInfo" parameterType="dto">
+    update m_member_grade
+       set
+    <if test="name">
+        name = #{name},
+    </if>
+    <if test="discount">
+        discount = #{discount},
+    </if>
+    <if test="costs">
+        costs = #{costs},
+    </if>
+    <if test="one_charge">
+        one_charge = #{one_charge},
+    </if>
+    <if test="status">
+        status = #{status},
+    </if>
+    update_time=now()
+    where id = #{id}
+</update>
+  <!-- 删除 -->
+  <delete id="deleteInfo" parameterType="map">
+    DELETE FROM m_member_grade WHERE id = #{id}
+  </delete>
+
+    <select id="getGradeUp" parameterType="map" resultType="dto">
+        SELECT
+        a.*
+        FROM m_member_grade a
+        WHERE a.is_delete = 'N' and id = #{id}
+    </select>
+  
+</mapper>

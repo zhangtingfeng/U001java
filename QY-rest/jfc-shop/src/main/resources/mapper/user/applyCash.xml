@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="applyCash">
+
+  <sql id="sql_where">
+        <if test="''!=id and null!=id">
+         and  a.id = #{id}
+        </if>
+        <if test="''!=apply_type and null!=apply_type">
+          and a.apply_type = #{apply_type}
+        </if>
+        <if test="''!=reciever and null!=reciever">
+          and a.reciever LIKE CONCAT('%', #{reciever}, '%')
+        </if>
+        <if test="''!=status and null!=status">
+          and a.status = #{status}
+        </if>
+
+    </sql>
+  
+  <!-- 查询 -->
+  <select id="queryList" parameterType="map" resultType="dto">
+    SELECT
+    a.*, s1.val status_alias
+    FROM
+    m_apply_cash a
+    LEFT JOIN sys_config s1 ON a.`status` = s1.id
+    WHERE
+    1 = 1
+    AND a.is_delete = 'N'
+    <include refid="sql_where"/>
+    ORDER BY id desc
+  </select>
+  
+  <select id="queryListCount" parameterType="map" resultType="java.lang.Integer">
+    SELECT count(1) as count FROM m_apply_cash a WHERE 1=1
+    <include refid="sql_where"/> 
+  </select>
+  
+  <select id="getInfo" parameterType="map" resultType="dto">
+    SELECT
+    a.*, s1.val status_alias
+    FROM
+    m_apply_cash a
+    LEFT JOIN sys_config s1 ON a.`status` = s1.id
+    WHERE
+    1 = 1
+    AND a.is_delete = 'N'
+    <include refid="sql_where"/>
+     limit 1
+  </select>
+  <!-- 插入 -->
+  <insert id="saveInfo" parameterType="dto">
+    insert into m_apply_cash
+    (
+      apply_num,
+      apply_type,
+      reciever,
+      recievea_ccount,
+      apply_time,
+      status,
+      create_time,
+      creator,
+      update_time,
+      is_delete
+    )
+    values
+    (
+      #{applynum},
+      #{applytype},
+      #{recievers},
+      #{recieveaccount},
+      #{applytime},
+      #{status1},
+      now(),
+      #{creator},
+      now(),
+      'N'
+    )
+  </insert>
+  
+  <!-- 修改 -->
+  <update id="updateInfo" parameterType="dto">
+    update m_apply_cash a
+    set
+    <if test="apply_num">
+      a.apply_num = #{apply_num},
+    </if>
+    <if test="apply_type">
+      a.apply_type = #{apply_type},
+    </if>
+    <if test="reciever">
+      a.reciever = #{reciever},
+    </if>
+    <if test="recievea_ccount">
+      a.recievea_ccount = #{recievea_ccount},
+    </if>
+    <if test="apply_time">
+      a.apply_time = #{apply_time},
+    </if>
+    <if test="status">
+      a.status = #{status},
+    </if>
+    <if test="create_time">
+      a.create_time = #{create_time},
+    </if>
+    <if test="creator">
+      a.creator = #{creator},
+    </if>
+    <if test="updator">
+      a.updator = #{updator},
+    </if>
+    <if test="is_delete">
+      a.is_delete = #{is_delete},
+    </if>
+    a.update_time = now()
+    where a.id = #{id}
+  </update>
+  
+  <!-- 删除 -->
+  <delete id="deleteInfo" parameterType="map">
+    UPDATE m_apply_cash
+    SET is_delete = 'Y'
+    WHERE
+        id = #{id}
+  </delete>
+  
+  <!-- 删除 -->
+  <update id="approve" parameterType="map">
+    update m_apply_cash
+    set status = #{status}
+    where id = #{id}
+  </update>
+</mapper>

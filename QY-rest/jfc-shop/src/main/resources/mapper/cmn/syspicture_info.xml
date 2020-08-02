@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="syspicture_info">
+
+    <sql id="sql_where">
+        <if test="''!=filelist and null!=filelist">
+            and a.picture_id  in
+            <foreach item="item" index="index" collection="filelist.split(',')" open="(" separator="," close=")">
+            #{item}
+            </foreach>
+        </if>
+
+
+
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+        a.*, f.content AS replyContent,
+        a.create_time as time,
+        m.username AS username,
+        s.nickname AS replyName,
+        f.create_time AS replyTime,
+        (case a.status when "0" then "未回复" when "1" then "已回复" END) as statusval
+        FROM
+        m_feedback a
+        LEFT JOIN m_feedback f ON a.id = f.pid
+        LEFT JOIN m_member s ON s.id = f.member_id
+        LEFT JOIN m_member m ON m.id = a.member_id
+        WHERE
+        1 = 1
+        AND
+        a.pid is null
+        <include refid="sql_where"/>
+        ORDER BY a.create_time
+        desc
+    </select>
+
+
+    <select id="queryBypicture_association_id" parameterType="map" resultType="dto">
+        SELECT
+        (CASE WHEN locate('http://',a.picture_url)=1 THEN picture_url
+        ELSE concat('http://47.92.115.193:8090',a.picture_url) END) AS picture_url, a.picture_type
+        FROM
+        picture_info a
+        WHERE
+        1 = 1
+        <include refid="sql_where"/>
+        limit 100
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+    insert into m_feedback
+    (pid,content, member_id, status,create_time,creator,update_time,updator,is_delete)
+    values
+    (#{pid},#{content}, #{member_id},#{status},NOW(),#{creator},NOW(),#{creator},'N')
+  </insert>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+    update m_feedback
+    set content = #{content},
+        member_id = #{username},
+        update_time=now(),
+      status = #{status}
+    where pid = #{pid}
+  </update>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+    DELETE FROM m_feedback WHERE id = #{id}
+  </delete>
+
+</mapper>

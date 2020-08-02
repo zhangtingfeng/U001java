@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"><!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="marketNewuser">
+    <sql id="sql_where">
+        <if test="''!=startNumbers and null!=startNumbers">
+            and a.numbers &gt;= #{startNumbers}
+        </if>
+        <if test="''!=endNumbers and null!=endNumbers">
+            and  a.numbers &lt;= #{endNumbers}
+        </if>
+        <if test="''!=startMoney and null!=startMoney">
+            and  a.money &gt;= #{startMoney}
+        </if>
+        <if test="''!=endMoney and null!=endMoney">
+          and  a.money &lt;= #{endMoney}
+        </if>
+        <if test="''!=startDate and null!=startDate">
+            and   DATE(a.start) &gt;= #{startDate}
+        </if>
+        <if test="''!=endDate and null!=endDate">
+            and   DATE(a.start) &lt;= #{endDate}
+        </if>
+        <if test="''!=startTime and null!=startTime">
+            and   DATE(a.end) &gt;= #{startTime}
+        </if>
+        <if test="''!=endTime and null!=endTime">
+            and  DATE(a.end) &lt;= #{endTime}
+        </if>
+        <if test="''!=shopname and null!=shopname">
+            and b.name LIKE CONCAT('%', #{shopname}, '%')
+        </if>
+        <if test="''!=status and null!=status">
+            and a.status = #{status}
+        </if>
+        <if test="''!=shopId and null!=shopId">
+            and b.id = #{shopId}
+        </if>
+        <if test="''!=shopid and null!=shopid">
+            and a.shop_id= #{shopid}
+        </if>
+        <if test="''!=id and null!=id">
+            and a.id= #{id}
+        </if>
+          
+
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT a.*,b.`name` as shopname,
+        (case a.status when 1 then '生效' when '0' then '失效' END) as statusval,
+        s.username as creatorname,s1.username as updatorname
+        FROM m_market_newuser a
+        LEFT JOIN m_shop b ON a.shop_id = b.id
+        LEFT JOIN sys_user s ON a.creator = s.id
+        LEFT JOIN sys_user s1 ON a.updator = s1.id
+        WHERE 1=1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        <if test="''!=flag and null!=flag">
+            ( 1 = #{flag} or a.shop_id = #{flag})
+        </if>
+        ORDER BY id
+    </select>
+
+    <!-- 查询 -->
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT a.*,b.`name` as shopname,
+        (case a.status when 1 then '生效' when '0' then '失效' END) as statusval,
+        s.username as creatorname,s1.username as updatorname
+        FROM m_market_newuser a
+        LEFT JOIN m_shop b ON a.shop_id = b.id
+        LEFT JOIN sys_user s ON a.creator = s.id
+        LEFT JOIN sys_user s1 ON a.updator = s1.id
+        WHERE 1=1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 0,1
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+        insert into m_market_newuser (shop_id, numbers,
+          money, start, end,uppic,downpic,
+          status, create_time, creator, is_delete
+          )
+        values (#{shop_id}, #{numbers},
+          #{money}, #{start}, #{end},#{uppic},#{downpic},
+          '1', now(), #{creator}, 'N'
+          )
+    </insert>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        UPDATE m_market_newuser set is_delete = 'Y' WHERE id = #{id}
+    </delete>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_market_newuser
+        set
+        <if test="shop_id">
+            shop_id = #{shop_id},
+        </if>
+        <if test="numbers">
+            numbers = #{numbers},
+        </if>
+        <if test="money">
+            money = #{money},
+        </if>
+        <if test="start">
+            start = #{start},
+        </if>
+        <if test="uppic">
+            uppic = #{uppic},
+        </if>
+        <if test="downpic">
+            downpic = #{downpic},
+        </if>
+        <if test="end">
+            end = #{end},
+        </if>
+        <if test="status">
+            status = #{status},
+        </if>
+        <if test="updator">
+            updator = #{updator},
+        </if>
+        update_time = now()
+        where id = #{id}
+    </update>
+
+</mapper>

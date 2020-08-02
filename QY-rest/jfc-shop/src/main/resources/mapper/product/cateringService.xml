@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="cateringService">
+	<sql id="sql_where">
+		<if test="''!=name and null!=name">
+			and a.name LIKE concat('%',#{name},'%')
+		</if>
+		<if test="''!=tag and null!=tag">
+			and a.tag LIKE concat('%',#{tag},'%')
+		</if>
+	</sql>
+
+	<!-- 查询 -->
+	<select id="queryList" parameterType="map" resultType="dto">
+		SELECT
+		a.*
+		FROM
+		m_catering_service a
+		WHERE 1 = 1 and a.is_delete='N'
+		<include refid="sql_where" />
+        order by a.id desc
+		<if test="null!=start">
+			limit ${start},${end}
+		</if>
+	</select>
+
+	<select id="queryListCount" parameterType="map" resultType="dto">
+		SELECT count(1) as total FROM m_catering_service a WHERE 1=1  and a.is_delete='N'
+		<include refid="sql_where" />
+	</select>
+	<!-- 插入 -->
+	<insert id="saveInfo" parameterType="dto" useGeneratedKeys="true" keyProperty="id">
+		insert into m_catering_service
+		(
+		<if test="''!=name and null!=name">
+		       name,
+		</if>
+		<if test="''!=pic and null!=pic">
+		  	pic,
+		</if>
+        <if test="''!=score and null!=score">
+            score,
+        </if>
+		<if test="''!=tag and null!=tag">
+			tag,
+		</if>
+		<if test="''!=desccribes and null!=desccribes">
+			desccribes,
+		</if>
+		<if test="''!=sort and null!=sort">
+			sort,
+		</if>
+		<if test="''!=address and null!=address">
+			address,
+		</if>
+		<if test="''!=coupon and null!=coupon">
+			coupon,
+		</if>
+		<if test="''!=longitude and null!=longitude">
+			longitude,
+		</if>
+		<if test="''!=latitude and null!=latitude">
+			latitude,
+		</if>
+		<if test="''!=mobile and null!=mobile">
+			mobile,
+		</if>
+		create_time,
+		creator,
+		is_delete
+		)
+		values (
+		<if test="''!=name and null!=name">
+		#{name},
+		</if>
+		<if test="''!=pic and null!=pic">
+			#{pic},
+		</if>
+        <if test="''!=score and null!=score">
+            #{score},
+        </if>
+		<if test="''!=tag and null!=tag">
+			#{tag},
+		</if>
+		<if test="''!=desccribes and null!=desccribes">
+			#{desccribes},
+		</if>
+		<if test="''!=sort and null!=sort">
+			#{sort},
+		</if>
+		<if test="''!=address and null!=address">
+			#{address},
+		</if>
+		<if test="''!=coupon and null!=coupon">
+			#{coupon},
+		</if>
+		<if test="''!=longitude and null!=longitude">
+			#{longitude},
+		</if>
+		<if test="''!=latitude and null!=latitude">
+			#{latitude},
+		</if>
+		<if test="''!=mobile and null!=mobile">
+			#{mobile},
+		</if>
+		now(),
+		#{creator},
+		'N'
+		)
+	</insert>
+
+	<!-- 修改 -->
+	<update id="updateInfo" parameterType="dto">
+		update m_catering_service a
+		set
+		<if test="''!=name and null!=name">
+			a.name=#{name},
+		</if>
+		<if test="''!=pic and null!=pic">
+			a.pic=#{pic},
+		</if>
+        <if test="''!=score and null!=score">
+            a.score=#{score},
+        </if>
+		<if test="''!=tag and null!=tag">
+			a.tag=#{tag},
+		</if>
+		<if test="''!=desccribes and null!=desccribes">
+			a.desccribes=#{desccribes},
+		</if>
+		<if test="''!=sort and null!=sort">
+			a.sort=#{sort},
+		</if>
+		<if test="''!=address and null!=address">
+			a.address=#{address},
+		</if>
+		<if test="''!=longitude and null!=longitude">
+			a.longitude=#{longitude},
+		</if>
+		<if test="''!=latitude and null!=latitude">
+			a.latitude=#{latitude},
+		</if>
+		<if test="''!=coupon and null!=coupon">
+			a.coupon=#{coupon},
+		</if>
+		<if test="''!=mobile and null!=mobile">
+			a.mobile=#{mobile},
+		</if>
+		a.update_time = now()
+		where id = #{id}
+	</update>
+
+
+	<!-- 删除 -->
+	<delete id="deleteInfo" parameterType="dto">
+		update  m_catering_service set is_delete='Y'  WHERE id = #{id}
+	</delete>
+</mapper>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="exchangeProduct">
+    <sql id="sql_where">
+        <if test="''!=id and null!=id">
+            and  a.id = #{id}#
+        </if>
+        <if test="''!=username and null!=username">
+            and a.username = #{username}#
+        </if>
+        <if test="''!=telephone and null!=telephone">
+            and a.telephone = #{telephone}#
+        </if>
+        <if test="''!=password and null!=password">
+            and a.password = #{password}#
+        </if>
+        <if test="''!=status and null!=status">
+            and a.status = #{status}#
+        </if>
+
+    </sql>
+
+
+    <!-- 查询 -->
+    <select id="getUserInfo" parameterType="map" resultType="dto">
+        SELECT
+        a.*,
+        b. NAME AS gradename,
+        (SELECT count(1) as count FROM m_market_coupon_user c WHERE c.member_id = a.id) as coupcount,
+        (
+        CASE a.`status`
+        WHEN '0' THEN
+        '正常使用'
+        ELSE
+        '已注销'
+        END
+        ) status_alias
+        FROM
+        m_member a
+        LEFT JOIN m_member_grade b ON a.grade_id = b.id
+        WHERE
+        1 = 1
+        AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 1
+    </select>
+
+    <!-- 查询 -->
+    <select id="getExchangePro" parameterType="map" resultType="dto">
+        select * from m_product_integration a
+        where
+        a.id = #{id}#
+    </select>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_member a
+        set
+        <if test="integration">
+            a.integration = #{integration},
+        </if>
+        <if test="updator">
+            a.updator = #{updator},
+        </if>
+        a.update_time = now()
+        where a.id = #{id}#
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        UPDATE m_member m
+        SET m.is_delete = 'Y'
+        WHERE
+            m.id = #{id}#
+    </delete>
+
+    <!-- 查询 -->
+    <select id="getUserAddrInfo" parameterType="map" resultType="dto">
+        SELECT
+        a.*, m.nickname,
+        m.telephone,
+        pc1. NAME province_name,
+        pc2. NAME city_name,
+        pc3. NAME country_name,
+        s1.val status_alias,
+        CONCAT(pc1.`name`,pc2.`name`,pc3.`name`,reciever_address) as address,
+        (CASE a.`status` WHEN '95' THEN '默认地址' ELSE '' END) as is_default
+        FROM
+        m_member_address a
+        LEFT JOIN m_member m ON a.member_id = m.id
+        LEFT JOIN sys_province_city pc1 ON a.province_id = pc1.id
+        LEFT JOIN sys_province_city pc2 ON a.city_id = pc2.id
+        LEFT JOIN sys_province_city pc3 ON a.country_id = pc3.id
+        LEFT JOIN sys_config s1 ON a.`status` = s1.id
+        WHERE
+        1 = 1 and a.status = #status# and a.member_id = #{id}#
+    </select>
+
+    <!-- 减积分商品库存 -->
+    <update id="subProStock" parameterType="dto">
+        update m_product_integration a
+        set a.stock = a.stock - #{stock}#
+        where a.id = #{id}#
+    </update>
+
+    <!-- 减用户购买商品消费的积分 -->
+    <update id="subUserIntegration" parameterType="dto">
+        update m_member a
+        set a.integration = a.integration - #{integration}#
+        where a.id = #{id}#
+    </update>
+
+</mapper>

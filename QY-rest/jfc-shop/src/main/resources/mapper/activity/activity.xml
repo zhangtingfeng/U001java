@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="activity">
+    <sql id="sql_where">
+        <if test="''!=title and null!=title">
+            and a.title LIKE CONCAT('%', #{title}, '%')
+        </if>
+        <if test="''!=number and null!=number">
+            and a.number LIKE CONCAT('%', #{number}, '%')
+        </if>
+        <if test="''!=startTime and null!=startTime">
+            and a.begin_time &gt;= #{startTime}
+        </if>
+        <if test="''!=endTime and null!=endTime">
+            and a.end_time &lt;= #{endTime}
+        </if>
+        <if test="''!=id and null!=id">
+            and a.id = #{id}
+        </if>
+        <if test="''!=is_selected and null!=is_selected">
+            and a.is_selected = #{is_selected}
+        </if>
+        <if test="''!=registration_time and null!=registration_time">
+            and a.registration_time>=now()
+        </if>
+        <if test="''!=shop_id and null!=shop_id">
+            and b.id = #{shop_id}
+        </if>
+        <if test="''!=status and null!=status">
+            and a.status = #{status}
+        </if>
+        <if test="''!=type and null!=type">
+            and a.type = #{type}
+        </if>
+        <if test="''==type or null==type">
+            and a.type = 0
+        </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+        a.*,b.name as memberName,DATE_FORMAT(begin_time,'%Y-%m-%d') as begin_time,DATE_FORMAT(end_time,'%Y-%m-%d') as
+        end_time
+        FROM
+        m_activity a
+        left join m_shop b on a.shop_id=b.id
+        where 1 = 1
+        and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY a.show_sort,a.id
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        select count(1) as total
+        from m_activity a
+        left join m_shop b on a.shop_id=b.id
+        where 1=1 and a.is_delete='N'
+        <include refid="sql_where"/>
+    </select>
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT
+        a.*
+        FROM
+        m_activity a
+        WHERE 1=1
+        and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 0,1
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+        INSERT INTO m_activity
+        (
+        <if test="shop_id!=null and ''!=shop_id">
+            shop_id,
+        </if>
+        <if test="theme!=null and ''!=theme">
+            theme,
+        </if>
+        <if test="title!=null and ''!=title">
+            title,
+        </if>
+        <if test="desc!=null and ''!=desc">
+            `desc`,
+        </if>
+        <if test="pic!=null and ''!=pic">
+            pic,
+        </if>
+        <if test="begin_time!=null and ''!=begin_time">
+            begin_time,
+        </if>
+        <if test="end_time!=null and ''!=end_time">
+            end_time,
+        </if>
+        <if test="address!=null and ''!=address">
+            address,
+        </if>
+        <if test="number!=null and ''!=number">
+            `number`,
+        </if>
+        <if test="is_charge!=null and ''!=is_charge">
+            is_charge,
+        </if>
+        <if test="is_selected!=null and ''!=is_selected">
+            is_selected,
+        </if>
+        <if test="status!=null and ''!=status">
+            status,
+        </if>
+        <if test="creator!=null and ''!=creator">
+            creator,
+        </if>
+        <if test="registration_time!=null and ''!=registration_time">
+            registration_time,
+        </if>
+        <if test="video_begin_time!=null and ''!=video_begin_time">
+            video_begin_time,
+        </if>
+        <if test="video_end_time!=null and ''!=video_end_time">
+            video_end_time,
+        </if>
+        <if test="video!=null and ''!=video">
+            video,
+        </if>
+        <if test="fileid!=null and ''!=fileid">
+            fileid,
+        </if>
+        <if test="show_sort!=null and ''!=show_sort">
+            show_sort,
+        </if>
+        create_time
+        ,is_delete
+        )
+        VALUES
+        (
+        <if test="shop_id!=null and ''!=shop_id">
+            #{shop_id},
+        </if>
+        <if test="theme!=null and ''!=theme">
+            #{theme},
+        </if>
+        <if test="title!=null and ''!=title">
+            #{title},
+        </if>
+        <if test="desc!=null and ''!=desc">
+            #{desc},
+        </if>
+        <if test="pic!=null and ''!=pic">
+            #{pic},
+        </if>
+        <if test="begin_time!=null and ''!=begin_time">
+            #{begin_time},
+        </if>
+        <if test="end_time!=null and ''!=end_time">
+            #{end_time},
+        </if>
+        <if test="address!=null and ''!=address">
+            #{address},
+        </if>
+        <if test="number!=null and ''!=number">
+            #{number},
+        </if>
+        <if test="is_charge!=null and ''!=is_charge">
+            #{is_charge},
+        </if>
+        <if test="is_selected!=null and ''!=is_selected">
+            #{is_selected},
+        </if>
+        <if test="status!=null and ''!=status">
+            #{status},
+        </if>
+        <if test="creator!=null and ''!=creator">
+            #{creator},
+        </if>
+        <if test="registration_time!=null and ''!=registration_time">
+            #{registration_time},
+        </if>
+        <if test="video_begin_time!=null and ''!=video_begin_time">
+            #{video_begin_time},
+        </if>
+        <if test="video_end_time!=null and ''!=video_end_time">
+            #{video_end_time},
+        </if>
+        <if test="video!=null and ''!=video">
+            #{video},
+        </if>
+        <if test="fileid!=null and ''!=fileid">
+            #{fileid},
+        </if>
+        <if test="show_sort!=null and ''!=show_sort">
+            #{show_sort},
+        </if>
+        now()
+        ,'N')
+        <selectKey resultType="java.lang.Long" keyProperty="id">
+            SELECT LAST_INSERT_ID() as id
+        </selectKey>
+    </insert>
+
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_activity a
+        set
+        <if test="''!=shop_id and null!=shop_id">
+            a.shop_id=#{shop_id},
+        </if>
+        <if test="''!=theme and null!=theme">
+            a.theme=#{theme},
+        </if>
+        <if test="''!=title and null!=title">
+            a.title=#{title},
+        </if>
+        <if test="''!=desc and null!=desc">
+            a.desc=#{desc},
+        </if>
+        <if test="''!=pic and null!=pic">
+            a.pic=#{pic},
+        </if>
+        <if test="''!=begin_time and null!=begin_time">
+            a.begin_time=#{begin_time},
+        </if>
+        <if test="''!=end_time and null!=end_time">
+            a.end_time=#{end_time},
+        </if>
+        <if test="''!=registration_time and null!=registration_time">
+            a.registration_time=#{registration_time},
+        </if>
+        <if test="''!=address and null!=address">
+            a.address=#{address},
+        </if>
+        <if test="''!=number and null!=number">
+            a.number=#{number},
+        </if>
+        <if test="''!=is_charge and null!=is_charge">
+            a.is_charge=#{is_charge},
+        </if>
+        <if test="''!=is_selected and null!=is_selected">
+            a.is_selected=#{is_selected},
+        </if>
+        <if test="''!=status and null!=status">
+            a.status=#{status},
+        </if>
+        <if test="''!=fileid and null!=fileid">
+            a.fileid=#{fileid},
+        </if>
+        <if test="''!=video_begin_time and null!=video_begin_time">
+            a.video_begin_time=#{video_begin_time},
+        </if>
+        <if test="''!=video_end_time and null!=video_end_time">
+            a.video_end_time=#{video_end_time},
+        </if>
+        <if test="''!=video and null!=video">
+            a.video=#{video},
+        </if>
+        <if test="''!=video and null!=video">
+            a.video=#{video},
+        </if>
+        <if test="''!=show_sort and null!=show_sort">
+            a.show_sort=#{show_sort},
+        </if>
+        <if test="''!=task_id and null!=task_id">
+            a.task_id=#{task_id},
+        </if>
+        <if test="''!=type and null!=type">
+            a.type=#{type},
+        </if>
+        a.update_time = now()
+        where id = #{id}
+    </update>
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+    update m_activity set is_delete = "Y" WHERE id = #{id}
+  </delete>
+
+
+    <!-- 修改 -->
+    <update id="updateType" parameterType="dto">
+        update m_activity a
+        set
+           a.type=#{type},
+        a.update_time = now()
+        where id  in (${ids})
+    </update>
+
+</mapper>

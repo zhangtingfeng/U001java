@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="memberInvoice">
+
+    <sql id="sql_where">
+        <if test="''!=id and null!=id">
+            and a.id = #{id}
+        </if>
+        <if test="''!=types and null!=types">
+            and a.types = #{types}
+        </if>
+        <if test="''!=status and null!=status">
+            and a.status = #{status}
+        </if>
+        <if test="''!=member_id and null!=member_id">
+            and a.member_id = #{member_id}
+        </if>
+        <if test="''!=username and null!=username">
+            and  m.username LIKE CONCAT('%', #{username}, '%')
+        </if>
+        <if test="''!=mobile and null!=mobile">
+            and a.mobile LIKE CONCAT('%', #{mobile}, '%')
+        </if>
+        <if test="''!=number and null!=number">
+            and o.number LIKE CONCAT('%', #{number}, '%')
+        </if>
+        <if test="''!=tax_number and null!=tax_number">
+            and  a.tax_number LIKE CONCAT('%', #{tax_number}, '%')
+        </if>
+        <if test="''!=startTime and null!=startTime">
+            DATE(a.create_time) &gt;= #{start_time}
+        </if>
+        <if test="''!=endTime and null!=endTime">
+             DATE(a.create_time) &lt;= #{end_time}
+        </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+          a.*,m.username,c.val
+        FROM
+            m_member_invoice a
+            LEFT JOIN m_member m ON a.member_id = m.id
+            LEFT JOIN sys_config c ON  a.status = c.id
+        WHERE
+        1 = 1 AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY id
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <!-- 查询 -->
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        SELECT
+           count(1) as total
+        FROM
+        (
+                SELECT
+                  a.*,m.username,c.val
+                FROM
+                   m_member_invoice a
+                LEFT JOIN m_member m ON a.member_id = m.id
+                LEFT JOIN sys_config c ON  a.status = c.id
+                WHERE
+                1 = 1 AND a.is_delete = 'N'
+                <include refid="sql_where"/>
+        ) as a
+    </select>
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT
+          a.*,m.username,c.val
+        FROM
+            m_member_invoice a
+            LEFT JOIN m_member m ON a.member_id = m.id
+            LEFT JOIN sys_config c ON  a.status = c.id
+        WHERE
+        1 = 1 AND a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY id
+        limit 1
+    </select>
+
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto" useGeneratedKeys="true" keyProperty="id">
+        insert into m_member_invoice
+        (member_id,types,name,tax_number,status,create_time,creator,is_delete)
+        values
+        (#{member_id},#{types},#{name},#{tax_number},#{status},NOW(),#{creator},'N')
+    </insert>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_member_invoice
+        set
+        <if test="member_id">
+            member_id = #{member_id},
+        </if>
+        <if test="name">
+            name = #{name},
+        </if>
+        <if test="tax_number">
+            tax_number = #{tax_number},
+        </if>
+        <if test="status">
+            status = #{status},
+        </if>
+        <if test="updator">
+            updator = #{updator},
+        </if>
+            update_time = now()
+        where id = #{id} and types = #{types}
+    </update>
+
+
+    <!-- 修改 -->
+    <update id="updateDefStatus" parameterType="dto">
+        update m_member_invoice
+        set
+        <if test="status">
+            status = #{status},
+        </if>
+            update_time = now()
+        where id = #{id}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        DELETE FROM m_member_invoice WHERE id = #{id}
+    </delete>
+
+</mapper>

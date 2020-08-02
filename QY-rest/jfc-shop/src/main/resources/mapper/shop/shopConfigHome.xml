@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="shopConfigHome">
+
+  <sql id="sql_where">
+
+      <if test="''!=m_shop_config_home_template_id and null!=m_shop_config_home_template_id">
+          a.m_shop_config_home_template_id = #{m_shop_config_home_template_id}
+      </if>
+    
+
+    </sql>
+  
+  <!-- 查询 -->
+  <select id="queryList" parameterType="map" resultType="dto">
+      select a.*,m.id as secId,
+      p7.id as secPro1,p8.id as secPro2,p9.id as secPro3,p10.id as secPro4,
+      p1.id as proMotherBaby1,p2.id as proMotherBaby2,p3.id as proMotherBaby3,p4.id as proMotherBaby4,
+      p5.id as proBrand1,p6.id as proBrand2,
+      p11.id as proFood1,p12.id as proFood2,p13.id as proFood3,p14.id as proFood4,
+      p15.id as proHome1,p16.id as proHome2,p17.id as proHome3,p18.id as proHome4
+      from m_shop_config_home a
+      LEFT JOIN m_market_seckill m on m.id=a.market_special_id
+      LEFT JOIN m_product p1 on p1.id=a.product_type_mother_baby_product_id_1
+      LEFT JOIN m_product p2 on p2.id=a.product_type_mother_baby_product_id_2
+      LEFT JOIN m_product p3 on p3.id=a.product_type_mother_baby_product_id_3
+      LEFT JOIN m_product p4 on p4.id=a.product_type_mother_baby_product_id_4
+
+      LEFT JOIN m_product p5 on p5.id=a.product_brand_id_1
+      LEFT JOIN m_product p6 on p6.id=a.product_brand_id_2
+
+      LEFT JOIN m_product p7 on p7.id=a.product_type_beauty_makeup_product_id_1
+      LEFT JOIN m_product p8 on p8.id=a.product_type_beauty_makeup_product_id_2
+      LEFT JOIN m_product p9 on p9.id=a.product_type_beauty_makeup_product_id_3
+      LEFT JOIN m_product p10 on p10.id=a.product_type_beauty_makeup_product_id_4
+
+      LEFT JOIN m_product p11 on p11.id=a.product_type_food_product_id_1
+      LEFT JOIN m_product p12 on p12.id=a.product_type_food_product_id_2
+      LEFT JOIN m_product p13 on p13.id=a.product_type_food_product_id_3
+      LEFT JOIN m_product p14 on p14.id=a.product_type_food_product_id_4
+
+      LEFT JOIN m_product p15 on p15.id=a.product_type_home_product_id_1
+      LEFT JOIN m_product p16 on p16.id=a.product_type_home_product_id_2
+      LEFT JOIN m_product p17 on p17.id=a.product_type_home_product_id_3
+      LEFT JOIN m_product p18 on p18.id=a.product_type_home_product_id_4
+      WHERE
+      1 = 1
+      AND a.is_delete = 'N'
+      <include refid="sql_where"/>
+    ORDER BY id desc
+  </select>
+  
+
+  <select id="getInfo" parameterType="map" resultType="dto">
+      SELECT
+      s.val AS STATUS,
+      su1.username AS creator,
+      su2.username AS updator,
+      (
+      CASE a.type
+      WHEN '0' THEN
+      "自营"
+      ELSE
+      "私营"
+      END
+      ) AS type,
+      (
+      CASE a.bail_flag
+      WHEN 'Y' THEN
+      "是"
+      ELSE
+      "否"
+      END
+      ) AS bail_flag_alias,
+      a.*
+      FROM
+      m_shop_config_home a
+      LEFT JOIN sys_config s ON a. STATUS = s.id
+      LEFT JOIN sys_user su1 ON a.creator = su1.id
+      LEFT JOIN sys_user su2 ON a.updator = su2.id
+      WHERE
+      1 = 1
+      AND a.is_delete = 'N'
+      <include refid="sql_where"/> 
+     LIMIT 1
+  </select>
+  
+  <!-- 插入 -->
+  <insert id="saveInfo" parameterType="dto">
+    insert into m_shop_config_home
+    (m_shop_config_template_id, home_market_coupon_id_1,home_market_coupon_id_2,home_market_coupon_id_3,product_type_beauty_brand_product_id_1,
+    product_type_bursting_home_product_id_1,product_type_bursting_home_product_id_2,product_type_bursting_home_product_id_3,product_type_bursting_home_product_id_4,
+    product_type_bursting_home_product_id_5,product_type_bursting_home_product_id_6,product_type_bursting_home_product_id_7,product_type_bursting_home_product_id_8,
+    product_type_cookware_product_id_1,product_type_cookware_product_id_2,product_type_cookware_product_id_3,product_type_cookware_product_id_4,
+    product_type_cookware_product_id_5,product_type_parts_product_id_1,product_type_parts_product_id_2,product_type_parts_product_id_3,
+    product_type_parts_product_id_4,product_type_parts_product_id_5,product_type_parts_product_id_6,create_time,creator,is_delete)
+    values (#{m_shop_config_template_id}, #{home_market_coupon_id_1},#{home_market_coupon_id_2},#{home_market_coupon_id_3},#{product_type_beauty_brand_product_id_1},
+    #{product_type_bursting_home_product_id_1}, #{product_type_bursting_home_product_id_2},#{product_type_bursting_home_product_id_3},#{product_type_bursting_home_product_id_4},
+    #{product_type_bursting_home_product_id_5},#{product_type_bursting_home_product_id_6},#{product_type_bursting_home_product_id_7},#{product_type_bursting_home_product_id_8},
+    #{product_type_cookware_product_id_1},#{product_type_cookware_product_id_2},#{product_type_cookware_product_id_3},#{product_type_cookware_product_id_4},
+    #{product_type_cookware_product_id_5},#{product_type_parts_product_id_1},#{product_type_parts_product_id_2},#{product_type_parts_product_id_3},
+    #{product_type_parts_product_id_4},#{product_type_parts_product_id_5},#{product_type_parts_product_id_6},now(),#{creator},'N')
+  </insert>
+  
+  <!-- 修改 -->
+  <update id="updateInfo" parameterType="dto">
+    update m_shop_config_home
+    set
+      <if test="name">
+          name = #{name},
+      </if>
+      <if test="address">
+          address = #{address},
+      </if>
+      <if test="type">
+          type = #{type},
+      </if>
+      <if test="license_number">
+          license_number = #{license_number},
+      </if>
+      <if test="legal_name">
+          legal_name = #{legal_name},
+      </if>
+      <if test="legal_number">
+          legal_number = #{legal_number},
+      </if>
+      <if test="register_capital">
+          register_capital = #{register_capital},
+      </if>
+      <if test="scope">
+          scope = #{scope},
+      </if>
+      <if test="account_name">
+          account_name = #{account_name},
+      </if>
+      <if test="account_number">
+          account_number = #{account_number},
+      </if>
+      <if test="account_address">
+          account_address = #{account_address},
+      </if>
+      <if test="bail_flag">
+          bail_flag = #{bail_flag},
+      </if>
+      <if test="bail">
+          bail = #{bail},
+      </if>
+      <if test="status">
+          status = #{status},
+      </if>
+      update_time = now(),
+      updator = #{updator}
+    where id = #{id}
+  </update>
+  
+  <!-- 删除 -->
+  <delete id="deleteInfo" parameterType="map">
+    update m_shop_config_home set is_delete = 'Y' where  id = #{id}
+  </delete>
+  
+</mapper>

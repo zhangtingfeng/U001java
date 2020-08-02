@@ -1,0 +1,1243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper  namespace="order">
+
+	<resultMap id="getOrderProductInfo" type="com.jfc.base.Order">
+		<result property="id" column="id"></result>
+		<result property="number" column="number"></result>
+		<result property="pay_type" column="pay_type"></result>
+		<result property="coupon_money" column="coupon_money"></result>
+		<result property="order_money" column="order_money"></result>
+		<result property="pay_money" column="pay_money"></result>
+		<result property="status" column="status"></result>
+		<result property="diningCode" column="diningCode"></result>
+		<result property="statusname" column="statusname"></result>
+		<result property="userName" column="username"></result>
+		<result property="latitude" column="latitude"></result>
+		<result property="longitude" column="longitude"></result>
+		<result property="create_time" column="create_time"></result>
+		<result property="edit_username" column="edit_username"></result>
+		<result property="update_time" column="update_time"></result>
+		<result property="start_time" column="start_time"></result>
+		<result property="end_time" column="end_time"></result>
+		<result property="statusCount" column="statusCount"></result>
+		<result property="remark" column="remark"></result>
+		<result property="telephone" column="telephone"></result>
+		<result property="type" column="type"></result>
+		<result property="shop_mobile" column="shop_mobile"></result>
+		<result property="coupon_id" column="coupon_id"></result>
+		<result property="coupon_name" column="coupon_name"></result>
+		<result property="is_delivery" column="is_delivery"></result>
+		<result property="address" column="address"></result>
+		<result property="pronum" column="pronum"></result>
+		<collection property="products" ofType="com.jfc.base.OrderProduct">
+			<result property="id" column="pid"></result>
+			<result property="product_id" column="product_id"></result>
+			<result property="productname" column="productname"></result>
+			<result property="shop_id" column="shop_id"></result>
+			<result property="product_num" column="product_num"></result>
+			<result property="statusname" column="statusname"></result>
+			<result property="p_pay_money" column="p_pay_money"></result>
+			<result property="p_order_money" column="p_order_money"></result>
+			<result property="shop_name" column="shop_name"></result>
+			<result property="property" column="property"></result>
+			<result property="pnumber" column="pnumber"></result>
+			<result property="pic" column="pic"></result>
+			<result property="packPrice" column="packPrice"></result>
+			<result property="properties" column="properties"></result>
+			<result property="printcode_two" column="printcode_two"></result>
+		</collection>
+	</resultMap>
+	<sql id="sql_where">
+		<if test="null!=status and ''!=status">
+			and a.status in (${status})
+		</if>
+		<if test="''!=is_evaluation and null!=is_evaluation">
+
+			and a.is_evaluation = #{is_evaluation}
+		</if>
+		<if test="''!=number and null!=number">
+			and a.number = #{number}
+		</if>
+		<if test="''!=diningCode and null!=diningCode">
+			and a.diningCode = #{diningCode}
+		</if>
+		<if test="''!=telephone and null!=telephone">
+			and a.member_id in (select id from m_member where telephone LIKE CONCAT('%', #{telephone}, '%'))
+		</if>
+		<if test="''!=member_id and null!=member_id">
+			and a.member_id = #{member_id}
+		</if>
+		<!--<if test="''!=userid and null!=userid">-->
+			<!--and a.member_id = #{userid}-->
+		<!--</if>-->
+		<if test="''!=number and null!=number">
+			and	a.number = #{number}
+		</if>
+		<if test="null!=id">
+			and a.id = #{id}
+		</if>
+		<if test="null!=pay_type">
+			and a.pay_type = #{pay_type}
+		</if>
+		<if test="''!=create_time and null!=create_time">
+			and a.create_time > date_sub(NOW(),INTERVAL #{create_time} DAY_SECOND)
+		</if>
+		<if test="''!=create_time and null!=create_time">
+			and DATE_FORMAT(a.create_time,'%Y-%m')=DATE_FORMAT(CURDATE(),'%Y-%m')
+		</if>
+		<if test="''!=memberName and null!=memberName">
+			and mm.username like CONCAT('%', #{memberName}, '%')
+		</if>
+		<if test="''!=productNumber and null!=productNumber">
+			and (select sum(osb.product_num)from m_order_sub as osb where osb.pid=a.id and osb.product_id!=54) =#{productNumber}
+		</if>
+
+		<if test="''!=orderNumber and null!=orderNumber">
+			and a.number like CONCAT('%', #{orderNumber}, '%')
+		</if>
+		<if test="''!=shop_id and null!=shop_id">
+			and a.shop_id=#{shop_id}
+		</if>
+		<if test="''!=shopid and null!=shopid">
+			and a.shop_id = #{shopid}
+		</if>
+		<if test="''!=shopName and null!=shopName">
+			and ms.shop_name like concat('%', #{shopName}, '%')
+		</if>
+		<if test="''!=address and null!=address">
+			and os.address like concat('%', #{address}, '%')
+		</if>
+		<if test="''!=shopids and null!=shopids">
+			and FIND_IN_SET(a.shop_id,#{shopids})
+		</if>
+		<if test="''!=todayFlg and null!=todayFlg">
+			and to_days(a.create_time) = to_days(now())
+		</if>
+		<if test="''!=startDate and null!=startDate">
+			and a.create_time >=concat(#{startDate},' ','00:00:00')
+		</if>
+		<if test="''!=endDate and null!=endDate">
+			and a.create_time &lt;= concat(#{endDate},' ','23:59:59')
+		</if>
+	</sql>
+
+	<!-- 查询 -->
+	<select id="queryList" parameterType="map" resultType="dto">
+		SELECT
+		CONCAT_WS('',v.NAME,mp.`name`,m.`name`) AS productName,
+		mm.username AS memberName,
+		ms.NAME AS shopName,
+		mm.telephone,
+		su1.username AS creator,
+		su2.username AS updator,
+		s.val AS statusName,
+		a.id,
+		a.address,
+		a.is_delivery,
+		a.number,
+		a.member_id,
+		a.pay_type,
+		a.coupon_money,
+		a.order_money,
+		a.pay_money,
+		a.tms_money,
+		a.start_time,
+		a.end_time,
+		a.create_time,
+		a.integral,
+		a. STATUS,
+		a.diningCode,
+		a.coupon_id,
+		a.form_id,
+
+		IF (a.type = 3, 2, a.type) AS type,
+		a.remark,
+		a.source,
+		mc.name as cname,
+		(
+		SELECT
+		count(1)
+		FROM
+		m_order_sub msh
+		WHERE
+		ms.id = msh.shop_id
+		AND msh.create_time &lt;= os.create_time
+							  AND to_days(msh.create_time) = to_days(now())
+		AND (
+		msh.`status` = 51
+		OR msh.`status` = 54
+		OR msh.`status` = 57
+		) and msh.product_id!=54
+		) AS total,
+		(
+		SELECT
+		ifnull(
+		sum(
+		msh.product_num * mpr.maketime
+		),
+		0
+		)
+		FROM
+		m_order_sub msh
+		LEFT JOIN m_product AS mpr ON (msh.product_id = mpr.id)
+		WHERE
+		ms.id = msh.shop_id
+		AND msh.create_time &lt;= os.create_time
+							  AND to_days(msh.create_time) = to_days(now())
+		AND (
+		msh.`status` = 51
+		OR msh.`status` = 54
+		OR msh.`status` = 57
+		) and msh.product_id!=54
+		) AS times,
+		concat(
+		'制茶师还有',
+		(
+		SELECT
+		CONVERT(count(1),char)
+		FROM
+		m_order_sub msh
+		WHERE
+		ms.id = msh.shop_id
+		AND msh.create_time &lt;= os.create_time
+							  AND to_days(msh.create_time) = to_days(now())
+		AND (
+		msh.`status` = 51
+		OR msh.`status` = 54
+		OR msh.`status` = 57
+		) and msh.product_id!=54
+		),
+		'单正在紧急制作中，您大约还需要',
+		(
+		SELECT
+		ifnull(
+		sum(
+		msh.product_num * mpr.maketime
+		),
+		0
+		)
+		FROM
+		m_order_sub msh
+		LEFT JOIN m_product AS mpr ON (msh.product_id = mpr.id)
+		WHERE
+		ms.id = msh.shop_id
+		AND msh.create_time &lt;= os.create_time
+							  AND to_days(msh.create_time) = to_days(now())
+		AND (
+		msh.`status` = 51
+		OR msh.`status` = 54
+		OR msh.`status` = 57
+		) and msh.product_id!=54
+		),
+		'分钟可以取餐'
+		) AS pringTag,
+		os.address,
+		os.id AS subId,
+		os.product_num,
+
+		IF (
+		(
+		SELECT
+		count(1)
+		FROM
+		m_order_buysend
+		WHERE
+		order_id = a.id
+		) >= 5,
+		(
+		SELECT
+		count(1)
+		FROM
+		m_order_buysend
+		WHERE
+		order_id = a.id
+		),
+		(
+
+		IF (
+		ifnull(ob.order_id, 0) > 0,
+		2,
+		(
+		SELECT
+		count(1)
+		FROM
+		m_order_buysend
+		WHERE
+		order_id = a.id
+		)
+		)
+		)
+		) AS ods,
+		mp.smallpic,
+		mp.bigpic,
+		mp.number,
+		mp.price,
+		os.product_id,
+		(
+		SELECT
+		count(1)
+		FROM
+		m_order_buysend
+		WHERE
+		order_id = ob.order_id
+		) AS order_count,
+		(
+		SELECT
+		sum(osb.product_num)
+		FROM
+		m_order_sub AS osb
+		WHERE
+		osb.pid = a.id
+		AND osb.product_id != 54
+		) AS productNum
+		FROM
+		(select * from
+		m_order a where a.is_delete = 'N'
+		<if test="null!=statusNo and ''!=statusNo">
+			and a.status!=50
+		</if>
+		<if test="null!=diningOut and ''!=diningOut">
+			and a.is_delivery=0
+		</if>
+		<include refid="sql_where" />
+		ORDER BY a.create_time desc
+		<if test="null!=start">
+			limit ${start},${end}
+		</if>
+		)as a
+		LEFT JOIN m_order_sub os ON a.id = os.pid AND os.is_delete = 'N' and os.product_id!=54
+		LEFT JOIN m_product mp ON os.product_id = mp.id
+		LEFT JOIN m_market_combo AS v ON (os.product_id = v.id)
+		LEFT JOIN m_market_coffret AS m ON (os.product_id = m.id)
+		LEFT JOIN m_member mm ON a.member_id = mm.id
+		left  join m_market_coupon mc on mc.id=a.coupon_id
+		LEFT JOIN m_shop ms ON os.shop_id = ms.id
+		LEFT JOIN sys_config s ON s.id = a.`status`
+		LEFT JOIN sys_user su1 ON su1.id = a.creator
+		LEFT JOIN sys_user su2 ON su2.id = a.updator
+		LEFT JOIN m_order_buysend ob ON a.id = ob.send_order_id
+		GROUP BY a.id
+		ORDER BY a.create_time desc
+	</select>
+
+	<!-- 导出查询 -->
+	<select id="queryListExe" parameterType="map" resultType="dto">
+		SELECT
+		mp.NAME AS productName,
+		mm.username AS memberName,
+		ms.NAME AS shopName,
+		mm.telephone,
+		su1.username AS creator,
+		su2.username AS updator,
+		s.val AS statusName,
+		a.id,
+		a.number,
+		a.member_id,
+		a.pay_type,
+		a.coupon_money,
+		a.order_money,
+		a.pay_money,
+		a.tms_money,
+		if(a.start_time is null,'立即下单','预约下单')as test,
+		a.end_time,
+		a.create_time,
+		a.integral,
+		a. STATUS,
+		a.diningCode,
+		a.coupon_id,
+		a.form_id,
+		(case a.pay_type when 0 then '微信支付' when 1 then '支付宝支付' else '未知' end) as pay_type,
+		IF (a.type = 3, 2, a.type) AS type,
+		a.remark,
+		a.source,
+		(
+		SELECT
+		count(1)
+		FROM
+		m_order_sub msh
+		WHERE
+		ms.id = msh.shop_id
+		AND msh.create_time &lt;= os.create_time
+		AND to_days(msh.create_time) = to_days(now())
+		AND (
+		msh.`status` = 51
+		OR msh.`status` = 54
+		OR msh.`status` = 57
+		) and msh.product_id!=54
+		) AS total,
+		(
+		SELECT
+		ifnull(
+		sum(
+		msh.product_num * mpr.maketime
+		),
+		0
+		)
+		FROM
+		m_order_sub msh
+		LEFT JOIN m_product AS mpr ON (msh.product_id = mpr.id)
+		WHERE
+		ms.id = msh.shop_id
+		AND msh.create_time &lt;= os.create_time
+		AND to_days(msh.create_time) = to_days(now())
+		AND (
+		msh.`status` = 51
+		OR msh.`status` = 54
+		OR msh.`status` = 57
+		) and msh.product_id!=54
+		) AS times,
+		concat(
+		'制茶师还有',
+		(
+		SELECT
+		CONVERT(count(1),char)
+		FROM
+		m_order_sub msh
+		WHERE
+		ms.id = msh.shop_id
+		AND msh.create_time &lt;= os.create_time
+		AND to_days(msh.create_time) = to_days(now())
+		AND (
+		msh.`status` = 51
+		OR msh.`status` = 54
+		OR msh.`status` = 57
+		) and msh.product_id!=54
+		),
+		'单正在紧急制作中，您大约还需要',
+		(
+		SELECT
+		ifnull(
+		sum(
+		msh.product_num * mpr.maketime
+		),
+		0
+		)
+		FROM
+		m_order_sub msh
+		LEFT JOIN m_product AS mpr ON (msh.product_id = mpr.id)
+		WHERE
+		ms.id = msh.shop_id
+		AND msh.create_time &lt;= os.create_time
+		AND to_days(msh.create_time) = to_days(now())
+		AND (
+		msh.`status` = 51
+		OR msh.`status` = 54
+		OR msh.`status` = 57
+		) and msh.product_id!=54
+		),
+		'分钟可以取餐'
+		) AS pringTag,
+		os.address,
+		os.id AS subId,
+		os.product_num,
+
+		IF (
+		(
+		SELECT
+		count(1)
+		FROM
+		m_order_buysend
+		WHERE
+		order_id = a.id
+		) >= 5,
+		(
+		SELECT
+		count(1)
+		FROM
+		m_order_buysend
+		WHERE
+		order_id = a.id
+		),
+		(
+
+		IF (
+		ifnull(ob.order_id, 0) > 0,
+		2,
+		(
+		SELECT
+		count(1)
+		FROM
+		m_order_buysend
+		WHERE
+		order_id = a.id
+		)
+		)
+		)
+		) AS ods,
+		mp.smallpic,
+		mp.bigpic,
+		mp.number,
+		mp.price,
+		os.product_id,
+		(
+		SELECT
+		count(1)
+		FROM
+		m_order_buysend
+		WHERE
+		order_id = ob.order_id
+		) AS order_count,
+		(
+		SELECT
+		sum(osb.product_num)
+		FROM
+		m_order_sub AS osb
+		WHERE
+		osb.pid = a.id
+		AND osb.product_id != 54
+		) AS productNum
+		FROM
+		(select * from
+		m_order a where a.is_delete = 'N'
+		<include refid="sql_where" />
+		ORDER BY a.create_time desc
+		<if test="null!=start">
+			limit ${start},${end}
+		</if>
+		)as a
+		LEFT JOIN m_order_sub os ON a.id = os.pid AND os.is_delete = 'N' and os.product_id!=54
+		LEFT JOIN m_product mp ON os.product_id = mp.id
+		LEFT JOIN m_member mm ON a.member_id = mm.id
+		LEFT JOIN m_shop ms ON os.shop_id = ms.id
+		LEFT JOIN sys_config s ON s.id = a.`status`
+		LEFT JOIN sys_user su1 ON su1.id = a.creator
+		LEFT JOIN sys_user su2 ON su2.id = a.updator
+		LEFT JOIN m_order_buysend ob ON a.id = ob.send_order_id
+		GROUP BY a.id
+		ORDER BY a.create_time desc
+	</select>
+
+	<select id="queryProList" parameterType="map" resultType="dto">
+		SELECT
+			a.*, b.NAME AS brandname,c.NAME AS pricename,d.text AS typename,e.NAME AS shopname,d.parent_id,sp.stock as stocks
+		FROM
+			m_product a
+			LEFT JOIN m_product_brand b ON a.brand_id = b.id
+			LEFT JOIN m_price_type c ON a.price_id = c.id
+			LEFT JOIN m_product_type d ON a.type_id = d.id
+			LEFT JOIN m_shop e ON a.shop_id = e.id
+			LEFT JOIN m_product_type f ON d.parent_id = f.id
+			LEFT JOIN m_shop_pro as sp on sp.pro_id=a.id
+		WHERE
+			1 = 1
+			and a.id = #{ids} and sp.shop_id=#{shop_id}
+	</select>
+
+	<select id="queryCartList" parameterType="map" resultType="dto">
+		SELECT
+		a.*,b.*
+		FROM
+		m_member_cart a
+		left join m_product b on a.product_id = b.id
+		WHERE
+		1 = 1
+		and FIND_IN_SET(a.id,#{ids})
+ 		ORDER BY a.id
+	</select>
+
+	<update id="updateCouponInfo" parameterType="dto">
+		update m_market_coupon
+		set
+		<if test="''!=status and null!=status">
+			status= #{status},
+		</if>
+		update_time = now()
+		where
+	  	<if test="null!=id">
+			id = #{id}
+		</if>
+		<if test="''!=number and null!=number">
+			number = #{number}
+		</if>
+	</update>
+
+	<update id="updateOrderInfo" parameterType="dto">
+		update m_order
+		set
+		<if test="''!=status and null!=status">
+			status= #{status},
+		</if>
+		update_time = now()
+		where
+		<if test="null!=id">
+			id = #{id}
+		</if>
+		<if test="''!=number and null!=number">
+			number = #{number}
+		</if>
+	</update>
+
+	<update id="updateCouponUserInfo" parameterType="dto">
+		update m_market_coupon_user
+		set
+		<if test="''!=status and null!=status">
+			status= #{status},
+		</if>
+		<if test="''!=is_delete and null!=is_delete">
+			is_delete= #{is_delete},
+		</if>
+		update_time = now()
+		where member_id = #{member_id} and coupon_id = #{coupon_id}
+	</update>
+
+	<!-- 根据memberid查询自己的订单评价信息 -->
+	<select id="productEvaluation" parameterType="map" resultType="dto">
+		<!-- SELECT a.id, a.number, a.`status`, b.username, a.create_time, c.smallpic
+			AS smallpic FROM m_order a LEFT JOIN m_member b ON b.id = a.member_id LEFT
+			JOIN m_product c ON c.id = a.productid WHERE 1 = 1 -->
+		SELECT
+			a.id,
+			a.number,
+			a.member_id,
+			a.productid,
+			a.`status`,
+			b.username,
+			a.create_time,
+			c.smallpic,
+			a.is_evaluation
+		FROM
+			m_order a
+		LEFT JOIN m_member b ON b.id = a.member_id
+		LEFT JOIN m_order_product e ON a.id = e.order_id
+		LEFT JOIN m_product c ON c.id = e.product_id
+		WHERE
+			1 = 1
+		<include refid="sql_where" />
+		ORDER BY a.id
+	</select>
+
+
+	<select id="queryListMonth" parameterType="map" resultType="dto">
+		SELECT
+		*
+		FROM
+		m_order
+		WHERE
+		DATE_FORMAT(create_time, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')
+		<include refid="sql_where" />
+	</select>
+
+	<select id="queryListCount" parameterType="map" resultType="dto">
+		SELECT count(1) as total FROM m_order a WHERE 1=1 AND a.is_delete = 'N'
+		<if test="null!=statusNo and ''!=statusNo">
+			and a.status!=50
+		</if>
+		<include refid="sql_where" />
+	</select>
+
+	<!-- 查询单个商品成交数量 -->
+	<select id="queryProductCount" parameterType="map" resultType="java.lang.Integer">
+		SELECT
+		IFNULL(SUM(a.product_num),0) AS count
+		FROM
+		m_order_product a
+		WHERE
+		1 = 1
+		<if test="''!=productid and null!=productid">
+			a.productid= #{productid}
+		</if>
+	</select>
+
+
+	<!-- 查询待支付订单 -->
+	<select id="pendingCharges" parameterType="map" resultType="dto">
+		SELECT a.*,p.`name` as proname,p.smallpic,p.bigpic,
+        substring_index(p.bigpic,',',1)as pics
+		FROM m_order_sub a
+		LEFT JOIN m_product p ON a.product_id = p.id
+		WHERE
+		1 = 1
+		AND a.is_delete = 'N' AND a.status = 50
+		AND a.member_id = #{member_id}
+		ORDER BY a.create_time desc
+	</select>
+
+	<!-- 未支付订单 -->
+	<select id="unpaidOrder" parameterType="map" resultType="dto">
+		SELECT a.*,count(os.id) as oslength,
+			(SELECT GROUP_CONCAT(substring_index(p.bigpic,',',1)) FROM m_product WHERE id = os.product_id) as pics,
+			(SELECT GROUP_CONCAT(p.name) FROM m_product WHERE id = os.product_id) as proname
+		FROM m_order a
+		LEFT JOIN m_order_sub os ON a.id = os.pid
+		LEFT JOIN m_product p ON os.product_id = p.id
+		WHERE 1 = 1
+		AND a.is_delete = 'N' AND a.status = 50 AND os.status = 50
+		AND a.member_id = #{member_id}
+		GROUP BY a.id
+		ORDER BY a.create_time desc
+	</select>
+
+
+	<select id="getInfo" parameterType="map" resultType="dto">
+		SELECT
+		mp. NAME AS productName,
+		mm.username AS memberName,
+		ms. NAME AS shopName,
+		su1.username AS creator,
+		su2.username AS updator,
+		s.val AS statusName,
+		ms.address as shopAddress,
+		a.*, os.address,os.id AS subId,os.product_id,(select sum(sa.product_num) from m_order_sub as sa where sa.pid=a.id and sa.product_id!=54)as total
+		FROM
+		m_order a
+		LEFT JOIN m_order_sub os ON a.id = os.pid AND os.is_delete = 'N'
+		LEFT JOIN m_product mp ON os.product_id = mp.id
+		LEFT JOIN m_member mm ON a.member_id = mm.id
+		LEFT JOIN m_shop ms ON os.shop_id = ms.id
+		LEFT JOIN sys_config s ON s.id = a.`status`
+		LEFT JOIN sys_user su1 ON su1.id = a.creator
+		LEFT JOIN sys_user su2 ON su2.id = a.updator
+		WHERE
+		1 = 1
+		AND a.is_delete = "N"
+		<include refid="sql_where" />
+		limit 0,1
+	</select>
+	<!-- 查询用户自己的订单 -->
+	<select id="queryUserInfo" parameterType="map" resultType="dto">
+		SELECT
+			a.*, b.username,
+			c. NAME AS productname,
+			c.smallpic AS smallpic,
+			d.`name` AS statusname,
+			e.product_id
+		FROM
+			m_order a
+		LEFT JOIN m_member b ON b.id = a.member_id
+		LEFT JOIN m_sys_config d ON d.id = a.`status`
+		LEFT JOIN m_order_product e ON a.id = e.order_id
+		LEFT JOIN m_product c ON c.id = e.product_id
+		WHERE
+			1 = 1
+		<include refid="sql_where" />
+		ORDER BY id
+	</select>
+
+	<!-- 插入 -->
+	<insert id="saveInfo" parameterType="map">
+		insert into m_order
+		(
+		<if test="number!=''and number!=null">
+			number,
+		</if>
+		<if test=" member_id!=''and member_id!=null">
+			member_id,
+		</if>
+		<if test="pay_type!=''and pay_type!=null">
+			pay_type,
+		</if>
+		<if test="coupon_money!=''and coupon_money!=null">
+			coupon_money,
+		</if>
+		<if test="order_money!=''and order_money!=null">
+			order_money,
+		</if>
+		<if test="pay_money!=''and pay_money!=null">
+			pay_money,
+		</if>
+		<if test="tms_money!=''and tms_money!=null">
+			tms_money,
+		</if>
+		<if test="integral!=''and integral!=null">
+			integral,
+		</if>
+		<if test="start_time!=''and start_time!=null">
+			start_time,
+		</if>
+		<if test="end_time!=''and end_time!=null">
+			end_time,
+		</if>
+		<if test="status!=''and status!=null">
+			status,
+		</if>
+			diningCode,
+		<if test="coupon_id!=''and coupon_id!=null">
+			coupon_id,
+		</if>
+		<if test="type!=''and type!=null">
+			type,
+		</if>
+		<if test="form_id!=''and form_id!=null">
+			form_id,
+		</if>
+		<if test="shop_id!=''and shop_id!=null">
+			shop_id,
+		</if>
+		<if test="remark!=''and remark!=null">
+			remark,
+		</if>
+		<if test="address!=''and address!=null">
+			address,
+		</if>
+		<if test="is_delivery!=null">
+			is_delivery,
+		</if>
+		<if test="source!=null">
+			source,
+		</if>
+		<if test="telephone!=null">
+			telephone,
+		</if>
+		create_time,creator,is_delete
+		)
+		values (
+		<if test="number!=''and number!=null">
+			#{number},
+		</if>
+		<if test=" member_id!=''and member_id!=null">
+			#{member_id},
+		</if>
+		<if test="pay_type!=''and pay_type!=null">
+			#{pay_type},
+		</if>
+		<if test="coupon_money!=''and coupon_money!=null">
+			#{coupon_money},
+		</if>
+		<if test="order_money!=''and order_money!=null">
+			#{order_money},
+		</if>
+		<if test="pay_money!=''and pay_money!=null">
+			#{pay_money},
+		</if>
+		<if test="tms_money!=''and tms_money!=null">
+			#{tms_money},
+		</if>
+		<if test="integral!=''and integral!=null">
+			#{integral},
+		</if>
+		<if test="start_time!=''and start_time!=null">
+			#{start_time},
+		</if>
+		<if test="end_time!=''and end_time!=null">
+			#{end_time},
+		</if>
+		<if test="status!=''and status!=null">
+			#{status},
+		</if>
+		(
+			select * from (SELECT
+				ifnull(CONCAT('Z',LPAD(max(substring(diningCode, 2)) + 1,5,0)),'Z00218')
+			FROM
+			m_order
+			WHERE to_days(create_time) = to_days(now())) as b
+		),
+		<if test="coupon_id!=''and coupon_id!=null">
+			#{coupon_id},
+		</if>
+		<if test="type!=''and type!=null">
+			#{type},
+		</if>
+		<if test="form_id!=''and form_id!=null">
+			#{form_id},
+		</if>
+		<if test="shop_id!=''and shop_id!=null">
+			#{shop_id},
+		</if>
+		<if test="remark!=''and remark!=null">
+			#{remark},
+		</if>
+		<if test="address!=''and address!=null">
+			#{address},
+		</if>
+		<if test="is_delivery!=null">
+			#{is_delivery},
+		</if>
+		<if test="source!=null">
+			#{source},
+		</if>
+		<if test="telephone!=null">
+			#{telephone},
+		</if>
+		now(),#{member_id},'N'
+		)
+		<selectKey resultType="java.lang.Long" keyProperty="id">
+			SELECT LAST_INSERT_ID() as id
+		</selectKey>
+	</insert>
+
+	<insert id="saveChInfo" parameterType="dto">
+		insert into m_order_sub
+		(pid,number, member_id,reciever,reciever_tel,product_id,product_property,properties,
+		shop_id,address,coupon_money,product_num,product_price,order_money,tms_money,pay_money,mark,status,creator,create_time,update_time
+		)
+		values (#{pid},#{number},#{member_id},#{reciever},#{reciever_tel},#{product_id},#{product_property},#{properties},
+		#{shop_id},#{address},#{coupon_money},#{product_num},#{product_price},#{order_money},#{tms_money},#{pay_money},#{mark},#{status},#{member_id},now(),now()
+		)
+	</insert>
+
+	<!-- 修改 -->
+	<update id="updateInfo" parameterType="dto">
+		update m_order a
+		set
+		<if test="number">
+			a.number = #{number},
+		</if>
+		<if test="member_id">
+			a.member_id = #{member_id},
+		</if>
+		<if test="productid">
+			a.productid = #{productid},
+	    </if>
+		<if test="product_property">
+			a.product_property = #{product_property},
+	    </if>
+		<if test="pay_type">
+			a.pay_type = #{pay_type},
+		</if>
+		<if test="reciever">
+			a.reciever = #{reciever},
+		</if>
+		<if test="recievertel">
+			a.recievertel = #{recievertel},
+		</if>
+		<if test="recieveraddress">
+			a.recieveraddress = #{recieveraddress},
+		</if>
+		<if test="coupon_money">
+			a.coupon_money = #{coupon_money},
+		</if>
+		<if test="pay_money">
+			a.pay_money = #{pay_money},
+		</if>
+		<if test="type">
+			a.type = #{type},
+		</if>
+		<if test="status">
+			a.status = #{status},
+		</if>
+		<if test="start_time!=null and start_time!=''">
+			a.start_time = #{start_time},
+		</if>
+		<if test="end_time!=null and end_time!=''">
+			a.end_time = #{end_time},
+		</if>
+		<if test="orderMark">
+			a.orderMark = #{orderMark},
+		</if>
+		<if test="sendTime">
+			a.sendTime = #{sendTime},
+		</if>
+		<if test="is_evaluation">
+			a.is_evaluation = #{is_evaluation},
+		</if>
+		<if test="null!=updator and ''!=updator">
+			a.updator = #{updator},
+		</if>
+		<if test="null!=form_id and ''!=form_id">
+			a.form_id = #{form_id},
+		</if>
+		<if test="null!=is_sf_create and ''!=is_sf_create">
+			a.is_sf_create = #{is_sf_create},
+		</if>
+		update_time=now()
+		where a.id = #{id}
+	</update>
+
+	<!-- 删除 -->
+	<update id="deleteInfo" parameterType="map">
+		update m_order set is_delete = 'Y' WHERE
+		id = #{id}
+	</update>
+	<!-- 插入-->
+	<insert id="saveOrderProduct" parameterType="dto">
+		insert into m_order_product
+		(order_id,member_id,product_id,product_num)
+		values
+		(#{order_id},#{member_id},#{product_id},#{product_num})
+	</insert>
+
+	<update id="updateProStock" parameterType="dto">
+		update m_product a
+		set
+		a.update_time=now()
+		<if test="null!=stock and ''!=stock">
+			,a.stock = a.stock - #{stock}
+		</if>
+		where a.id = #{id}
+	</update>
+
+	<delete id="deleteCart" parameterType="map">
+		DELETE FROM m_member_cart WHERE FIND_IN_SET(id,#{ids})
+	</delete>
+
+	<!-- 查询 -->
+	<select id="queryProductCatById" parameterType="map" resultType="dto">
+		SELECT
+		a.*,b.*
+		FROM
+		m_member_cart a
+		left join m_product b on a.product_id = b.id
+		WHERE 1 = 1
+		<if test="''!=ids and null!=ids">
+			and FIND_IN_SET(a.id,#{ids})
+		</if>
+		<if test="''!=id and null !=id">
+			and a.id=#{id}
+		</if>
+		<if test="''!=member_id and null !=member_id">
+			and a.id=#{member_id}
+		</if>
+		<if test="''!=product_id and null !=product_id">
+		</if>
+	</select>
+
+	<!-- 查询用户余额 -->
+	<select id="queryUserMoneyById" parameterType="map" resultType="dto">
+		SELECT
+		a.id,a.frozen,a.remainder
+		FROM
+		m_member a
+		WHERE 1 = 1
+		<if test="''!=id and null !=id">
+			and a.id=#{id}
+		</if>
+	</select>
+
+	<!-- 修改 -->
+	<update id="updateUserInfo" parameterType="dto">
+		update m_member a
+		set
+		a.remainder =a.remainder- #{remainder},
+		a.update_time = now()
+		where a.id = #{id}
+	</update>
+
+
+	<!--查询订单信息-->
+	<select id="queryOrderProductInfo" parameterType="map" resultMap="getOrderProductInfo">
+		SELECT
+		a.*, b.username,
+		b.pic,
+		(select count(1) from m_order_sub as sub where sub.pid=a.id) as pronum,
+		CONCAT_WS('',v.NAME,c.`name`,m.`name`) AS productname,
+		c.smallpic AS smallpic,
+		d.val AS statusname,
+		s.mobile as shop_mobile,
+		e.pid,
+		e.product_id,
+		e.number as pnumber,
+		e.shop_id as shop_id,
+		e.pay_money as p_pay_money,
+		e.order_money as p_order_money,
+		e.product_num as product_num,
+		s.`name` as shop_name,
+		e.product_property,
+		sy.username as edit_username,
+		s.printcode_two,
+		ifnull(e.properties,'') as properties,
+		(
+		SELECT
+		ifnull(group_concat(ms.`name` SEPARATOR '+'),'')
+		FROM
+		m_product_specs_shop AS ms
+		WHERE
+		FIND_IN_SET(ms.id,e.product_property)
+		) AS property,
+		cu.name as coupon_name,
+		e.product_price as packPrice,
+		(select count(1) from m_order_sub as sub where sub.pid=a.id and (sub.status=51 or sub.status=54) and sub.product_id!=54) as statusCount
+		FROM
+		(select * from m_order as a
+		where a.is_delete='N'
+		<if test="null!=id and ''!=id">
+			and a.id = #{id}
+		</if>
+		<if test="null!=shop_id and ''!=shop_id">
+			and a.shop_id = #{shop_id}
+		</if>
+		<if test="null!=diningCode and ''!=diningCode">
+			and a.diningCode = #{diningCode}
+		</if>
+		<if test="null!=status and ''!=status">
+			and a.status in (${status})
+		</if>
+		<if test="null!=sub_status and ''!=sub_status">
+			and a.status in (${sub_status})
+		</if>
+		<if test="null!=number and ''!=number">
+			and a.number = #{number}
+		</if>
+		<if test="null!=today and ''!=today">
+			and to_days(a.create_time) = to_days(now())
+		</if>
+		<if test="null!=is_delivery">
+			and a.is_delivery=#{is_delivery}
+		</if>
+		<if test="null!=start">
+			limit ${start},${end}
+		</if>
+		)as a
+		LEFT JOIN m_member b ON b.id = a.member_id
+		LEFT JOIN sys_config d ON d.id = a.`status`
+		LEFT JOIN m_order_sub e ON a.id = e.pid
+		LEFT JOIN m_product c ON c.id = e.product_id
+		LEFT JOIN m_market_combo AS v ON (e.product_id = v.id)
+		LEFT JOIN m_market_coffret AS m ON (e.product_id = m.id)
+		LEFT JOIN m_shop AS s ON s.id = e.shop_id
+		LEFT JOIN sys_user AS sy ON sy.id = a.updator
+		left join m_market_coupon as cu on(cu.id=a.coupon_id)
+		order by a.create_time,e.id,c.id
+	</select>
+
+	<!--根据订单号更新主订单下的子订单状态-->
+	<update id="updateOrderByProductId" parameterType="dto">
+		UPDATE m_order AS a
+		SET a. STATUS = #{status},
+		a.update_time=now()
+		WHERE
+			a.id in (
+			SELECT
+			b.pid
+			FROM
+			m_order_sub AS b
+			WHERE
+			b.id = #{id}
+			)
+	</update>
+
+	<!--查看15分钟内要取餐的记录-->
+	<select id="getPreOrderReduces" parameterType="map" resultType="dto">
+		SELECT
+		a.id
+		FROM
+		m_order AS a
+		WHERE
+		date_sub(
+		now(),
+		INTERVAL (
+		SELECT
+		val
+		FROM
+		sys_config
+		WHERE
+		id = 12
+		) MINUTE
+		) &lt;=start_time
+		AND a.STATUS = 59
+	</select>
+
+	<!--定时修改预约订单状态-->
+	<update id="preOrderReduce" parameterType="dto">
+		UPDATE m_order AS a
+		SET a.status = 51,
+		a.update_time=now()
+		where
+		a.id = #{id}
+	</update>
+
+	<!--定时修改预约订单状态-->
+	<update id="preOrderReduceSub" parameterType="dto">
+		UPDATE m_order_sub AS a
+		SET a.status = 51,
+		a.update_time=now()
+		where
+		a.pid = #{id}
+	</update>
+
+	<!--查看当天核销记录-->
+	<select id="queryListTodayRecord" parameterType="map" resultType="dto">
+		SELECT
+		a.*,
+		(select count(1) from m_order as x where x.id=a.id) as total
+		FROM
+		m_order AS a
+		LEFT JOIN m_order_sub as b on(a.id=b.pid)
+		WHERE
+		a.`status` = 53
+		<if test="null!=shop_id and ''!=shop_id">
+			and b.shop_id=#{shop_id}
+		</if>
+		<if test="null!=one and ''!=one">
+			and to_days(a.update_time) = to_days(now())
+		</if>
+		<if test="null!=two and ''!=two">
+			and to_days(now())-to_days(a.update_time)= 1
+		</if>
+		<if test="null!=three and ''!=three">
+			and to_days(now())-to_days(a.update_time)= 2
+		</if>
+		GROUP BY a.id
+		<if test="null!=start">
+			limit ${start},${end}
+		</if>
+		<if test="null==start">
+			limit 0,300
+		</if>
+	</select>
+
+	<update id="deteleOrderInfo" parameterType="map">
+		update m_order set is_delete = 'Y' WHERE
+			id = #{id}
+	</update>
+
+	<!--查询超过5分钟预约取餐时间 赠送优惠券-->
+	<select id="getPreOrderOver" parameterType="map" resultType="dto">
+		select o.id,o.member_id,m.telephone,g.id as preid from m_order o
+		INNER JOIN m_market_pre_getmeal g on o.id = g.order_id
+		INNER JOIN m_member m on o.member_id = m.id
+		where o.status in (51,57) and date_add(g.end_time, INTERVAL (select val from sys_config where id = 11) MINUTE) &lt; now() and cnums = 0
+	</select>
+
+	<update id="updateCnums" parameterType="map">
+		  update m_market_pre_getmeal set cnums = cnums + 1 where id=#{preid}
+	</update>
+
+	<!-- 通过订单编号查询订单id-->
+	<select id="getInfoByOrderno" parameterType="map" resultType="dto">
+		SELECT a.id as orderid,pay_money
+		FROM m_order a
+		WHERE 1=1 and a.is_delete = 'N' and a.number=#{order_no}
+		limit 0,1
+	</select>
+
+	<update id="updateShopProStock" parameterType="dto">
+		update m_shop_pro a
+		set
+		a.stock = a.stock - #{stock}
+		where a.shop_id = #{shop_id} and a.pro_id = #{pro_id}
+	</update>
+
+
+	<!-- 通过订单编号查询订单id-->
+	<select id="queryFqlist" parameterType="map" resultType="dto">
+		select a.*,b.username,c.number,e.val as ostatus from m_order_buysend a
+		LEFT JOIN m_member b on a.send_id = b.id
+		LEFT JOIN m_order c on a.order_id = c.id
+		LEFT JOIN m_order d on a.send_order_id = d.id
+		LEFT JOIN sys_config e on d.status = e.id
+		where a.buy_id = #{userid}
+	</select>
+
+	<!-- 通过订单编号查询订单id-->
+	<select id="queryFqlistParent" parameterType="map" resultType="dto">
+		select distinct(order_id) as order_id from m_order_buysend a
+		where a.buy_id = #{userid}
+	</select>
+
+	<!-- 通过订单编号查询订单id-->
+	<select id="queryJoinInfo" parameterType="map" resultType="dto">
+		select a.*,b.username,c.number,e.val as ostatus from m_order_buysend a
+		LEFT JOIN m_member b on a.buy_id = b.id
+		LEFT JOIN m_order c on a.order_id = c.id
+		LEFT JOIN m_order d on a.send_order_id = d.id
+		LEFT JOIN sys_config e on d.status = e.id
+		where a.send_id = #{userid} limit 1
+	</select>
+
+	<update id="updateShopProCoffretStock" parameterType="dto">
+		update m_market_coffret a
+		set
+			a.stock = a.stock - #{stock}
+		where a.shop_id = #{shop_id} and a.id = #{pro_id}
+	</update>
+
+	<select id="orderSfCreate" resultType="dto">
+		select * from m_order where is_sf_create=0 and is_delivery=1 and status!=50 and now() >SUBDATE(create_time,interval -10 minute);
+	</select>
+
+	<select id="updateInfoHx" resultType="dto">
+		SELECT * FROM m_order WHERE TO_DAYS(NOW())-TO_DAYS(create_time) &lt;= 1 and status=52
+	</select>
+</mapper>

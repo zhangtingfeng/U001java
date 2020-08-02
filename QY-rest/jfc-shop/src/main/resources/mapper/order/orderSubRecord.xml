@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="orderSubRecord">
+    <!-- 表字段 -->
+	<sql id="selectSql">
+        id AS id,
+        order_id AS order_id,
+        product_id AS product_id,
+        amount AS amount,
+        member_id AS member_id,
+        grade_id AS grade_id,
+        create_time AS createTime
+	</sql>
+    <!--条件 -->
+	<sql id="whereCondition">
+		<where>
+            <if test="id!=null and ''!=id">
+                  AND id=#{id}
+            </if> 
+            <if test="order_id!=null and ''!=order_id">
+                  AND order_id=#{order_id}
+            </if> 
+            <if test="product_id!=null and ''!=product_id">
+                  AND product_id=#{product_id}
+            </if> 
+            <if test="amount!=null and ''!=amount">
+                  AND amount=#{amount}
+            </if> 
+            <if test="member_id!=null and ''!=member_id">
+                  AND member_id=#{member_id}
+            </if> 
+            <if test="grade_id!=null and ''!=grade_id">
+                  AND grade_id=#{grade_id}
+            </if> 
+		</where>
+	</sql>
+    <!--数据插入 -->
+	<insert id="saveInfo" parameterType="map">
+		INSERT INTO m_order_sub_record
+		(
+            <if test="order_id!=null and ''!=order_id">
+                order_id,
+            </if> 
+            <if test="product_id!=null and ''!=product_id">
+                product_id,
+            </if> 
+            <if test="amount!=null and ''!=amount">
+                amount,
+            </if> 
+            <if test="member_id!=null and ''!=member_id">
+                member_id,
+            </if> 
+            <if test="grade_id!=null and ''!=grade_id">
+                grade_id,
+            </if> 
+            create_time
+		)
+		VALUES
+		(
+            <if test="order_id!=null and ''!=order_id">
+                #{order_id},
+            </if> 
+            <if test="product_id!=null and ''!=product_id">
+                #{product_id},
+            </if> 
+            <if test="amount!=null and ''!=amount">
+                #{amount},
+            </if> 
+            <if test="member_id!=null and ''!=member_id">
+                #{member_id},
+            </if> 
+            <if test="grade_id!=null and ''!=grade_id">
+                #{grade_id},
+            </if> 
+            now()
+		)
+	</insert>
+	<update id="updateInfo" parameterType="map">
+		update m_order_sub_record 
+		set 
+            order_id=#{order_id},
+            product_id=#{product_id},
+            amount=#{amount},
+            member_id=#{member_id},
+            grade_id=#{grade_id}
+        WHERE
+            id=#{id}		
+	</update>
+	<select id="queryList" parameterType="map" resultType="dto">
+		select 
+		<include refid="selectSql"/>
+		from m_order_sub_record
+		<include refid="whereCondition"/>
+		<if test="null!=start">
+			limit ${start},${end}
+		</if>
+	</select>
+
+	<select id="queryListCount" parameterType="map" resultType="dto">
+		select count(1) as total
+		from m_order_sub_record
+		<include refid="whereCondition"/>
+	</select>
+
+	<select id="queryInfo" parameterType="map" resultType="dto">
+		select
+		<include refid="selectSql"/>
+		from m_order_sub_record
+		<include refid="whereCondition"/>
+	</select>
+
+</mapper>

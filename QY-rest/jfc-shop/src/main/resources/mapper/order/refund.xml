@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="refund">
+  <sql id="sql_where">
+      <if test="''!=username and null!=username">
+          and m.username like concat ('%',#{username},'%')
+      </if>
+      <if test="''!=number and null!=number">
+          and b.number like concat ('%',#{number},'%')
+      </if>
+      <if test="''!=serveno and null!=serveno">
+          and a.serveno like concat ('%',#{serveno},'%')
+      </if>
+      <if test="''!=return_order_id and null!=return_order_id">
+          and a.return_order_id like concat ('%',#{return_order_id},'%')
+      </if>
+      <if test="''!=q_status and null!=q_status">
+          and a.status =#{q_status}
+      </if>
+      <if test="''!=q_status and null!=q_status">
+          and a.status =#{q_status}
+      </if>
+      <if test="''!=orderid and null!=orderid">
+          and a.order_sub_id like concat ('%',#{orderid},'%')
+      </if>
+      <if test="''!=orderno and null!=orderno">
+          and a.order_no like concat ('%',#{orderno},'%')
+      </if>
+      <if test="''!=shopids and null!=shopids">
+          and FIND_IN_SET(b.shopid,#shopids#)
+      </if>
+      <if test="''!=id and null!=id">
+          and  a.id =#{id}
+      </if>
+      <if test="''!=moile and null!=moile">
+          and m.id in (select id from m_member where telephone like concat ('%',#{moile},'%'))
+      </if>
+      <if test="''!=diningCode and null!=diningCode">
+          and b.diningCode like concat ('%',#{diningCode},'%')
+      </if>
+    </sql>
+  
+  <!-- 查询 -->
+  <select id="queryList" parameterType="map" resultType="dto">
+      SELECT
+      su1.username AS creator,
+      su2.username AS updator,
+      a.*, b.number,
+      m.username,
+      m.telephone,
+      b.diningCode,
+      b.id as orderid,
+      (
+      CASE a. STATUS
+      when '0' then
+      '申请中'
+      WHEN '1' THEN
+      '申请通过'
+      WHEN '2' THEN
+      '申请拒绝'
+      END
+      ) AS statusname,
+      b.pay_money,
+      b.create_time as orderTime,
+      (SELECT GROUP_CONCAT(DISTINCT p.`name`) FROM m_order_sub a LEFT JOIN m_product p on a.product_id = p.id WHERE a.pid = b.id and p.`name` != '包装袋') as productName
+      FROM
+      m_pay_order_return a
+      LEFT JOIN m_order b ON a.order_no = b.number
+      LEFT JOIN m_member m ON b.member_id = m.id
+      LEFT JOIN sys_user su1 ON a.creator = su1.id
+      LEFT JOIN sys_user su2 ON a.updator = su2.id
+      WHERE
+      1 = 1
+      AND a.is_delete = 'N'
+      <include refid="sql_where"/> 
+    ORDER BY id DESC
+      <if test="null!=start">
+          limit ${start},${end}
+      </if>
+  </select>
+  
+  <select id="queryListCount" parameterType="map" resultType="dto">
+    SELECT count(1) as total FROM (
+
+      SELECT
+          su1.username AS creator,
+          su2.username AS updator,
+          a.id, b.number,
+          m.username,
+          b.id as orderid,
+          (
+          CASE a. STATUS
+          when '0' then
+          '申请中'
+          WHEN '1' THEN
+          '申请通过'
+          WHEN '2' THEN
+          '申请拒绝'
+          END
+          ) AS statusname
+          FROM
+          m_pay_order_return a
+          LEFT JOIN m_order b ON a.order_no = b.number
+          LEFT JOIN m_member m ON b.member_id = m.id
+          LEFT JOIN sys_user su1 ON a.creator = su1.id
+          LEFT JOIN sys_user su2 ON a.updator = su2.id
+          WHERE
+          1 = 1
+          AND a.is_delete = 'N'
+          <include refid="sql_where"/>
+      )a
+  </select>
+  
+  <select id="getInfo" parameterType="map" resultType="dto">
+      SELECT
+      su1.username AS creator,
+      su2.username AS updator,
+      a.*, b.number,
+      m.username,
+      b.id as orderid,
+      (
+      CASE a. STATUS
+      WHEN '1' THEN
+      '申请通过'
+      WHEN '2' THEN
+      '申请拒绝'
+      END
+      ) AS statusname
+      FROM
+      m_pay_order_return a
+      LEFT JOIN m_order b ON a.order_no = b.number
+      LEFT JOIN m_member m ON b.member_id = m.id
+      LEFT JOIN sys_user su1 ON a.creator = su1.id
+      LEFT JOIN sys_user su2 ON a.updator = su2.id
+      WHERE
+      1 = 1
+      AND a.is_delete = 'N'
+      <include refid="sql_where"/>
+      limit 0,1
+  </select>
+  
+  <!-- 插入 -->
+  <insert id="saveInfo" parameterType="dto">
+    insert into m_refund (serveno, order_sub_id,member_id, 
+      product_id, pay_type, reciever, 
+      reciever_tel, reciever_address, status
+      )
+    values (#{serveno}, #{order_sub_id}, #{member_id},
+      #{product_id,jdbcType=BIGINT}, #{pay_type}, #{reciever},
+      #{reciever_tel}, #{reciever_address}, 8
+      )
+  </insert>
+  
+  <!-- 修改 -->
+  <update id="updateInfo" parameterType="dto">
+    update m_pay_order_return
+    set status = #{status},
+        update_time = now(),
+        updator = #{updator}
+    where id = #{id}
+  </update>
+
+
+    <!-- 修改订单状态-->
+    <update id="updateOrderStatus" parameterType="dto">
+        update m_order
+        set status = #{orderstatus}
+        where id = #{orderid}
+    </update>
+  
+  <!-- 删除 -->
+  <delete id="deleteInfo" parameterType="map">
+    update m_pay_order_return
+    set is_delete = 'Y'
+    where id = #{id}
+  </delete>
+  
+</mapper>

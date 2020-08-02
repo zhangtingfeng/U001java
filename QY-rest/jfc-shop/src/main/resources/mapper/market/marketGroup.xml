@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="marketGroup">
+    <sql id="sql_where">
+        <if test="''!=shopname and null !=shopname">
+            and b.name LIKE CONCAT('%', #{shopname}, '%')
+        </if>
+        <if test="''!=startDate and null !=startDate">
+            and   DATE(a.create_time) &gt;= #{startDate}
+        </if>
+        <if test="''!=endDate and null !=endDate">
+            and  DATE(a.create_time) &lt;= #{endDate}
+        </if>
+        <if test="null!=status and ''!=status">
+            and a.status = #{status}
+        </if>
+        <if test="''!=shopid and null !=shopid">
+            and a.shop_id = #{shopid}
+        </if>
+        <if test="''!=id and null !=id">
+            and a.id = #{id}
+        </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        select a.*,b.name as shopname , s1.username as creatorname , s2.username as updatorname,g.numbers,g.full_numbers,g.money from m_market_group a
+        left join m_market_group_product g on g.group_id = a.id
+        left join m_shop b on a.shop_id = b.id
+        left join sys_user s1 on s1.id = a.creator
+        left join sys_user s2 on s2.id = a.updator
+        WHERE 1=  1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY id
+    </select>
+
+    <!-- 查询 -->
+    <select id="getInfo" parameterType="map" resultType="dto">
+        select a.*,b.name as shopname , s1.username as creatorname , s2.username as updatorname,g.numbers,g.full_numbers,g.money from m_market_group a
+        left join m_market_group_product g on g.group_id = a.id
+        left join m_shop b on a.shop_id = b.id
+        left join sys_user s1 on s1.id = a.creator
+        left join sys_user s2 on s2.id = a.updator
+        WHERE 1=  1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 0,1
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+        insert into m_market_group (
+          shop_id,start,
+          end, status,create_time,
+          creator, is_delete)
+        values (#{shop_id}, #{start},
+          #{end}, #{status},now(),
+          #{creator}, 'N')
+    </insert>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        UPDATE m_market_group set is_delete = 'Y' WHERE id = #{id}
+    </delete>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_market_group
+        set
+        <if test="shop_id">
+            shop_id = #{shop_id},
+        </if>
+        <if test="start">
+            start = #{start},
+        </if>
+        <if test="end">
+            end = #{end},
+        </if>
+        <if test="status">
+            status = #{status},
+        </if>
+        <if test="updator">
+            updator = #{updator},
+        </if>
+        update_time = now()
+        where id = #{id}
+    </update>
+
+</mapper>

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="shopAddress">
+    <sql id="sql_where">
+        <if test="''!=id and null!=id">
+            and a.id=#{id}
+        </if>
+        <if test="''!=nickname and null!=nickname">
+           and  m.nickname like CONCAT('%', #{nickname}, '%')
+        </if>
+        <if test="''!=telephone and null!=telephone">
+            and  a.telephone like CONCAT('%', #{telephone}, '%')
+        </if>
+        <if test="''!=member_id and null!=member_id">
+            and  a.member_id=#{member_id}
+        </if>
+        <if test="''!=province and null!=province">
+            and  a.province=#{province}
+        </if>
+        <if test="''!=consignee and null!=consignee">
+            and  a.consignee like CONCAT('%', #{consignee}, '%')
+        </if>
+        <if test="''!=phone and null!=phone">
+            and  a.phone=#{phone}
+        </if>
+        <if test="''!=start_time and null!=start_time">
+            and a.create_time &gt;= #{start_time}
+        </if>
+        <if test="''!=end_time and null!=end_time">
+            and  a.create_time &lt;= #{end_time}
+        </if>
+       
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+        a.*, m.nickname,
+        m.telephone,
+        pc1. NAME province_name,
+        pc2. NAME city_name,
+        pc3. NAME country_name
+        FROM
+        m_shop_address a
+        LEFT JOIN m_member m ON a.member_id = m.id
+        LEFT JOIN sys_province_city pc1 ON a.province_id = pc1.id
+        LEFT JOIN sys_province_city pc2 ON a.city_id = pc2.id
+        LEFT JOIN sys_province_city pc3 ON a.country_id = pc3.id
+        WHERE
+        1=1
+       and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY id desc
+    </select>
+
+
+    <select id="queryListCount" parameterType="map" resultType="java.lang.Integer">
+        SELECT count(1) as count FROM m_shop_address a WHERE 1=1
+        <include refid="sql_where"/>
+    </select>
+
+    <!-- 查询 -->
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT
+        a.*, m.nickname,
+        m.telephone,
+        pc1. NAME province_name,
+        pc2. NAME city_name,
+        pc3. NAME country_name
+        FROM
+        m_shop_address a
+        LEFT JOIN m_member m ON a.member_id = m.id
+        LEFT JOIN sys_province_city pc1 ON a.province_id = pc1.id
+        LEFT JOIN sys_province_city pc2 ON a.city_id = pc2.id
+        LEFT JOIN sys_province_city pc3 ON a.country_id = pc3.id
+        WHERE
+        a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 1
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+        insert into m_shop_address
+          (
+            member_id,
+            consignee,
+            region,
+            address,
+            phone,
+            telephone,
+            create_time,
+            creator,
+            update_time,
+            updator,
+            is_delete,
+            province_id,
+            city_id,
+            country_id
+          )
+        values
+          (
+            #{member_id},
+            #{consignee},
+            #{region},
+            #{address},
+            #{phone},
+            #{telephone},
+            now(),
+            #{creator},
+            now(),
+            #{creator},
+            'N',
+            #{province_id},
+            #{city_id},
+            #{country_id}
+          )
+	  </insert>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_shop_address a
+        set
+        <if test="consignee">
+            a.consignee = #{consignee},
+        </if>
+        <if test="region">
+            a.region = #{region},
+        </if>
+        <if test="address">
+            a.address = #{address},
+        </if>
+        <if test="phone">
+            a.phone = #{phone},
+        </if>
+        <if test="telephone">
+            a.telephone = #{telephone},
+        </if>
+        <if test="create_time">
+            a.create_time = #{create_time},
+        </if>
+        <if test="creator">
+            a.creator = #{creator},
+        </if>
+        <if test="updator">
+            a.updator = #{updator},
+        </if>
+        <if test="is_delete">
+            a.is_delete = #{is_delete},
+        </if>
+        <if test="province_id">
+            a.province_id = #{province_id},
+        </if>
+        <if test="city_id">
+            a.city_id = #{city_id},
+        </if>
+        <if test="country_id">
+            a.country_id = #{country_id},
+        </if>
+        a.update_time = now()
+        where a.id = #{id}
+    </update>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+    DELETE FROM m_shop_address WHERE id = #{id}
+  </delete>
+
+</mapper>

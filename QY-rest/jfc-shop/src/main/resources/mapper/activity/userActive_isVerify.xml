@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="userActive_isVerify">
+    <sql id="sql_where">
+        <if test="''!=memberName and null!=memberName">
+            and a.username LIKE CONCAT('%', #{memberName}, '%')
+        </if>
+        <if test="''!=title and null!=title">
+            and a.title LIKE CONCAT('%', #{title}, '%')
+        </if>
+        <if test="''!=number and null!=number">
+            and a.number LIKE CONCAT('%', #{number}, '%')
+        </if>
+
+        <if test="''!=id and null!=id">
+            and a.id = #{id}
+        </if>
+        <if test="''!=good_num and null!=good_num">
+            and a.good_num = #{good_num}
+        </if>
+        <if test="''!=type and null!=type">
+            and a.type = #{type}
+        </if>
+        <if test="''!=shop_id and null!=shop_id">
+            and  su1.id=#{shop_id}
+        </if>
+        <if test="''!=status and null!=status">
+            and  a.isVerify=#{status}
+        </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+        *
+        FROM
+        user a
+        where 1 = 1 and a.deleted=1
+        <include refid="sql_where"/>
+        ORDER BY user_id DESC
+        <if test="null!=start">
+            limit ${start},${end}
+        </if>
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        select count(1) as total
+        from user a
+        where 1=1 and a.deleted=1
+        <include refid="sql_where"/>
+    </select>
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT
+        a.*
+        FROM
+        user_dynamic a
+        WHERE 1=1
+        and a.deleted = 1
+        <include refid="sql_where"/>
+        limit 0,1
+    </select>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+    update user set deleted = 0 WHERE id = #{id}
+  </delete>
+
+
+    <!-- 更新状态 -->
+    <update id="updateStatus" parameterType="map">
+        update user a
+        set isVerify = #{status},
+        update_time = now()
+        WHERE a.user_id in (${ids})
+        <if test="oldStatus!=null and ''!=oldStatus">
+            and a.isVerify = #{oldStatus}
+        </if>
+    </update>
+</mapper>

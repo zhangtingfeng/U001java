@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="trafficService">
+	<sql id="sql_where">
+		<if test="''!=name and null!=name">
+			and a.name LIKE concat('%',#{name},'%')
+		</if>
+		<if test="''!=id and null!=id">
+			and a.id=#{id}
+		</if>
+	</sql>
+
+	<!-- 查询 -->
+	<select id="queryList" parameterType="map" resultType="dto">
+		SELECT
+		a.*
+		FROM
+		m_traffic_service a
+		WHERE 1 = 1 and a.is_delete='N'
+		<include refid="sql_where" />
+        order by a.sort desc
+		<if test="null!=start">
+			limit ${start},${end}
+		</if>
+	</select>
+
+	<!-- 查询 -->
+	<select id="getInfo" parameterType="map" resultType="dto">
+		SELECT
+		a.*
+		FROM
+		m_traffic_service a
+		WHERE 1 = 1 and a.is_delete='N'
+		<include refid="sql_where" />
+		order by a.sort desc
+		limit 1
+	</select>
+
+	<select id="queryListCount" parameterType="map" resultType="dto">
+		SELECT count(1) as total FROM m_traffic_service a WHERE 1=1  and a.is_delete='N'
+		<include refid="sql_where" />
+	</select>
+	<!-- 插入 -->
+	<insert id="saveInfo" parameterType="dto" useGeneratedKeys="true" keyProperty="id">
+		insert into m_traffic_service
+		(
+		<if test="''!=name and null!=name">
+		       name,
+		</if>
+		<if test="''!=content and null!=content">
+			content,
+		</if>
+        <if test="''!=sort and null!=sort">
+			sort,
+        </if>
+		create_time,
+		creator,
+		is_delete
+		)
+		values (
+		<if test="''!=name and null!=name">
+		#{name},
+		</if>
+		<if test="''!=content and null!=content">
+			#{content},
+		</if>
+        <if test="''!=sort and null!=sort">
+            #{sort},
+        </if>
+		now(),
+		#{creator},
+		'N'
+		)
+	</insert>
+
+	<!-- 修改 -->
+	<update id="updateInfo" parameterType="dto">
+		update m_traffic_service a
+		set
+		<if test="''!=name and null!=name">
+			a.name=#{name},
+		</if>
+		<if test="''!=content and null!=content">
+			a.content=#{content},
+		</if>
+        <if test="''!=sort and null!=sort">
+            a.sort=#{sort},
+        </if>
+		a.update_time = now()
+		where id = #{id}
+	</update>
+
+
+	<!-- 删除 -->
+	<delete id="deleteInfo" parameterType="dto">
+		update  m_traffic_service set is_delete='Y'  WHERE id = #{id}
+	</delete>
+</mapper>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="logistics">
+    <sql id="sql_where">
+        <if test="''!=title and null!=title">
+            and a.title LIKE CONCAT('%', #{title}, '%')
+        </if>
+        <if test="''!=fraction and null!=fraction">
+            and a.fraction LIKE CONCAT('%', #{fraction}, '%')
+        </if>
+        <if test="''!=is_selected and null!=is_selected">
+            and a.is_selected = #{is_selected}
+        </if>
+        <if test="''!=shopid and null!=shopid">
+            and a.shop_id = #{shopid}
+        </if>
+        <if test="''!=id and null!=id">
+            and a.id = #{id}
+        </if>
+        <if test="''!=shopids and null!=shopids">
+            and a.shopids = #{shopids}
+        </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT
+        a.*
+        FROM
+        m_logistics a
+        where 1 = 1
+        and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY id
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+        select count(1) as total
+        from m_logistics a
+        where 1=1 and a.is_delete='N'
+        <include refid="sql_where"/>
+    </select>
+
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT
+        a.*
+        FROM
+        m_logistics a
+        WHERE 1=1
+        and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 0,1
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+    insert into m_logistics
+      (title,
+       fraction,
+       pic,
+       is_selected,
+       longitude,
+       latitude,
+       create_time,creator,is_delete)
+    values (#{title},
+            #{fraction},
+            #{pic},
+            #{is_selected},
+            #{longitude},
+            #{latitude},
+            now(),#{creator},'N')
+  </insert>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+    update m_logistics
+    set
+        <if test="title!=null and ''!=title">
+            title = #{title},
+        </if>
+        <if test="fraction!=null and ''!=fraction">
+            fraction = #{fraction},
+        </if>
+        <if test="pic!=null and ''!=pic">
+            pic = #{pic},
+        </if>
+        <if test="is_selected!=null and ''!=is_selected">
+            is_selected = #{is_selected},
+        </if>
+        <if test="longitude!=null and ''!=longitude">
+            longitude = #{longitude},
+        </if>
+        <if test="latitude!=null and ''!=latitude">
+            latitude = #{latitude},
+        </if>
+        <if test="mobile!=null and ''!=mobile">
+            mobile = #{mobile},
+        </if>
+        <if test="desc!=null and ''!=desc">
+            `desc`= #{desc},
+        </if>
+        update_time = now(),
+        updator = #{updator}
+    where id = #{id}
+  </update>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+    update m_logistics set is_delete = "Y" WHERE id = #{id}
+  </delete>
+
+</mapper>

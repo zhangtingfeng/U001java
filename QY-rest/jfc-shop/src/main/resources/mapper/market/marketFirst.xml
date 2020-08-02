@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="m_market_first">
+
+    <sql id="sql_where">
+
+        <if test="''!=startDate and null!=startDate">
+            and  DATE(a.create_time) &gt;= #{startDate}
+        </if>
+        <if test="''!=endDate and null!=endDate">
+            and  DATE(a.create_time) &gt;= #{startDate}
+        </if>
+        <if test="''!=startMoney and null!=startMoney">
+            and a.money &gt;= #{startMoney}
+        </if>
+        <if test="''!=endMoney and null!=endMoney">
+            and  a.money  &lt;= #{endMoney}
+        </if>
+        <if test="''!=pro_id and null!=pro_id">
+            and a.pro_id = #{pro_id}
+        </if>
+        <if test="''!=shop_id and null!=shop_id">
+            and a.shop_id = #{shop_id}
+        </if>
+        <if test="''!=id and null!=id">
+            and a.id = #{id}
+        </if>
+
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT a.*,b.name as shop_name,c.name as product_name
+        FROM m_market_first a
+        left join m_shop b on b.id=a.shop_id
+        left join m_product c on c.id=a.pro_id
+        WHERE 1=1
+        and
+        a.is_delete = 'N'
+        <include refid="sql_where"/>
+        ORDER BY a.id desc
+    </select>
+
+
+    <!-- 查询 -->
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT a.*
+        FROM m_market_first a
+        left join m_shop b on b.id=a.shop_id
+        left join m_product c on c.id=a.pro_id
+        WHERE 1=1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 0,1
+    </select>
+
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+        insert into m_market_first (pro_id, shop_id,
+                                    bmoney, mmoney,
+                                    smoney,
+                                    nums,uppic,downpic,posterpic,
+                                    create_time,
+                                    creator, is_delete)
+        values (#{pro_id}, #{shop_id},
+                #{bmoney}, #{mmoney},
+                #{smoney}, #{nums},#{uppic},#{downpic},#{posterpic},
+                now(),
+                #{creator}, 'N')
+    </insert>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        UPDATE m_market_first set is_delete = 'Y' WHERE id = #{id}
+    </delete>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_market_first a
+        set
+        <if test="pro_id">
+            a.pro_id = #{pro_id},
+        </if>
+        <if test="shop_id">
+            a.shop_id = #{shop_id},
+        </if>
+        <if test="bmoney">
+            a.bmoney = #{bmoney},
+        </if>
+        <if test="mmoney">
+            a.mmoney = #{mmoney},
+        </if>
+        <if test="smoney">
+            a.smoney = #{smoney},
+        </if>
+        <if test="nums">
+            a.nums = #{nums},
+        </if>
+        <if test="posterpic">
+            a.posterpic = #{posterpic},
+        </if>
+        <if test="uppic">
+            a.uppic = #{uppic},
+        </if>
+        <if test="downpic">
+            a.downpic = #{downpic},
+        </if>
+        <if test="updator">
+            a.updator = #{updator},
+        </if>
+        update_time = now()
+        where id = #{id}
+    </update>
+
+
+    <select id="getMarketEnroll" parameterType="map" resultType="dto">
+        select * from m_market_enroll where member_id=#{member_id}
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveMarketEnrollInfo" parameterType="dto">
+        insert into m_market_enroll (member_id,
+                                     create_time,
+                                     creator, is_delete)
+        values (#{member_id},
+                now(),
+                #{member_id}, 'N')
+    </insert>
+</mapper>

@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="marketProduct">
+
+    <resultMap id="activitySpecialProductResult" type="com.jfc.bean.ActivitySpecialProduct" >
+
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="product_id" property="productId" jdbcType="BIGINT" />
+        <result column="shop_id" property="shopId" jdbcType="BIGINT" />
+        <result column="sec_id" property="secId" jdbcType="BIGINT" />
+        <result column="full_id" property="fullId" jdbcType="BIGINT" />
+        <result column="newuser_id" property="newuserId" jdbcType="BIGINT" />
+        <result column="specialp_id" property="specialpId" jdbcType="BIGINT" />
+        <result column="name" property="proNme" jdbcType="VARCHAR" />
+        <result column="pnme" property="pnme" jdbcType="VARCHAR" />
+        <result column="pintroduction" property="pintroduction" jdbcType="VARCHAR" />
+        <result column="pics" property="pics" jdbcType="VARCHAR" />
+        <result column="number" property="proNumber" jdbcType="VARCHAR" />
+        <result column="price" property="price" jdbcType="DECIMAL" />
+        <result column="price2" property="price2" jdbcType="DECIMAL" />
+        <result column="price3" property="price3" jdbcType="DECIMAL" />
+        <result column="stock" property="stock" jdbcType="INTEGER" />
+        <result column="introduction" property="introduction" jdbcType="VARCHAR" />
+        <result column="discount" property="discount" jdbcType="DECIMAL" />
+        <result column="smallpic" property="smallpic" jdbcType="VARCHAR" />
+        <result column="bigpic" property="bigpic" jdbcType="VARCHAR" />
+        <result column="prostatus" property="proStatus" jdbcType="VARCHAR" />
+        <result column="start" property="start" jdbcType="TIMESTAMP" />
+        <result column="end" property="end" jdbcType="TIMESTAMP" />
+        <result column="money" property="money" jdbcType="DECIMAL" />
+        <result column="integral" property="integral" jdbcType="DECIMAL" />
+        <result column="numbers" property="numbers" jdbcType="BIGINT" />
+        <result column="status" property="status" jdbcType="BIGINT" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="creator" property="creator" jdbcType="BIGINT" />
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+        <result column="updator" property="updator" jdbcType="BIGINT" />
+        <result column="is_delete" property="isDelete" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <resultMap id="activityFullProductResult" type="com.jfc.bean.ActivityFullProduct" >
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="product_id" property="productId" jdbcType="BIGINT" />
+        <result column="shop_id" property="shopId" jdbcType="BIGINT" />
+        <result column="sec_id" property="secId" jdbcType="BIGINT" />
+        <result column="full_id" property="fullId" jdbcType="BIGINT" />
+        <result column="newuser_id" property="newuserId" jdbcType="BIGINT" />
+        <result column="specialp_id" property="specialpId" jdbcType="BIGINT" />
+        <result column="name" property="proNme" jdbcType="VARCHAR" />
+        <result column="pnme" property="pnme" jdbcType="VARCHAR" />
+        <result column="pintroduction" property="pintroduction" jdbcType="VARCHAR" />
+        <result column="pics" property="pics" jdbcType="VARCHAR" />
+        <result column="number" property="proNumber" jdbcType="VARCHAR" />
+        <result column="price" property="price" jdbcType="DECIMAL" />
+        <result column="price2" property="price2" jdbcType="DECIMAL" />
+        <result column="price3" property="price3" jdbcType="DECIMAL" />
+        <result column="stock" property="stock" jdbcType="INTEGER" />
+        <result column="introduction" property="introduction" jdbcType="VARCHAR" />
+        <result column="discount" property="discount" jdbcType="DECIMAL" />
+        <result column="smallpic" property="smallpic" jdbcType="VARCHAR" />
+        <result column="bigpic" property="bigpic" jdbcType="VARCHAR" />
+        <result column="prostatus" property="proStatus" jdbcType="VARCHAR" />
+        <result column="starttime" property="starttime" jdbcType="TIMESTAMP" />
+        <result column="endtime" property="endtime" jdbcType="TIMESTAMP" />
+        <result column="money" property="money" jdbcType="DECIMAL" />
+        <result column="full_money" property="fullMoney" jdbcType="DECIMAL" />
+        <result column="marketdiscount" property="marketDiscount" jdbcType="DECIMAL" />
+        <result column="full_nums" property="fullNums" jdbcType="INTEGER" />
+        <result column="mail_free" property="mailFree" jdbcType="VARCHAR" />
+        <result column="status" property="status" jdbcType="BIGINT" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="creator" property="creator" jdbcType="BIGINT" />
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+        <result column="updator" property="updator" jdbcType="BIGINT" />
+        <result column="is_delete" property="isDelete" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <resultMap id="activityNewUserProductResult" type="com.jfc.bean.ActivityNewUserProduct" >
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="product_id" property="productId" jdbcType="BIGINT" />
+        <result column="shop_id" property="shopId" jdbcType="BIGINT" />
+        <result column="sec_id" property="secId" jdbcType="BIGINT" />
+        <result column="full_id" property="fullId" jdbcType="BIGINT" />
+        <result column="newuser_id" property="newuserId" jdbcType="BIGINT" />
+        <result column="specialp_id" property="specialpId" jdbcType="BIGINT" />
+        <result column="name" property="proNme" jdbcType="VARCHAR" />
+        <result column="pnme" property="pnme" jdbcType="VARCHAR" />
+        <result column="pintroduction" property="pintroduction" jdbcType="VARCHAR" />
+        <result column="pics" property="pics" jdbcType="VARCHAR" />
+        <result column="number" property="proNumber" jdbcType="VARCHAR" />
+        <result column="price" property="price" jdbcType="DECIMAL" />
+        <result column="price2" property="price2" jdbcType="DECIMAL" />
+        <result column="price3" property="price3" jdbcType="DECIMAL" />
+        <result column="stock" property="stock" jdbcType="INTEGER" />
+        <result column="introduction" property="introduction" jdbcType="VARCHAR" />
+        <result column="discount" property="discount" jdbcType="DECIMAL" />
+        <result column="smallpic" property="smallpic" jdbcType="VARCHAR" />
+        <result column="bigpic" property="bigpic" jdbcType="VARCHAR" />
+        <result column="prostatus" property="proStatus" jdbcType="VARCHAR" />
+        <result column="start" property="start" jdbcType="TIMESTAMP" />
+        <result column="end" property="end" jdbcType="TIMESTAMP" />
+        <result column="money" property="money" jdbcType="DECIMAL" />
+        <result column="numbers" property="numbers" jdbcType="INTEGER" />
+        <result column="status" property="status" jdbcType="BIGINT" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="creator" property="creator" jdbcType="BIGINT" />
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+        <result column="updator" property="updator" jdbcType="BIGINT" />
+        <result column="is_delete" property="isDelete" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <resultMap id="activitySeckillProductResult" type="com.jfc.bean.ActivitySeckillProduct" >
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="product_id" property="productId" jdbcType="BIGINT" />
+        <result column="shop_id" property="shopId" jdbcType="BIGINT" />
+        <result column="sec_id" property="secId" jdbcType="BIGINT" />
+        <result column="full_id" property="fullId" jdbcType="BIGINT" />
+        <result column="newuser_id" property="newuserId" jdbcType="BIGINT" />
+        <result column="specialp_id" property="specialpId" jdbcType="BIGINT" />
+        <result column="name" property="proNme" jdbcType="VARCHAR" />
+        <result column="pnme" property="pnme" jdbcType="VARCHAR" />
+        <result column="pintroduction" property="pintroduction" jdbcType="VARCHAR" />
+        <result column="pics" property="pics" jdbcType="VARCHAR" />
+        <result column="number" property="proNumber" jdbcType="VARCHAR" />
+        <result column="price" property="price" jdbcType="DECIMAL" />
+        <result column="price2" property="price2" jdbcType="DECIMAL" />
+        <result column="price3" property="price3" jdbcType="DECIMAL" />
+        <result column="stock" property="stock" jdbcType="INTEGER" />
+        <result column="introduction" property="introduction" jdbcType="VARCHAR" />
+        <result column="discount" property="discount" jdbcType="DECIMAL" />
+        <result column="smallpic" property="smallpic" jdbcType="VARCHAR" />
+        <result column="bigpic" property="bigpic" jdbcType="VARCHAR" />
+        <result column="prostatus" property="proStatus" jdbcType="VARCHAR" />
+        <result column="start" property="start" jdbcType="TIMESTAMP" />
+        <result column="end" property="end" jdbcType="TIMESTAMP" />
+        <result column="kill_time" property="killTime" jdbcType="TIMESTAMP" />
+        <result column="loop_flag" property="loopFlag" jdbcType="VARCHAR" />
+        <result column="money" property="money" jdbcType="DECIMAL" />
+        <result column="space" property="space" jdbcType="INTEGER" />
+        <result column="number" property="number" jdbcType="VARCHAR" />
+        <result column="status" property="status" jdbcType="BIGINT" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="creator" property="creator" jdbcType="BIGINT" />
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+        <result column="updator" property="updator" jdbcType="BIGINT" />
+        <result column="is_delete" property="isDelete" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <resultMap id="activityGroupProductResult" type="com.jfc.bean.ActivityGroupProduct" >
+        <result column="id" property="id" jdbcType="BIGINT"/>
+        <result column="product_id" property="productId" jdbcType="BIGINT" />
+        <result column="shop_id" property="shopId" jdbcType="BIGINT" />
+        <result column="sec_id" property="secId" jdbcType="BIGINT" />
+        <result column="full_id" property="fullId" jdbcType="BIGINT" />
+        <result column="newuser_id" property="newuserId" jdbcType="BIGINT" />
+        <result column="specialp_id" property="specialpId" jdbcType="BIGINT" />
+        <result column="name" property="proNme" jdbcType="VARCHAR" />
+        <result column="pnme" property="pnme" jdbcType="VARCHAR" />
+        <result column="pintroduction" property="pintroduction" jdbcType="VARCHAR" />
+        <result column="pics" property="pics" jdbcType="VARCHAR" />
+        <result column="number" property="proNumber" jdbcType="VARCHAR" />
+        <result column="price" property="price" jdbcType="DECIMAL" />
+        <result column="price2" property="price2" jdbcType="DECIMAL" />
+        <result column="price3" property="price3" jdbcType="DECIMAL" />
+        <result column="stock" property="stock" jdbcType="INTEGER" />
+        <result column="introduction" property="introduction" jdbcType="VARCHAR" />
+        <result column="discount" property="discount" jdbcType="DECIMAL" />
+        <result column="smallpic" property="smallpic" jdbcType="VARCHAR" />
+        <result column="bigpic" property="bigpic" jdbcType="VARCHAR" />
+        <result column="prostatus" property="proStatus" jdbcType="VARCHAR" />
+        <result column="start" property="start" jdbcType="TIMESTAMP" />
+        <result column="end" property="end" jdbcType="TIMESTAMP" />
+        <result column="money" property="money" jdbcType="DECIMAL" />
+        <result column="full_numbers" property="fullNumbers" jdbcType="INTEGER" />
+        <result column="numbers" property="numbers" jdbcType="INTEGER" />
+        <result column="status" property="status" jdbcType="BIGINT" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="creator" property="creator" jdbcType="BIGINT" />
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+        <result column="updator" property="updator" jdbcType="BIGINT" />
+        <result column="is_delete" property="isDelete" jdbcType="VARCHAR" />
+    </resultMap>
+
+   
+    <sql id="sql_where">
+        <if test="''!=productid and null!=productid">
+            and a.product_id = #{productid}
+        </if>
+        <if test="''!=shopid and null!=shopid">
+            and a.shop_id = #{shopid}
+        </if>
+        <if test="''!=fullid and null!=fullid">
+            and a.full_id = #{fullid}
+        </if>
+        <if test="''!=newuserid and null!=newuserid">
+            and a.newuser_id = #{newuserid}
+        </if>
+        <if test="''!=specialpid and null!=specialpid">
+            and a.specialp_id = #{specialpid}
+        </if>
+        <if test="''!=id and null!=id">
+            and a.id = #{id}
+        </if>
+        <if test="''!=secidFlag and null!=secidFlag">
+            and a.sec_id is not NULL
+        </if>
+        
+    </sql>
+
+
+    <!-- 查询特殊商品限时兑换营销 -->
+    <select id="querySpecialProductList" parameterType="com.jfc.bean.ActivitySpecialProduct" resultMap="activitySpecialProductResult">
+        SELECT a.*,b.money,b.money as xianshi,b.integral,b.numbers,p.price,p.price2,p.price3,
+        p.smallpic,p.bigpic,p.stock,p.`status` as prostatus,p.name,p.number,p.introduction,p.discount,if(LENGTH(p.name)>25,concat(left(p.name,13),'...'),p.name)as pname,
+		if(LENGTH(p.introduction)>29,concat(left(p.introduction,17),'...'),p.introduction)as pintroduction,substring_index(p.bigpic,',',1)as pics
+        FROM m_market_product a
+        LEFT JOIN m_market_special_product b ON a.specialp_id = b.id
+        LEFT JOIN m_product p ON a.product_id = p.id
+        WHERE a.specialp_id IS NOT NULL
+        ORDER BY a.id
+    </select>
+
+    <!-- 查询满减配置 -->
+    <select id="queryFullProductList" parameterType="com.jfc.bean.ActivityFullProduct" resultMap="activityFullProductResult">
+        SELECT a.*,b.money,b.discount as marketdiscount,b.mail_free,b.full_money,b.full_nums,b.starttime,b.endtime,p.price,p.price2,p.price3,
+        p.smallpic,p.bigpic,p.stock,p.`status` as prostatus,p.name,p.number,p.introduction,p.discount,if(LENGTH(p.name)>25,concat(left(p.name,13),'...'),p.name)as pname,
+		if(LENGTH(p.introduction)>29,concat(left(p.introduction,17),'...'),p.introduction)as pintroduction,substring_index(p.bigpic,',',1)as pics
+        FROM m_market_product a
+        LEFT JOIN m_market_full_reduction b ON a.full_id = b.id
+        LEFT JOIN m_product p ON a.product_id = p.id
+        WHERE a.full_id IS NOT NULL
+        ORDER BY a.id
+    </select>
+
+
+    <!-- 查询新用户专享营销 -->
+    <select id="queryNewUserProductList" parameterType="com.jfc.bean.ActivityNewUserProduct" resultMap="activityNewUserProductResult">
+        SELECT a.*,b.money,b.numbers,b.`start`,b.`end`,p.price,p.price2,p.price3,
+        p.smallpic,p.bigpic,p.stock,p.`status` as prostatus,p.name,p.number,p.introduction,p.discount,if(LENGTH(p.name)>25,concat(left(p.name,13),'...'),p.name)as pname,
+		if(LENGTH(p.introduction)>29,concat(left(p.introduction,17),'...'),p.introduction)as pintroduction,substring_index(p.bigpic,',',1)as pics
+        FROM m_market_product a
+        LEFT JOIN m_market_newuser b ON a.newuser_id = b.id
+        LEFT JOIN m_product p ON a.product_id = p.id
+        WHERE a.newuser_id IS NOT NULL
+        ORDER BY a.id
+    </select>
+
+    <!-- 查询秒杀规则 -->
+    <select id="querySeckillProductList" parameterType="com.jfc.bean.ActivitySeckillProduct" resultMap="activitySeckillProductResult">
+        SELECT a.*,b.money,b.number,b.loop_flag,b.kill_time,b.space,b.`start`,b.`end`,p.price,p.price2,p.price3,
+        p.smallpic,p.bigpic,p.stock,p.`status` as prostatus,p.name,p.number,p.introduction,p.discount,if(LENGTH(p.name)>25,concat(left(p.name,13),'...'),p.name)as pname,
+		if(LENGTH(p.introduction)>29,concat(left(p.introduction,17),'...'),p.introduction)as pintroduction,substring_index(p.bigpic,',',1)as pics
+        FROM m_market_seckill_product a
+        LEFT JOIN m_market_seckill b ON a.sec_id = b.id
+        LEFT JOIN m_product p ON a.product_id = p.id
+        WHERE a.sec_id IS NOT NULL
+        ORDER BY a.id
+    </select>
+
+    <!-- 查询团购配置 -->
+    <select id="queryGroupProductList" parameterType="com.jfc.bean.ActivityGroupProduct" resultMap="activityGroupProductResult">
+        SELECT a.*,b.`start`,b.`end`,p.price,p.price2,p.price3,
+        p.smallpic,p.bigpic,p.stock,p.`status` as prostatus,p.name,p.number,p.introduction,p.discount,if(LENGTH(p.name)>25,concat(left(p.name,13),'...'),p.name)as pname,
+		if(LENGTH(p.introduction)>29,concat(left(p.introduction,17),'...'),p.introduction)as pintroduction,substring_index(p.bigpic,',',1)as pics
+        FROM m_market_group_product a
+        LEFT JOIN m_market_group b ON a.group_id = b.id
+        LEFT JOIN m_product p ON a.product_id = p.id
+        WHERE a.group_id IS NOT NULL
+        ORDER BY a.id
+    </select>
+
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT a.*,s.username as creatorname,s1.username as updatorname
+        FROM m_market_product a
+        LEFT JOIN m_shop b ON a.shop_id = b.id
+        LEFT JOIN sys_user s ON a.creator = s.id
+        LEFT JOIN sys_user s1 ON a.updator = s1.id
+        WHERE 1=1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        <if test="flag">
+            ( 1 = #{flag} or a.shop_id = #{flag})
+        </if>
+        ORDER BY id
+    </select>
+
+    <!-- 查询 -->
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT a.*,s.username as creatorname,s1.username as updatorname
+        FROM m_market_product a
+        LEFT JOIN m_shop b ON a.shop_id = b.id
+        LEFT JOIN sys_user s ON a.creator = s.id
+        LEFT JOIN sys_user s1 ON a.updator = s1.id
+        WHERE 1=1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 0,1
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+        insert into m_market_product (product_id, shop_id, 
+          sec_id, full_id, newuser_id, 
+          specialp_id, status, create_time,
+          creator, is_delete)
+        values (#{product_id}, #{shop_id},
+          #{sec_id}, #{full_id}, #{newuser_id},
+          #{specialp_id}, 1, now(),
+          #{creator}, 'N')
+    </insert>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        UPDATE m_market_product set is_delete = 'Y' WHERE id = #{id}
+    </delete>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_market_product
+        set
+        <if test="productid">product_id = #{productid},</if>
+        <if test="shopid">shop_id = #{shopid},</if>
+        <if test="secid">sec_id = #{secid},</if>
+        <if test="fullid">full_id = #{fullid},</if>
+        <if test="newuserid">newuser_id = #{newuserid},</if>
+        <if test="specialpid">specialp_id = #{specialpid},</if>
+        <if test="status">status = #{status},</if>
+        <if test="updator">updator = #{updator},</if>
+        update_time = now()
+        where id = #{id}
+    </update>
+    <!-- 查询 -->
+    <select id="queryListSec" parameterType="map" resultType="dto">
+        SELECT a.sec_id
+        FROM m_market_product a
+        WHERE 1=1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        GROUP BY a.sec_id
+    </select>
+    <select id="queryListMarketProduct" parameterType="map" resultType="dto">
+        SELECT a.*,p.`name`
+        FROM m_market_product a
+        LEFT JOIN m_product p on p.id=a.product_id
+        WHERE 1=1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+    </select>
+    <!--groupBy="titleTime"-->
+    <resultMap id="getSeckill" type="com.jfc.bean.SeckillProduct" >
+        <result property="titleTime" column="titleTime"></result>
+        <result property="type" column="type"></result>
+        <!--resultMap="marketProduct.getSeckillTwo"-->
+
+        <!--<result property="list" ></result>-->
+        <!--<result property="list" typeHandler="marketProduct.getSeckillTwo" ></result>-->
+
+    </resultMap>
+    <resultMap id="getSeckillTwo" type="com.jfc.bean.Seckills">
+        <result property="name" column="name"></result>
+        <result property="introduction" column="introduction"></result>
+        <result property="stock" column="stock"></result>
+        <result property="bigpic" column="bigpic"></result>
+        <result property="price" column="price"></result>
+        <result property="id" column="id"></result>
+        <result property="type_id" column="type_id"></result>
+        <result property="money" column="money"></result>
+        <result property="typeName" column="typeName"></result>
+    </resultMap>
+    <!--查询秒杀数据-->
+    <select id="getSeckillLists" parameterType="map" resultMap="marketProduct.getSeckill">
+        SELECT
+        DATE_FORMAT(a.kill_time, '%d日:%H:00') AS titleTime,
+        IFNULL(
+        x.aaa,
+        (
+        IF (
+        a.kill_time = DATE_FORMAT(now(), '%Y-%m-%d %H'),
+        '抢购中',
+
+        IF (
+        a.kill_time  &gt; DATE_FORMAT(now(), '%Y-%m-%d %H'),
+        '即将开抢',
+        '已开抢'
+        )
+        )
+        )
+        ) AS type,
+        c.name,
+        c.introduction,
+        c.stock,
+        c.bigpic,
+        round(c.price, 2) AS price,
+        c.id,
+        c.type_id,
+        round(a.money, 2) AS money,
+        e.text AS typeName,a.id as marketid
+        FROM
+        (
+        SELECT
+        *
+        FROM
+        m_market_seckill
+        ) AS a
+        RIGHT JOIN m_market_seckill_product AS b ON (a.id = b.sec_id)
+        LEFT JOIN m_product AS c ON (b.product_id = c.id)
+        LEFT JOIN m_product_type AS e ON (c.type_id = e.id)
+        LEFT JOIN (
+        SELECT
+        a.money,
+        a.id AS xsec_id,
+        e.text,
+        DATE_FORMAT(a.kill_time, '%d日:%H:00'),
+        '抢购中' AS aaa
+        FROM
+        (
+        SELECT
+        *
+        FROM
+        m_market_seckill
+        ) AS a
+        RIGHT JOIN m_market_seckill_product AS b ON (a.id = b.sec_id)
+        LEFT JOIN m_product AS c ON (b.product_id = c.id)
+        LEFT JOIN m_product_type AS e ON (c.type_id = e.id)
+        WHERE
+        a.kill_time &lt; now()
+        ORDER BY
+        a.kill_time DESC
+        LIMIT 1
+        ) AS x ON (x.xsec_id = a.id)
+        GROUP BY
+        titleTime,
+        a.id
+        ORDER BY
+        a.kill_time DESC
+    </select>
+
+
+    <!--查询限时购数据-->
+    <select id="getSpecialLists" parameterType="map" resultType="dto">
+        SELECT
+            DATE_FORMAT(a.end, '%Y-%m-%d %H:00:00') AS time,
+            b.integral,
+            b.money,
+            b.numbers,
+            c.name,
+            c.introduction,
+            c.stock,
+            c.bigpic,
+            round(c.price, 2) AS price,
+            c.id,
+            c.type_id,
+            e.text AS typeName,a.id as marketid
+        FROM
+            (
+            SELECT
+            *
+            FROM
+            m_market_special
+            WHERE
+           DATE_FORMAT(END, '%Y-%m-%d %H') &gt; DATE_FORMAT(now(), '%Y-%m-%d %H:%i:%S') and DATE_FORMAT(start, '%Y-%m-%d %H')&lt; DATE_FORMAT(now(), '%Y-%m-%d %H:%i:%S')
+            ORDER BY
+            end
+            LIMIT 1
+            ) AS a
+            LEFT JOIN m_market_special_product AS b ON (a.id = b.specialp_id)
+            LEFT JOIN m_product AS c ON (b.product_id = c.id)
+            LEFT JOIN m_product_type AS e ON (c.type_id = e.id)
+    </select>
+
+    <!--查询限时购数据-->
+   <!-- <select id="getSpecialLists" parameterType="map" resultType="dto">
+        SELECT
+            DATE_FORMAT(a.end, '%Y-%m-%d %H:00:00') AS time,
+            b.integral,
+            b.money,
+            b.numbers,
+            c.name,
+            c.introduction,
+            c.stock,
+            c.bigpic,
+            round(c.price, 2) AS price,
+            c.id,
+            c.type_id,
+            e.text AS typeName
+        FROM
+            (
+            SELECT
+            *
+            FROM
+            m_market_special
+            WHERE
+            DATE_FORMAT(END, '%Y-%m-%d %H') &gt; DATE_FORMAT(now(), '%Y-%m-%d %H:%i:%S') and DATE_FORMAT(start, '%Y-%m-%d %H')&lt; DATE_FORMAT(now(), '%Y-%m-%d %H:%i:%S')
+            ORDER BY
+            end
+            LIMIT 1
+            ) AS a
+            LEFT JOIN m_market_special_product AS b ON (a.id = b.specialp_id)
+            LEFT JOIN m_product AS c ON (b.product_id = c.id)
+            LEFT JOIN m_product_type AS e ON (c.type_id = e.id)
+    </select>-->
+
+    <!--查询团购数据-->
+    <select id="getGroupLists" parameterType="map" resultType="dto">
+        SELECT
+        DATE_FORMAT(a.end, '%Y-%m-%d %H:00:00') AS time,
+        b.full_numbers,
+        b.money,
+        b.numbers,
+        c.name,
+        c.introduction,
+        c.stock,
+        c.bigpic,
+        round(c.price, 2) AS price,
+        c.id,
+        c.type_id,
+        e.text AS typeName,a.id as marketid
+        FROM
+        (
+        SELECT
+        *
+        FROM
+        m_market_group
+        WHERE
+        DATE_FORMAT(END, '%Y-%m-%d %H') &gt; DATE_FORMAT(now(), '%Y-%m-%d %H:%i:%S')
+        AND DATE_FORMAT(START, '%Y-%m-%d %H') &lt; DATE_FORMAT(now(), '%Y-%m-%d %H:%i:%S')
+        ORDER BY
+        END
+        LIMIT 1
+        ) AS a
+        LEFT JOIN m_market_group_product AS b ON (a.id = b.group_id)
+        LEFT JOIN m_product AS c ON (b.product_id = c.id)
+        LEFT JOIN m_product_type AS e ON (c.type_id = e.id)
+    </select>
+</mapper>

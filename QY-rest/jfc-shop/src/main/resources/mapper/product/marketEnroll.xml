@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="marketEnroll">
+
+    <sql id="sql_where">
+        <if test="''!=name and null!=name">
+            and m.username like CONCAT ('%',#{name},'%')
+        </if>
+		<if test="''!=startDate and null!=startDate">
+			and a.create_time >=concat(#{startDate},' ','00:00:00')
+		</if>
+		<if test="''!=endDate and null!=endDate">
+			and a.create_time &lt;= concat(#{endDate},' ','23:59:59')
+		</if>
+        <if test="''!=id and null!=id">
+            and a.id=#{id}
+        </if>
+       
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+			   SELECT
+				a.*,
+			   m.username,
+			   m.telephone
+			FROM
+			m_market_enroll a
+			LEFT JOIN m_member m on m.id=a.member_id
+			WHERE a.is_delete='N'
+		<include refid="sql_where"/>
+		order by a.id  desc
+		<if test="null!=start">
+			limit ${start},${end}
+		</if>
+    </select>
+
+    <select id="queryListCount" parameterType="map" resultType="dto">
+		SELECT
+		count(1) AS total
+		FROM
+		m_market_enroll a
+		LEFT JOIN m_member m ON m.id = a.member_id
+		WHERE
+		a.is_delete = 'N'
+        <include refid="sql_where"/>
+    </select>
+
+</mapper>

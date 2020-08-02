@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 参数管理手工映射SQL语句 -->
+<mapper namespace="marketSeckill">
+
+    <sql id="sql_where">
+
+        <if test="''!=number1 and null!=number1">
+            and  a.number LIKE CONCAT('%', #{number1}, '%')
+
+        </if>
+        <if test="''!=shopname and null!=shopname">
+            and b.nameLIKE CONCAT('%', #{shopname}, '%')
+        </if>
+        <if test="''!=loop_flag1 and null!=loop_flag1">
+            and a.loop_flag = #{loop_flag1}
+        </if>
+        <if test="''!=startDate and null!=startDate">
+            and  DATE(a.kill_time) &gt;= #{startDate}
+        </if>
+        <if test="''!=endDate and null!=endDate">
+            and  DATE(a.kill_time)&lt;= #{endDate}
+        </if>
+        <if test="''!=startWhile and null!=startWhile">
+            and  DATE(a.start) &gt;= #{startWhile}
+        </if>
+        <if test="''!=endWhile and null!=endWhile">
+            and  DATE(a.start) &lt;= #{endWhile}
+        </if>
+        <if test="''!=startTime and null!=startTime">
+            and DATE(a.end) &gt;= #{startTime}
+        </if>
+        <if test="''!=endTime and null!=endTime">
+
+            and DATE(a.end) &lt;= #{endTime}
+
+        </if>
+        <if test="''!=shopId and null!=shopId">
+            and b.id=#{shopId}
+        </if>
+        <if test="''!=shopid and null!=shopid">
+            and  a.shop_id=#{shopid}
+        </if>
+        <if test="''!=id and null!=id">
+            and  a.id=#{id}
+
+        </if>
+
+    </sql>
+
+    <!-- 查询 -->
+    <select id="queryList" parameterType="map" resultType="dto">
+        SELECT a.*,b.`name` as shopname,
+        (case a.status when 1 then '生效' when '0' then '失效' END) as statusval,
+        (case a.loop_flag when 1 then '是' when '0' then '否' END) as loop_flagval,
+        s.username as creatorname,s1.username as updatorname
+        FROM m_market_seckill a
+        LEFT JOIN m_shop b ON a.shop_id = b.id
+        LEFT JOIN sys_user s ON a.creator = s.id
+        LEFT JOIN sys_user s1 ON a.updator = s1.id
+        WHERE 1=1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        <if test="''!=flag and null!=flag">
+           and  ( 1 = #{flag} or a.shop_id = #{flag})
+        </if>
+        ORDER BY id
+    </select>
+
+    <!-- 查询 -->
+    <select id="getInfo" parameterType="map" resultType="dto">
+        SELECT a.*,b.`name` as shopname,
+        (case a.status when 1 then '生效' when '0' then '失效' END) as statusval,
+        (case a.loop_flag when 1 then '是' when '0' then '否' END) as loop_flagval,
+        s.username as creatorname,s1.username as updatorname
+        FROM m_market_seckill a
+        LEFT JOIN m_shop b ON a.shop_id = b.id
+        LEFT JOIN sys_user s ON a.creator = s.id
+        LEFT JOIN sys_user s1 ON a.updator = s1.id
+        WHERE 1=1 and a.is_delete = 'N'
+        <include refid="sql_where"/>
+        limit 0,1
+    </select>
+
+    <!-- 插入 -->
+    <insert id="saveInfo" parameterType="dto">
+        insert into m_market_seckill (number, shop_id, 
+          loop_flag, kill_time, start, 
+          end, space, status, 
+          create_time, creator, is_delete)
+        values (#{number}, #{shop_id},
+          #{loop_flag}, #{kill_time}, #{start},
+          #{end}, #{space}, 1,
+          now(), #{creator}, 'N')
+    </insert>
+
+    <!-- 删除 -->
+    <delete id="deleteInfo" parameterType="map">
+        UPDATE m_market_seckill set is_delete = 'Y' WHERE id = #{id}
+    </delete>
+
+    <!-- 修改 -->
+    <update id="updateInfo" parameterType="dto">
+        update m_market_seckill a
+        set
+        <if test="number">
+            a.number = #{number},
+        </if>
+        <if test="shop_id">
+            a.shop_id = #{shop_id},
+        </if>
+        <if test="loop_flag2">
+            a.loop_flag = #{loop_flag2},
+        </if>
+        <if test="kill_time">
+            a.kill_time = #{kill_time},
+        </if>
+        <if test="start">
+            a.start = #{start},
+        </if>
+        <if test="end">
+            a.end = #{end},
+        </if>
+        <if test="space">
+            a.space = #{space},
+        </if>
+        <if test="status">
+            a.status = #{status},
+        </if>
+        <if test="updator">
+            a.updator = #{updator},
+        </if>
+        update_time = now()
+        where id = #{id}
+    </update>
+
+</mapper>
