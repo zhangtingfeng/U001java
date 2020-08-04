@@ -1,0 +1,995 @@
+# this is an example of the Uber API
+# as a demonstration of an API spec in YAML
+swagger: '2.0'
+info:
+  title: 大良餐饮APP接口
+  description: 大良餐饮app端接口文档
+  version: "1.0.0"
+# the domain of the service
+host: 127.0.0.1
+# array of all schemes that your API supports
+schemes:
+  - http
+# will be prefixed to all paths
+basePath: /v1
+produces:
+  - application/json
+paths:
+  /index/code:
+    post:
+      tags:
+      - 登录注册
+      description: 1.1获取验证码
+      parameters:
+        - name: phone
+          in: formData
+          description: 手机号
+          required: true
+          type: string
+        - name: type
+          in: formData
+          description: 类型(1注册 2忘记密码 3修改密码 4更换手机号（TBD)
+          required: true
+          type: string
+      responses:
+        200:
+          description: 获取结果（需要返回 验证码code）
+          schema:
+            $ref: '#/definitions/verificationCode'
+
+  /index/register:
+    post:
+      tags:
+      - 登录注册
+      description:  1.2注册 
+      parameters:
+        - name: phone
+          in: formData
+          description: 手机号
+          required: true
+          type: string
+        - name: password
+          in: formData
+          description: 密码 
+          required: true
+          type: string
+        - name:  code 
+          in: formData
+          description: 验证码
+          required: true
+          type: string
+      responses:
+        200:
+          description: 注册结果
+          schema:
+            $ref: '#/definitions/common'
+       
+  /index/login:
+    post:
+      tags:
+      - 登录注册
+      description:  1.3登录 
+      parameters:
+        - name: phone
+          in: formData
+          description: 手机号
+          required: true
+          type: string
+        - name: password
+          in: formData
+          description: 密码 
+          required: true
+          type: string
+        - name: usertype
+          in: formData
+          description: 登陆方式(1手机号登陆2微信登陆3qq登陆)
+          required: true
+          type: string
+      responses:
+        200:
+          description: 登录结果（登录成功需要 返回sessionid）
+          schema:
+            $ref: '#/definitions/login'
+            
+  /index/modifypwd:
+    post:
+      tags:
+      - 登录注册
+      description:  1.4修改密码 
+      parameters:
+        - name: phone
+          in: formData
+          description: 手机号
+          required: true
+          type: string
+        - name: code
+          in: formData
+          description: 验证码 
+          required: true
+          type: string
+        - name: oldpassword
+          in: formData
+          description: 旧密码 
+          required: true
+          type: string
+        - name: newpassword
+          in: formData
+          description: 新密码 
+          required: true
+          type: string
+      responses:
+        200:
+          description: 修改结果
+          schema:
+            $ref: '#/definitions/common'
+            
+  /index/forgetpwd:
+    post:
+      tags:
+      - 登录注册
+      description:  1.5忘记密码 
+      parameters:
+        - name: phone
+          in: formData
+          description: 手机号
+          required: true
+          type: string
+        - name: code
+          in: formData
+          description: 验证码 
+          required: true
+          type: string
+      responses:
+        200:
+          description: 修改结果
+          schema:
+            $ref: '#/definitions/common'
+  
+  /index/findpwd:
+    post:
+      tags:
+      - 登录注册
+      description:  1.6 找回密码（待定 不一定有） 
+      parameters:
+        - name: phone
+          in: formData
+          description: 手机号
+          required: true
+          type: string
+        - name: newpassword
+          in: formData
+          description: 新密码 
+          required: true
+          type: string
+      responses:
+        200:
+          description: 修改结果
+          schema:
+            $ref: '#/definitions/common'
+  
+  /home/Homepage:
+    post:
+      tags:
+      - 首页
+      description:  2.1 首页特色商家展示部分
+      parameters:
+        - name: sessionid
+          in: formData
+          description: sessionid标识
+          required: true
+          type: string
+      responses:
+        200:
+          description: 返回数据(首页特色商家展示数据)
+          schema:
+           type: array
+           items:
+            $ref: '#/definitions/Homepage'
+  
+
+  
+  /home/banner:
+    post:
+      tags:
+      - 首页
+      description:  2.2 轮播图
+      parameters:
+        - name: sessionid
+          in: formData
+          description: sessionid标识
+          required: true
+          type: string
+      responses:
+        200:
+          description: 轮播图返回数据
+          schema:
+           type: array
+           items:
+            $ref: '#/definitions/banner'
+  /home/recruitment:
+    post:
+      tags:
+      - 首页
+      description:  2.3 广告位 招聘
+      parameters:
+        - name: sessionid
+          in: formData
+          description: sessionid标识
+          required: true
+          type: string
+      responses:
+        200:
+          description: 广告位返回数据
+          schema:
+           type: array
+           items:
+            $ref: '#/definitions/recruitment'          
+  
+  /home/projecttypelist:
+    post:
+      tags:
+      - 首页
+      description:  2.4首页工程类型展示
+      parameters:
+        - name: codetype
+          in: formData
+          description: 工程类型（默认填写projectType）
+          required: true
+          type: string
+      responses:
+        200:
+          description: 返回数据(工程类型码值，工程类型名）
+          schema:
+            $ref: '#/definitions/common'
+  
+  /home/govmessagelist:
+    post:
+      tags:
+      - 首页
+      description:  2.5政务资讯、媒体展示、行业动态、政府公告展示
+      parameters:
+        - name: informtype
+          in: formData
+          description: 信息类型（0政务资讯；1 媒体展示；2 行业动态信息；3 政府公告）
+          required: true
+          type: string
+      responses:
+        200:
+          description: 返回数据(展示信息对象）
+          schema:
+            $ref: '#/definitions/common'
+#订单列表
+  /order/orderlist:
+    post:
+      tags:
+      - 订单
+      description:  3.1订单信息展示
+      parameters:
+        - name: sessionid
+          in: formData
+          description: sessionid标识
+          required: true
+          type: string
+        - name: usertype
+          in: formData
+          description: 用户类型(1用户2商家)
+          required: true
+          type: string
+        - name: ordertype
+          in: formData
+          description: 订单类型（0需求订单；1 测量订单；2 施工订单；3 订单评价）
+          required: true
+          type: string
+      responses:
+        200:
+          description: 返回数据(展示信息对象）
+          schema:
+            type: array
+            items:
+             $ref: '#/definitions/orderlist'
+             
+#对订单列表进行的操作
+  /order/operationorder:
+    post:
+      tags:
+      - 订单
+      description:  3.2  操作订单列表
+      parameters:
+        - name: sessionid
+          in: formData
+          description: sessionid标识
+          required: true
+          type: string
+        - name: usertype
+          in: formData
+          description: 用户类型(1用户2商家)
+          required: true
+          type: string
+        - name: orderno
+          in: formData
+          description: 订单编号
+          required: true
+          type: string
+        - name: opeordertype
+          in: formData
+          description: 操作订单类型（ 0 删除订单；1 修改订单；2 发布订单; 3撤销订单 4 重做订单 ）
+          required: true
+          type: string
+          
+      responses:
+        200:
+          description: 返回数据(展示信息对象）
+          schema:
+            type: array
+            items:
+             $ref: '#/definitions/common'  
+
+
+#评价订单
+  /order/evaluationorder:
+    post:
+      tags:
+      - 订单
+      description:  3.3  评价订单
+      parameters:
+        - name: sessionid
+          in: formData
+          description: sessionid标识
+          required: true
+          type: string
+        - name: usertype
+          in: formData
+          description: 用户类型(1用户2商家)
+          required: true
+          type: string
+        - name: orderno
+          in: formData
+          description: 订单编号
+          required: true
+          type: string
+        - name: commentcontext
+          in: formData
+          description: 评价内容
+          required: true
+          type: string
+        - name: commentspeed
+          in: formData
+          description: 速度评星（1 -5）
+          required: true
+          type: integer
+        - name: commentquality
+          in: formData
+          description: 质量评星（1 -5）
+          required: true
+          type: integer
+        - name: commentprice
+          in: formData
+          description: 费用评星（1 -5）
+          required: true
+          type: integer
+        - name: commentservice
+          in: formData
+          description: 服务评星（1 -5）
+          required: true
+          type: integer
+        - name: imgurl
+          in: formData
+          description: 图片路径（多个图片中间用逗号“，”分隔）
+          required: true
+          type: string
+      responses:
+        200:
+          description: 返回数据(展示信息对象）
+          schema:
+            type: array
+            items:
+             $ref: '#/definitions/common'  
+
+
+
+
+
+
+
+
+
+#资讯首页展示列表
+  /information/informationlist:
+    post:
+      tags:
+      - 资讯
+      description:  4.1 资讯首页展示
+      parameters:
+        - name: sessionid
+          in: formData
+          description: sessionid标识
+          required: true
+          type: string
+      responses:
+        200:
+          description: 返回数据(展示信息对象）
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/information'
+#资讯详情列表
+  /information/informationdetails:
+    post:
+      tags:
+      - 资讯
+      description:  4.2 资讯详情 展示页面 这个是H5页面
+      parameters:
+        - name: sessionid
+          in: formData
+          description: sessionid标识
+          required: true
+          type: string
+        - name: id
+          in: formData
+          description: 资讯详情ID
+          required: true
+          type: string
+      responses:
+        200:
+          description: 返回数据(展示信息对象）
+          schema:
+            $ref: '#/definitions/common'
+
+# 上传图片 
+  /my/uploadfile:
+    post:
+      tags:
+      - 我的
+      description:  5.1 上传图片 
+      parameters:
+        - name: dir
+          in: formData
+          description: 目录名称（1.头像 hedimg  2. 公司资质  qualification 3.合同进度  Contract  4.需求阶段  Demand 5. 测量阶段 text 6.施工阶段  Construction 7 评价图片  Evaluate）
+          required: true
+          type: string
+        - name: usertype
+          in: formData
+          description: 用户类型(1用户2商家)
+          required: true
+          type: string
+      responses:
+        200:
+          description: 返回数据(展示信息对象
+          schema:
+            $ref: '#/definitions/common'
+        
+  /my/mine:
+    post:
+      tags:
+      - 我的
+      description:  5.2我的首页 
+      parameters:
+        - name: sessionid
+          in: formData
+          description: sessionid标识（未登录：没有sessionid，只能获取到客服电话；登陆后:有sessionid，根据sessionid返回用户信息，分为商家端和用户端两种信息格式）
+          required: false
+          type: string
+        - name: usertype
+          in: formData
+          description: 用户类型(1用户2商家)
+          required: true
+          type: string
+      responses:
+        200:
+          description: 用户信息结果（未登录，只能获取到客服电话；登录后，客服电话+用户端：用户id，头像，昵称；商家端：用户id，头像，昵称）
+          schema:
+            $ref: '#/definitions/mine'
+            
+            
+  /my/modifydata:
+    post:
+      tags:
+      - 我的
+      description:  5.3编辑我的资料 
+      parameters:
+        - name: sessionid
+          in: formData
+          description: sessionid标识
+          required: true
+          type: string
+        - name: usertype
+          in: formData
+          description: 用户类型(1用户2商家)
+          required: true
+          type: string
+        - name: headimg
+          in: formData
+          description: 头像
+          required: false
+          type: string
+        - name: nickname
+          in: formData
+          description: 昵称
+          required: false
+          type: string
+      responses:
+        200:
+          description: 修改成功
+          schema:
+            $ref: '#/definitions/common'
+            
+  /my/getredpacket:
+    post:
+      tags:
+      - 我的
+      description:  5.4我的红包列表展示（仅用户端） 
+      parameters:
+        - name: sessionid
+          in: formData
+          description: sessionid标识
+          required: true
+          type: string
+        - name: usertype
+          in: formData
+          description: 用户类型(1用户2商家)
+          required: true
+          type: string
+      responses:
+        200:
+          description: 获取红包信息
+          schema:
+            type: array
+            items:
+             $ref: '#/definitions/getredpacket'
+  
+
+  /my/recredpacket:
+    post:
+      tags:
+      - 我的
+      description:  5.5红包领取（仅用户端） 
+      parameters:
+        - name: sessionid
+          in: formData
+          description: sessionid标识
+          required: true
+          type: string
+        - name: usertype
+          in: formData
+          description: 用户类型(1用户2商家)
+          required: true
+          type: string
+        - name: redpacketid
+          in: formData
+          description: 红包id
+          required: true
+          type: string
+      responses:
+        200:
+          description: 获取红包信息
+          schema:
+            $ref: '#/definitions/common'
+  
+  /my/getmessage:
+    post:
+      tags:
+      - 我的
+      description:  5.6我的消息(需要分页显示)
+      parameters:
+        - name: sessionid
+          in: formData
+          description: sessionid标识
+          required: true
+          type: string
+        - name: usertype
+          in: formData
+          description: 用户类型(1用户2商家)
+          required: true
+          type: string
+        - name: messagetype
+          in: formData
+          description: 消息类型（0系统消息，1订单消息，2红包消息:默认为：0）
+          required: true
+          type: string
+      responses:
+        200:
+          description: 获取我的消息
+          schema:
+            type: array
+            items:
+             $ref: '#/definitions/getmessage'
+  
+  /my/delmessage:
+    post:
+      tags:
+      - 我的
+      description:  5.7删除消息
+      parameters:
+        - name: sessionid
+          in: formData
+          description: sessionid标识
+          required: true
+          type: string
+        - name: usertype
+          in: formData
+          description: 用户类型(1用户2商家)
+          required: true
+          type: string
+        - name: messageid
+          in: formData
+          description: 消息id(多个参数，使用“，”逗号拼接)
+          required: true
+          type: string
+      responses:
+        200:
+          description: 删除消息
+          schema:
+            $ref: '#/definitions/common'
+            
+  /my/suggest:
+    post:
+      tags:
+      - 我的
+      description:  5.8意见反馈
+      parameters:
+        - name: sessionid
+          in: formData
+          description: sessionid标识
+          required: true
+          type: string
+        - name: usertype
+          in: formData
+          description: 用户类型(1用户2商家)
+          required: true
+          type: string
+        - name: content
+          in: formData
+          description: 意见内容
+          required: true
+          type: string
+      responses:
+        200:
+          description: 意见反馈
+          schema:
+            $ref: '#/definitions/common'        
+
+
+
+  /release/releaseuploading:
+    post:
+      tags:
+      - 发布
+      description:  6.1 发布页面
+      parameters:
+        - name: sessionid
+          in: formData
+          description: sessionid标识
+          required: true
+          type: string
+        - name: usertype
+          in: formData
+          description: 用户类型(1用户2商家)
+          required: true
+          type: string
+        - name: projectType
+          in: formData
+          description: 工程类型
+          required: true
+          type: string
+        - name: projectname
+          in: formData
+          description: 项目名称
+          required: true
+          type: string
+        - name: usersize
+          in: formData
+          description: 尺寸
+          required: true
+          type: string
+        - name: usermatenial
+          in: formData
+          description: 所属材料
+          required: true
+          type: string
+        - name: userdemand
+          in: formData
+          description: 所属制作内容
+          required: true
+          type: string
+        - name: adress
+          in: formData
+          description: 地点
+          required: true
+          type: string
+        - name: makedate
+          in: formData
+          description: 预约时间
+          required: true
+          type: string
+        - name: userremaks
+          in: formData
+          description: 备注信息
+          required: true
+          type: string
+        - name: imgurl
+          in: formData
+          description:  string
+          required: true
+          type: string
+        - name: orderstatus
+          in: formData
+          description:  上传类型（0 保存类型 1 发布类型）
+          required: true
+          type: string
+
+      responses:
+        200:
+          description: 意见反馈
+          schema:
+            $ref: '#/definitions/common'   
+
+          
+            
+################################################################################
+#                             Table    Definitions                             #
+################################################################################
+
+
+################################################################################
+#                                 通用返回部分                              #
+################################################################################
+definitions:
+  common:
+    type: object
+    description: 通用格式
+    properties:
+      code:
+        type: integer
+        description: 0=成功 1=失败
+      msg:
+        type: string
+        description: 失败信息
+      data:
+        type: object
+        description: 成功数据 单对象空{} 多对象空[]
+  
+  
+################################################################################
+#                                  登录注册部分                             #
+################################################################################
+  verificationCode:
+      type: object
+      description: 验证码返回
+      properties:
+       code:
+        type: integer
+        description: 0=成功 1=失败 
+       msg:
+        type: string
+        description: 失败信息
+       data:
+        type: object
+        description: 验证码接口返回参数
+        properties:
+        #下面写的是data层返回的字段
+          code: 
+            description: 验证码
+            type: string
+  
+  login:
+      type: object
+      description: 登录返还参数
+      properties:
+       code:
+        type: integer
+        description: 0=成功 1=失败 
+       msg:
+        type: string
+        description: 失败信息
+       data:
+        type: object
+        description: 登录接口返回参数
+        properties:
+        #下面写的是data层返回的字段
+          sessionid: 
+            description: 标识id
+            type: string
+################################################################################
+#                                  我的模块部分                            #
+################################################################################
+  mine:     
+      type: object
+      description: 我的首页返还参数
+      properties:
+       code:
+        type: integer
+        description: 0=成功 1=失败 
+       msg:
+        type: string
+        description: 失败信息
+       data:
+        type: object
+        description: 我的模块主页面接口返回参数
+        properties:
+          headimg: 
+            description: 用户头像
+            type: string
+          nickname: 
+            description: 昵称
+            type: string
+          servicephone: 
+            description: 客服电话
+            type: string
+            
+  getredpacket:              
+    type: object
+    description: 领取红包接口
+    properties:
+      remainnum:
+        type: integer
+        description: 红包剩余个数
+      totalnum:
+        type: integer
+        description: 红包总数
+      usenum:
+        type: string
+        description: 红包使用个数
+      usestatus:
+        type: string
+        description: 红包使用状态     
+      status:
+        type: integer
+        description: 红包状态
+
+
+
+
+  getmessage:              
+      type: object
+      description: 我的消息展示返还参数，入参会判断当前是哪个状态消息
+      properties:
+          title: 
+            description: 消息标题
+            type: string
+          content: 
+            description: 消息内容
+            type: integer
+          messagetype: 
+            description: 发送时间
+            type: string
+          image:
+            description: 消息图片
+            type: string
+################################################################################
+#                                  资讯模块部分                             #
+################################################################################
+  information:              
+      type: object
+      description: 资讯首页展示
+      properties:
+          title: 
+            description: 资讯标题
+            type: string
+          content: 
+            description: 资讯内容
+            type: integer
+          imgurl: 
+            description: 咨询图片
+            type: string
+          infomationtype:
+            description: 消息类型
+            type: string
+          publishtime:
+            description: 发布时间
+            type: string 
+
+################################################################################
+#                                  订单模块部分                             #
+################################################################################
+  orderlist:  
+      type: object
+      description: 订单列表展示（后台进行判断是什么类型的订单）
+      properties:
+          orderno: 
+            description: 订单编号
+            type: string
+          userid: 
+            description: 发布用户
+            type: integer
+          areaid:
+            description: 所属商区
+            type: integer
+          projecttype:
+            description: 工程类型
+            type: integer
+          usersize:
+            description: 尺寸
+            type: string
+          usermaterial:
+            description: 材料
+            type: string
+          userdemand:
+            description: 制作内容
+            type: string
+          adress:
+            description: 地点
+            type: string
+          makedate:
+            description: 预约时间
+            type: string          
+          createdate:
+            description: 创建时间
+            type: string  
+          orderstatus:
+            description: 订单状态
+            type: integer  
+####################################################################
+   ####     首页部分
+#################################################################### 
+ #首页 上面订单数据#
+  Homepage:  
+      type: object
+      description: 首页特色商家返回数据
+      properties:    
+          logo_url: 
+            description: 商家图片
+            type: string
+          name: 
+            description: 商家名称
+            type: integer
+          month_sale:
+            description: 商家月销售量
+            type: integer
+          freesend_price:
+            description: 起送价格
+            type: integer
+          is_introdruce:
+            description: 是否商家推荐
+            type: string
+          star_num:
+            description: 店铺星级
+            type: string
+          state:
+            description: 状态
+            type: string
+          limit_distance:
+            description: 配送距离
+            type: string
+ #首页 轮播图#
+  banner:
+      type: object
+      description: 轮播图返回数据
+      properties:    
+          img_url: 
+            description: 图片路径
+            type: string
+          type: 
+            description: 广告类型
+            type: integer
+          image_type:
+            description: 图片来源类型
+            type: integer
+          target_content:
+            description: 目标html代码
+            type: integer
+          target_url:
+            description: 目标url地址
+            type: string
+  #首页 广告位 招聘#          
+  recruitment:
+      type: object
+      description: 轮播图返回数据
+      properties:    
+          img_url: 
+            description: 图片路径
+            type: string
+          type: 
+            description: 广告类型
+            type: integer
+          image_type:
+            description: 图片来源类型
+            type: integer
+          target_content:
+            description: 目标html代码
+            type: integer
+          target_url:
+            description: 目标url地址
+            type: string
+            
+            
+            
