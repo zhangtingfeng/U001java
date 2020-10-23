@@ -1,0 +1,3 @@
+AddOn-Vendor:Yaskawa
+AddOn-Title:Torque
+AddOn-Version:2

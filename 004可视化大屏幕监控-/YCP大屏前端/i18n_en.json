@@ -1,0 +1,20 @@
+{
+    "Search": "Search",
+    "DeviceInfo": "Device Info",
+    "Fac":"Factory:",
+    "Lin":"Line:",
+    "Cel":"Cell:",
+    "Con":"Controller:",
+    "factory":"Factory",
+    "line":"Line",
+    "cell":"Cell",
+    "controller":"Controller",
+    "date":"Date",
+    "cartype":"CarType",
+    "graph":"Graph",
+    "StatusInfo":"Status Info",
+    "AlarmInfo":"Alarm Info",
+    "Run":"RUN",
+    "Stp":"STP",
+    "Alm":"ALM"
+}

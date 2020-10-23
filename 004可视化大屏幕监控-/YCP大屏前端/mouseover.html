@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+<div class="box">
+    <form action="">
+        <input type="text" value="1" name="inp">
+
+    </form>
+</div>
+<script>
+    var box = document.querySelector(".box");
+
+    // inp.onmousewheel = fun;
+    // function fun(ev) {
+    //     var ev = window.event || ev;
+    //     var sc = ev.wheelDelta;
+    //     sc > 0 ? sc = 1 : sc = -1;
+    //     var x = parseInt(inp.value);
+    //     inp.value = x + parseInt(sc);
+    // }
+    box.onmouseover = function (ev) {
+        var ev = window.event || ev;
+        var tag = ev.target;
+        console.log(tag);
+        tag.onmousewheel = function (ev) {//注意加ev
+            var sc = ev.wheelDelta;
+            console.log(ev.wheelDelta);
+
+            sc < 0 ? (sc = -1) : sc = 1;
+            console.log(sc)
+            var x = parseInt(tag.value);
+            tag.value = x + sc;
+        }
+
+    }
+</script>
+</body>
+
+</html>

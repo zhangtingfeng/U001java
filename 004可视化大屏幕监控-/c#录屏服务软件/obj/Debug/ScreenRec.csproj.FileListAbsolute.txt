@@ -1,0 +1,11 @@
+C:\tmp\HanShun\002Works\ScreenRec\bin\Debug\WebServer\bootstrap.min.css
+C:\tmp\HanShun\002Works\ScreenRec\bin\Debug\WebServer\index.html
+C:\tmp\HanShun\002Works\ScreenRec\bin\Debug\ScreenRec.exe.config
+C:\tmp\HanShun\002Works\ScreenRec\bin\Debug\ScreenRec.exe
+C:\tmp\HanShun\002Works\ScreenRec\bin\Debug\ScreenRec.pdb
+C:\tmp\HanShun\002Works\ScreenRec\obj\Debug\ScreenRec.frmMain.resources
+C:\tmp\HanShun\002Works\ScreenRec\obj\Debug\ScreenRec.Properties.Resources.resources
+C:\tmp\HanShun\002Works\ScreenRec\obj\Debug\ScreenRec.csproj.GenerateResource.cache
+C:\tmp\HanShun\002Works\ScreenRec\obj\Debug\ScreenRec.csproj.CoreCompileInputs.cache
+C:\tmp\HanShun\002Works\ScreenRec\obj\Debug\ScreenRec.exe
+C:\tmp\HanShun\002Works\ScreenRec\obj\Debug\ScreenRec.pdb

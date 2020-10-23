@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Screen Task</title>
+</head>
+
+<body>
+    <form action="" id="form-setting">
+        <label>每秒帧数:</label>
+        <input type="text" value="10" id="reloadInterval"/>
+        <button type="submit">设置</button>
+    </form>
+    <div class="container">
+        <img id="imgPrev" src="ScreenTask.jpg" />
+    </div>
+
+    <script language="javascript">
+        var $img = document.getElementById('imgPrev');
+        var $form = document.getElementById("form-setting");
+        var $interval = document.getElementById("reloadInterval");
+        $form.addEventListener("submit", function (event) {
+            event.preventDefault();
+            resetSetting();
+        });
+
+        var TIMMER
+        function resetSetting() {
+            if (TIMMER)
+                clearInterval(TIMMER);
+
+            var t = parseInt($interval.value);
+            var t = 1000 / t;
+            if (t < 50) t = 50;
+            TIMMER = setInterval(reloadImg, t);
+        }
+        
+        function reloadImg() {
+            $img.src = 'ScreenTask.jpg?rand=' + Math.random();
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,393 @@
+body {
+    width: 1920px;
+    display: block; /* 设定body为弹性盒子 */
+}
+
+#container {
+    width: 1920px;
+    height: 1080px;
+
+    /*背景图垂直、水平均居中 */
+    background-position: center center;
+    /* 背景图不平铺 */
+    background-repeat: no-repeat;
+    /* 当内容高度大于图片高度时，背景图像的位置相对于viewport固定 */
+    /*background-attachment: fixed;
+     让背景图基于容器大小伸缩
+    background-size: cover; */
+    /* 设置背景颜色，背景图加载过程中会显示背景色 */
+    background-color: #464646;
+
+    display: block; /* 设定body为弹性盒子 */
+    -webkit-box-orient: vertical; /* 设定弹性盒子为垂直方向 */
+    /**/
+    overflow-x: hidden;
+    overflow-y:hidden;
+
+}
+
+.onelinebox {
+    width: 100%;
+    display: -webkit-box; /* 设定body为弹性盒子 */
+    -webkit-box-orient: horizontal; /* 设定弹性盒子为水平方向 */
+}
+
+.onelineboxblock {
+
+    color: #ffffff;
+    text-align: left;
+    line-height: 69px;
+}
+
+
+#button_All_box_relative {
+
+
+    position: absolute;
+    left: 26px;
+    top: 0px;
+
+
+    width: 1204px;
+    height: 570px;
+
+}
+
+.lightButtonText {
+    font-size: 26px;
+    color: white;
+}
+
+
+#mainUlbak05backimgText {
+    padding-left: 32px;
+    padding-top: 54px;
+    list-style: none;
+    width: 120px;
+
+}
+
+#mainUlbak05backimgText li {
+    width: 100%;
+    line-height: 24px;
+    font-size: 12px;
+    color: #ffff00;
+    white-space:nowrap;
+    display: block;
+    overflow: hidden;
+}
+
+
+#Ulbak05backimg {
+    padding-left: 6px;
+    padding-top: 0px;
+    list-style: none;
+
+
+}
+
+#Ulbak05backimg li {
+
+    width: 100%;
+    line-height: 24px;
+    font-size: 12px;
+    color: #00ffff;
+    white-space:nowrap;
+    display: block;
+    overflow: hidden;
+}
+
+#mainWorkingWaitingWarningText {
+    position: absolute;
+    left: 436px;
+    top: 350px;
+
+}
+
+#mainWorkingWaitingWarningText span {
+    color: #ffff00;
+    font-size: 8px;
+    width:58px;
+    white-space:nowrap;
+    display:inline-block;
+    overflow: hidden;
+    text-align: center;
+}
+
+/*
+#ray_box_relative {
+    opacity:0.2;
+    pointer-events: none;
+    position: absolute;
+    left: 306px;
+    top: 74px;
+
+
+    width: 1270px;
+    height: 896px;
+    background: url(ray.png);
+}
+*/
+
+#Ulbak07backimg {
+    padding-left: 6px;
+    margin-top: 32px;
+    list-style: none;
+
+    position: relative;
+    height: 106px;
+    overflow-y: auto;
+    display: block;
+}
+
+#Ulbak07backimg li {
+
+    width: 100%;
+   /* line-height: 35px;*/
+}
+
+#Ulbak07backimg li span:first-child {
+    margin-right: 4px;
+}
+
+#Ulbak07backimg li span {
+    color: white;
+    width: 61px;
+    text-align: center;
+    line-height: 35px;
+    display: inline-block;
+    font-size: 8px;
+    margin-left: 1px;
+    text-overflow: clip;
+    white-space:nowrap;
+}
+
+#mainbak07backimgText{
+    position: absolute;
+    padding-left:6px;
+    padding-top:6px;
+    color: white;
+
+}
+
+#mainbak07backimgText span:first-child {
+    margin-right: 4px;
+}
+
+#mainbak07backimgText span{
+    width: 61px;
+    text-align: center;
+    display: inline-block;
+    font-size: 8px;
+    margin-left: 1px;
+    color:#fbfb03 ;
+}
+
+
+
+
+#Ulbak08backimg {
+    padding-left: 3px;
+    margin-top: 32px;
+    list-style: none;
+
+    position: relative;
+
+    height: 114px;
+    overflow-y: auto;
+    display: block;
+    overflow-x: hidden;
+}
+
+#Ulbak08backimg li {
+
+    width: 101%;
+   /*
+    display: inline-block;
+    overflow: hidden;
+    white-space:nowrap;*/
+}
+
+#Ulbak08backimg li span:first-child {
+    margin-right: 4px;
+}
+
+#Ulbak08backimg li span {
+    color: white;
+    width: 76px;
+    text-align: center;
+    line-height: 35px;
+    display: inline-block;
+    font-size: 8px;
+    overflow: hidden;
+    white-space:nowrap;
+}
+
+#mainbak08backimgText{
+    position: absolute;
+    padding-left:2px;
+    padding-top:6px;
+    color: white
+}
+
+#mainbak08backimgText span:first-child {
+   /* margin-right: 4px;*/
+}
+
+#mainbak08backimgText span{
+    width: 76px;
+    text-align: center;
+    display: inline-block;
+    font-size: 8px;
+    margin-left: 1px;
+    color:#fbfb03 ;
+}
+#mainbak09ButtonText
+{
+    position: absolute;
+    left: 31px;
+    top:79px;
+    color: white;
+    width: 60px;
+    text-align: center;
+    font-size: 10px;
+    line-height: 20px;
+    height:40px;
+    display: -webkit-box;             /*flex弹性布局*/
+    -webkit-box-align: center;
+    -webkit-box-pack: center;
+    pointer-events: none;
+}
+
+
+#mainbak0902ButtonText
+{
+    position: absolute;
+    left: 131px;
+    top:79px;
+    color: white;
+    width: 60px;
+    text-align: center;
+    font-size: 10px;
+    line-height: 20px;
+    height:40px;
+    display: -webkit-box;             /*flex弹性布局*/
+    -webkit-box-align: center;
+    -webkit-box-pack: center;
+    pointer-events: none;
+}
+
+
+
+#mainbak0902MarkerText {
+    position: absolute;
+    left:64px;
+    top: 326px;
+
+}
+
+#mainbak0902MarkerText span {
+    color: #ffff00;
+    font-size: 8px;
+    width:138px;
+    white-space:nowrap;
+    display:inline-block;
+    overflow: hidden;
+    text-align: center;
+}
+
+
+#mainBottombak09backimgText{
+    position: absolute;
+    left: 64px;
+    top:389px;
+    color: white;
+}
+
+
+#mainBottombak09backimgText span {
+    margin-left: 30px;
+    color: #ffff00;
+}
+
+#Ulbak10backimg {
+    padding-left: 14px;
+    margin-top: 34px;
+    list-style: none;
+    color: white;
+    position: relative;
+    height: 324px;
+    overflow-y: auto;
+    display: block;
+}
+
+#Ulbak10backimg li {
+
+    width: 100%;
+
+}
+
+#Ulbak10backimg li span {
+    width: 74px;
+    text-align: center;
+    line-height: 35px;
+    display: inline-block;
+    font-size: 8px;
+    overflow: hidden;
+    white-space:nowrap;
+}
+
+
+#mainbak10backimgText{
+    position: absolute;
+    padding-left: 14px;
+    padding-top: 6px;
+    color: #ffff00;
+}
+
+#mainbak10backimgText span{
+    width: 74px;
+    text-align: center;
+    display: inline-block;
+    font-size: 8px;
+
+    color:#fbfb03 ;
+}
+
+
+#box1 {
+    -webkit-box-flex: 2; /* box1占据的宽度为2份 */
+    background: blue;
+}
+
+#box2 {
+    -webkit-box-flex: 1; /* box2占据的宽度为1份 */
+    background: green;
+}
+
+#box3 {
+    -webkit-box-flex: 1; /* box3占据的宽度为1份 */
+    background: olive;
+}
+
+
+#box {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    height: 100px;
+    color: #ffffff;
+}
+
+.content {
+    flex-grow: 1;
+/ / 这里的这个属性 因为之前用这个用的少，所以没有想到，这个属性是定义项目放大比例，默认是0，将他规定一下，然后就会把剩余的空间都给占掉
+}
+
+.footer {
+    height: 200px;
+}

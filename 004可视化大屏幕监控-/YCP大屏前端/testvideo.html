@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Insert title here</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+            overflow: hidden;
+        }
+
+        video {
+            object-fit: fill;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div class="video-video-div">
+    <video id="video" muted width="100%" height="100%"></video>
+</div>
+<input type="text" id="url" value="rtsp://admin:!QAZ2wsx@192.168.1.64:554/Streaming/Channels/102?transportmode=unicast">
+<button id="play">play</button>
+</body>
+<script type="text/javascript" src="jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="flv.min.js"></script>
+<script type="text/javascript">
+    var videoObject = {
+        init: function (id, src) {
+            var self = this;
+            this.src = src;
+            this.id = id;
+            this.flvPlayer = flvjs.createPlayer({type: 'flv', url: src, isLive: true, enableStashBuffer: false}, {});
+            this.flvPlayer.attachMediaElement(document.getElementById(id));
+            this.flvPlayer.load();
+
+
+            this.flvPlayer.play();
+            this.reload = function () {
+                self.flvPlayer.unload();
+
+                self.flvPlayer.destroy();
+                window.v = videoObject.init(self.id, self.src);
+            }
+            return this;
+        }
+    }
+    $(function () {
+
+        replay();
+
+    });
+
+    function replay() {
+        var src = $("#url").val();
+        if ($.trim(src) != "") {
+            if (window.v) {
+                window.v.flvPlayer.unload();
+                window.v.flvPlayer.destroy();
+            }
+            window.v = videoObject.init("video", "http://192.168.1.212:8081/live/" + window.btoa(src) + "/live.flv");
+        }
+    }
+
+
+    //获取地址栏参数
+    function getParameter(name, win) {
+        var params;
+        if (null == win || undefined == win) {
+            params = window.location.search;
+        } else {
+            params = win.location.search;
+        }
+        debugger;
+        params = params.substring(1, params.length);
+        params = params.split("&");
+        for (var i = 0; i < params.length; i++) {
+            var items = params[i].split("=");
+            var pname = items[0];
+            if (pname == name) {
+                return items[1];
+            }
+        }
+    }
+</script>
+</html>

@@ -1,0 +1,20 @@
+{
+ "Search": "检索",
+ "DeviceInfo":"设备信息",
+ "Fac":"工厂:",
+ "Lin":"产线:",
+ "Cel":"单元:",
+ "Con":"控制器:",
+ "factory":"工厂",
+ "line":"产线",
+ "cell":"单元",
+ "controller":"控制器",
+ "date":"日期",
+ "cartype":"车型",
+ "graph":"表图",
+ "StatusInfo":"运行状态",
+ "AlarmInfo":"警报信息",
+ "Run":"运行",
+ "Stp":"停止",
+ "Alm":"报警"
+}

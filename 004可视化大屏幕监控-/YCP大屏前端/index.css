@@ -1,0 +1,33 @@
+		 @font-face {font-family: "myFont";src: url("/YCPApp/resources/fonts/namco-1.ttf");}
+		 header{color:#333399; font-size:30px;font-family:'myFont';position:relative;top:5px}
+		 html{overflow-x:hidden;}
+        .bar{position: relative;top:30px;left:30px;}
+        .input{border:1px solid #ccc; padding:4px;left:18px;}
+		.window{position:relative;width:1600px;height:880px;left:30px;top:40px;float: left;}
+		.picFrame{position:absolute;left:10px;float:left;width:290px;height:250px;top:10px;border:solid 2px #3333CC;background-color: white;border-radius: 10px;border-top-color:#00CCFF}
+		.info{position:absolute;left:310px;width:490px;height:250px;top:10px;border:solid 2px #3333CC;background-color: white;border-radius: 10px;border-top-color:#00CCFF}
+		#myTable{position:absolute;border:solid 2px #3333CC;top:10px;height:830px;width:1025px;left:815px;background-color: white;overflow: auto;border-radius: 10px;border-top-color:#00CCFF}
+		#workStats{position:absolute;border:solid 2px #3333CC;top:10px;height:235px;width:235px;left:1150px;background-color: white;border-radius: 10px;}
+        #workStatsWeek{position:absolute;border:solid 2px #3333CC;top:10px;height:235px;width:235px;left:1395px;background-color: white;border-radius: 10px}
+		#workStatsMonth{position:absolute;border:solid 2px #3333CC;top:10px;height:235px;width:235px;left:1640px;background-color: white;border-radius: 10px}
+		#statsWindow{position:absolute;left:10px;float:left;width:790px;height:240px;top:600px;border:solid 2px #3333CC;background-color: white;border-radius: 10px;border-top-color:#00CCFF}
+		#workpic{position:absolute;left:10px;float:left;width:790px;height:290px;top:270px;border:solid 2px #3333CC;background-color: white;border-radius: 10px;border-top-color:#00CCFF}
+		.msgWindow{position:absolute;float:left;left:315px;border:solid 3px #0066FF;top:580px;height:155px;width:925px;background-color: white}
+		.table table-striped{width:260px;position:absolute;letter-spacing:5px;border-radius: 20px;table-layout:fixed;}
+		#title,#content{text-align: center; font-size:2rem; font-weight:700;}
+		#label{position:absolute;background-color:#2F5597;width:80px;color:white;font-size:15px;font-weight:700;}
+		#product{position:absolute;height:170px; width:150px; left:10px}
+		#myChart{position:absolute;border:solid 3px #0066FF;top:150px;height:760px;width:1125px;left:-200px;background-color: white;}
+		#decoration{position:absolute;left:500px;top:0px;height:80px}
+		#shadow{position:absolute;width: 100%; height: 100% ;display: none; background-color: #333333; opacity: 50%;}
+		#fsbt{position: absolute;left:1880px;top: 10px}
+		#content2{text-align: center;font-size:1.5rem; font-weight:500}
+		#TorqueGraf{position:absolute;top:570px;left:10px;background-color: white;float: left;margin: 0px; z-index: 99}
+		@keyframes dtn{from {background-color: #FFFFFF;}to{background-color:#000033; }}
+		@keyframes ntd{from {background-color: #000033;}to{background-color:#FFFFFF; }}
+		td{word-wrap:break-word;word-break:break-all;}
+		 #test_video {
+			 width: 448px;
+			 margin-left: 40px;
+			 height: 354px;
+		 }
