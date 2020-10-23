@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dicts">
+
+	<!--地区 省市区-->
+	<select id="districts" resultType="map">
+		select id, name text
+		from sys_district
+		order by id
+	</select>
+
+	<!--商品分类 树-->
+	<select id="goods-tree" resultType="map">
+		select id,name text,pid
+		from base_goods_class
+		where pid != "#"
+		order by id
+	</select>
+
+	<!--商品分类-->
+	<select id="goods" resultType="map">
+		select id,name text
+		from base_goods_class
+		where pid != "#"
+		order by id
+	</select>
+
+	<!--商品属性-->
+	<select id="props" resultType="map">
+		select DISTINCT t2.id,t2.name text
+		from base_class_prop_value t1,base_goods_prop t2
+		where t1.prop_id = t2.id
+		order by t2.id
+	</select>
+
+	<!--品牌-->
+	<select id="brands" resultType="map">
+		select t1.prop_value_id id,t2.prop_value text
+		from base_class_prop_value t1,base_prop_value t2
+		where t1.prop_id = t2.prop_id and t1.prop_value_id = t2.id
+			and t1.prop_id='207E000001' and  t1.class_id= '207F000005'
+	</select>
+	
+	<select id="menus" resultType="map">
+		select id, pid, name,'m' as t
+		from sys_menu m
+		order by m.id
+	</select>
+	
+	<select id="privileges" resultType="map">
+		select id, pid, name, 'p' as t
+		from sys_privilege p
+		order by p.id
+	</select>
+	
+	<select id="sys-modules" resultType="map">
+		select id, url, version from sys_module
+	</select>
+	
+	<select id="TrueOrFalse" resultType="map">
+		SELECT id,text FROM sys_dict WHERE name = 'TrueOrFalse'
+	</select>
+
+	<select id="companyType" resultType="map">
+		SELECT id,text FROM sys_dict WHERE name = 'companyType'
+	</select>
+
+	<!-- 流程 -->
+	<select id="dict-nodes" resultType="map">
+		select t1.id,CONCAT(t3.name,'-',t1.name) text
+		from node_def t1,process_org t2,process_def t3
+		where t1.id_process=t2.id_process and t1.id_process=t3.id
+		and t2.id_org = #{orgid}
+	</select>
+
+	<!-- 机构 -->
+	<select id="dict-users" resultType="map">
+		select id,name text from sys_user where id_org = #{orgid} order by id
+	</select>
+
+	<select id="org-warehouse" resultType="map">
+		select id,name text from sys_org_warehouse where id_org =#{orgId}
+	</select>
+
+</mapper>

@@ -1,0 +1,22 @@
+{
+	"en": {
+		"validation": {
+			"messages": {
+				"_default": "Invalid",
+				"required":"*",
+				"min":"More than {1} charactors",
+				"max":"Less than {1} charactors"
+			}
+		}
+	},
+	"cn": {
+		"validation": {
+			"messages": {
+				"_default": "不合法",
+				"required":"*",
+				"min":"最少{1}个字",
+				"max":"最多{1}个字"
+			}
+		}
+	}
+}

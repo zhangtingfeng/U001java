@@ -1,0 +1,13 @@
+{
+    "asi": true,
+    "browser": false,
+    "curly": false,
+    "eqeqeq": true,
+    "forin": false,
+    "predef": ["__dirname", "module", "require", "process", "console"],
+    "strict": "implied",
+    "undef": true,
+    "unused": true,
+    "eqnull": true,
+    "esversion": 9
+}

@@ -1,0 +1,27 @@
+@import "./custom.less";
+
+.progress-modal .modal-body {
+  text-align: center;
+  padding-top: 20%;
+  height: 100%;
+}
+
+.progress-modal p {
+  color: @yellow;
+}
+.progress-modal p i {
+  position: relative;
+  top: 15px;
+  margin-right: 20px;
+  font-size: 50px;
+  animation: progress-modal-icon 2s infinite linear;
+}
+
+@keyframes progress-modal-icon {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

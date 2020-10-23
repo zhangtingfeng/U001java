@@ -1,0 +1,22 @@
+{
+	"version": "1.1",
+	"dev": {
+		"port": 90,
+		"proxy": [
+			{
+				"url": "/api",
+				"target": "http://192.168.255.86:8081/",
+				"path": {
+					"^/api": "/"
+				}
+			}
+		]
+	},
+	"modules": {
+		"ana": false,
+		"ie": true,
+		"moment": true,
+		"jquery": true,
+		"vue": true
+	}
+}

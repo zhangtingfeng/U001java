@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cart">
+
+    <select id="getUsers" parameterType="list" resultType="map">
+		select
+			t1.code,t1.name orgName,t2.id,t2.name seller,t2.mobile
+		from
+			sys_orginfo t1,sys_user t2
+		where
+			t1.id=t2.id_org
+		and
+			t2.id in
+		<foreach item="item" collection="sellerIds" separator="," open="(" close=")" index="">
+			#{item, jdbcType=VARCHAR}
+		</foreach>
+	</select>
+
+	<delete id="deleteCarts">
+		delete from user_cart where id_buyer = #{buyerId}
+	</delete>
+
+</mapper>

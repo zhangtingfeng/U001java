@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="orderInfo_contract">
+
+
+    <!--packageinfo-->
+    <insert id="insertsignargs" parameterType="com.hst.ii.order.entity.TOrderContractSigned">
+     insert into order_contract_signed(id,id_order,create_time,sign_date,args)
+                        value
+                         (#{myTOrderContractSigned.id,jdbcType=VARCHAR},#{myTOrderContractSigned.orderId,jdbcType=VARCHAR},#{myTOrderContractSigned.createTime},#{myTOrderContractSigned.SignDate},#{myTOrderContractSigned.args,jdbcType=VARCHAR})
+         </insert>
+
+
+
+    <select id="Countpackageinfo" parameterType="com.hst.ii.order.entity.TOrderContract" resultType="java.lang.Integer">
+         select
+        count(1)
+        from order_contract
+        where
+        id_order=#{myTOrderContract.orderId,jdbcType=VARCHAR}
+    </select>
+
+    <!--packageinfo-->
+    <insert id="insertpackageinfo" parameterType="com.hst.ii.order.entity.TOrderContract">
+     insert into order_contract(id_order,delivery_Start_dt,delivery_End_dt,needpack,pack,pack_remark,delivery_vendor,delivery_address)
+                        value
+                         (#{myTOrderContract.orderId,jdbcType=VARCHAR},#{myTOrderContract.delivery_Start_dt},#{myTOrderContract.delivery_End_dt},#{myTOrderContract.needpack,jdbcType=VARCHAR},#{myTOrderContract.pack,jdbcType=VARCHAR},#{myTOrderContract.pack_remark,jdbcType=VARCHAR},#{myTOrderContract.delivery_vendor,jdbcType=VARCHAR},#{myTOrderContract.delivery_address,jdbcType=VARCHAR})
+
+
+
+         </insert>
+
+
+    <update id="updatepackageinfo" parameterType="com.hst.ii.order.entity.TOrderContract">
+             update order_contract set
+             delivery_Start_dt=#{myTOrderContract.delivery_Start_dt},
+               delivery_End_dt=#{myTOrderContract.delivery_End_dt},
+             needpack=#{myTOrderContract.needpack,jdbcType=VARCHAR},
+             pack=#{myTOrderContract.pack,jdbcType=VARCHAR},
+             pack_remark=#{myTOrderContract.pack_remark,jdbcType=VARCHAR},
+             delivery_vendor=#{myTOrderContract.delivery_vendor,jdbcType=VARCHAR},
+             delivery_address=#{myTOrderContract.delivery_address,jdbcType=VARCHAR}
+               where id_order=#{myTOrderContract.orderId,jdbcType=VARCHAR}
+         </update>
+
+
+    <!--payinfo-->
+
+
+    <insert id="insertpayinfo" parameterType="com.hst.ii.order.entity.TOrderContract">
+     insert into order_contract(id_order,pay_day,pay_type,pay1Amount,pay1Days,pay2Amount,pay2Days)
+                        value
+                         (#{myTOrderContract.orderId,jdbcType=VARCHAR},#{myTOrderContract.payDay},#{myTOrderContract.pay_type},#{myTOrderContract.pay1Amount},#{myTOrderContract.pay1Days,jdbcType=VARCHAR},#{myTOrderContract.pay2Amount,jdbcType=VARCHAR},#{myTOrderContract.pay2Days,jdbcType=VARCHAR})
+
+
+         </insert>
+
+
+    <update id="updatepayinfo" parameterType="com.hst.ii.order.entity.TOrderContract">
+             update order_contract set
+             pay_day=#{myTOrderContract.payDay},
+             pay_type=#{myTOrderContract.pay_type},
+             pay1Amount=#{myTOrderContract.pay1Amount,jdbcType=VARCHAR},
+             pay1Days=#{myTOrderContract.pay1Days,jdbcType=VARCHAR},
+             pay2Amount=#{myTOrderContract.pay2Amount,jdbcType=VARCHAR},
+             pay2Days=#{myTOrderContract.pay2Days,jdbcType=VARCHAR}
+               where id_order=#{myTOrderContract.orderId,jdbcType=VARCHAR}
+         </update>
+
+
+    <!--breakinfo-->
+
+
+    <insert id="insertbreakinfo" parameterType="com.hst.ii.order.entity.TOrderContract">
+     insert into order_contract(id_order,overduefine,validityperiod,changesneedadvance)
+             value
+              (#{myTOrderContract.orderId,jdbcType=VARCHAR},#{myTOrderContract.overduefine},#{myTOrderContract.validityperiod},#{myTOrderContract.changesneedadvance,jdbcType=VARCHAR})
+
+
+         </insert>
+
+
+    <update id="updatebreakinfo" parameterType="com.hst.ii.order.entity.TOrderContract">
+             update order_contract set
+             overduefine=#{myTOrderContract.overduefine},
+             validityperiod=#{myTOrderContract.validityperiod,jdbcType=VARCHAR},
+             changesneedadvance=#{myTOrderContract.changesneedadvance,jdbcType=VARCHAR}
+
+               where id_order=#{myTOrderContract.orderId,jdbcType=VARCHAR}
+         </update>
+    <!--规格info-->
+    <select id="getspecifications" parameterType="String" resultType="map">
+        select
+        *
+        from
+        order_specifications
+        where
+        id_order=#{orderId,jdbcType=VARCHAR}
+         order by orderbyid asc
+    </select>
+
+    <insert id="insertspecifications" parameterType="list">
+          insert into order_specifications(id_order)
+             value
+              (#{orderId,jdbcType=VARCHAR})
+
+
+         </insert>
+
+    <update id="updatespecifications"   parameterType="list">
+        <foreach collection="list" item="item" index="index">
+            update order_specifications set ifcheck=#{item.ifcheck}
+            where 1=1 and  orderbyid =#{item.orderbyid  };
+        </foreach>
+    </update>
+
+    <!--   update  order_specifications set ifcheck=#{ifcheck}
+
+           where orderbyid=#{orderbyid}
+     <insert  id="Countpackageinfo666" parameterType="com.hst.ii.order.entity.TOrderContract" >
+            insert into order_contract(id_order,delivery_dt,pack,pack_remark,delivery_vendor,delivery_address)
+                 values
+                  (#{myTOrderContract.orderId,jdbcType=VARCHAR},#{myTOrderContract.delivery_dt,jdbcType=datetime},#{myTOrderContract.pack,jdbcType=VARCHAR},#{myTOrderContract.pack_remark,jdbcType=VARCHAR},#{myTOrderContract.delivery_vendor,jdbcType=VARCHAR},#{myTOrderContract.delivery_address,jdbcType=VARCHAR})
+
+     </insert >
+
+
+             <select id="updatepackageinfo" parameterType="com.hst.ii.order.entity.TOrderContract">
+             insert into order_contract(id_order,delivery_dt,pack,pack_remark,delivery_vendor,delivery_address)
+                 value
+                  (#{myTOrderContract.orderId,jdbcType=VARCHAR},#{myTOrderContract.delivery_dt,jdbcType=datetime},#{myTOrderContract.pack,jdbcType=VARCHAR},#{myTOrderContract.pack_remark,jdbcType=VARCHAR},#{myTOrderContract.delivery_vendor,jdbcType=VARCHAR},#{myTOrderContract.delivery_address,jdbcType=VARCHAR})
+
+           </select>
+
+
+               <insert id="insertpackageinfo" parameterType="com.hst.ii.order.entity.TOrderContract">
+
+             insert into order_contract(id_order,delivery_dt,pack)
+             value
+              (#{myTOrderContract.orderId,jdbcType=VARCHAR},#{myTOrderContract.delivery_dt},#{myTOrderContract.pack})
+             on duplicate key update
+             id_order=#{myTOrderContract.orderId,jdbcType=VARCHAR}
+           </insert>
+
+
+              to_date(#{myTOrderContract.delivery_dt}, 'YYYY/MM/DD')
+                 <insert id="insertpackageinfo" parameterType="com.hst.ii.order.entity.TOrderContract">
+                 insert into order_contract(id_order,delivery_dt,pack,pack_remark,delivery_vendor,delivery_address)
+                 value
+                  (#{myTOrderContract.orderId,jdbcType=VARCHAR},#{myTOrderContract.delivery_dt,jdbcType=datetime},#{myTOrderContract.pack,jdbcType=VARCHAR},#{myTOrderContract.pack_remark,jdbcType=VARCHAR},#{myTOrderContract.delivery_vendor,jdbcType=VARCHAR},#{myTOrderContract.delivery_address,jdbcType=VARCHAR})
+                 on duplicate key update
+                 id_order=#{myTOrderContract.orderId,jdbcType=VARCHAR}
+               </insert>
+             -->
+
+</mapper>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hst.ii.auth.dao.SessionDao">
+	<select id="getUserMenus" resultType="com.hst.ii.auth.po.Menu">
+		select distinct m.id, m.pid, m.name, m.icon, m.args
+		  from sys_user_role ur, sys_role_menu rm, sys_menu m
+		 where ur.id_role = rm.id_role
+		   and rm.id_menu = m.id
+		   and ur.id_user = #{userid}
+		 order by m.id
+ 	</select>
+
+	<select id="getUserPrivileges" resultType="string">
+		select distinct rm.id_menu
+		  from sys_user_role ur, sys_role_menu rm
+		 where ur.id_role = rm.id_role
+		   and ur.id_user = #{userid}
+		UNION
+		select distinct rp.id_privilege
+		  from sys_user_role ur, sys_role_privilege rp
+		 where ur.id_role = rp.id_role
+		   and ur.id_user = #{userid}
+ 	</select>
+</mapper>

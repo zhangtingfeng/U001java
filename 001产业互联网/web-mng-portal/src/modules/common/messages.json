@@ -1,0 +1,16 @@
+{
+  "en": {
+    "app": {
+      "name": "Trade platform",
+      "name2": "Trade"
+    },
+    "detail": "Detail"
+  },
+  "cn": {
+    "app": {
+      "name": "在线交易平台",
+      "name2": "平台"
+    },
+    "detail": "详情"
+  }
+}

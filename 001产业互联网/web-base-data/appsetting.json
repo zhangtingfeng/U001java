@@ -1,0 +1,24 @@
+{
+  "name": "base-data",
+  "version": "1.0",
+  "dev": {
+    "port": 92,
+    "proxy": [
+      {
+        "url": "/api",
+        "target": "http://192.168.1.86:8081/",
+        "path": {
+          "^/api": "/"
+        }
+      }
+    ]
+  },
+  "modules": {
+    "framework": "../web-mng-portal/dist",
+    "ana": false,
+    "ie": false,
+    "moment": true,
+    "jquery": true,
+    "vue": true
+  }
+}

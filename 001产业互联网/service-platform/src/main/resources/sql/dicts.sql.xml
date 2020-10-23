@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dicts">
+	<select id="menus" resultType="mapBean">
+		select id, pid, name,'m' as "t"
+		from sys_menu m
+		order by m.id
+	</select>
+
+	<select id="privileges" resultType="mapBean">
+		select id, pid, name, 'p' as "t"
+		from sys_privilege p
+		order by p.id
+	</select>
+
+	<select id="sys-modules" resultType="mapBean">
+		select id, url, version from sys_module
+	</select>
+
+	<!-- 用户 -->
+	<select id="users" resultType="mapBean">
+		select userid id, name text
+		from sys_user
+		order by id
+	</select>
+
+	<!-- 角色 -->
+	<select id="roles" resultType="mapBean">
+		select id, name text
+		from sys_role
+		order by id
+	</select>
+
+	<!-- 流程 -->
+	<select id="dict-process" resultType="mapBean">
+		select id,name text from process_def order by id
+	</select>
+
+	<!-- 机构 -->
+	<select id="dict-orgs" resultType="mapBean">
+		select id,name text from sys_orginfo order by id
+	</select>
+
+</mapper>

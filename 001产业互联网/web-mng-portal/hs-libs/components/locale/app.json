@@ -1,0 +1,61 @@
+{
+	"en": {
+		"notimpelement": "Not impelement!",
+		"servererror": "Can't access the server",
+		"success": "Process is completed",
+		"error": {
+			"title": "Error!",
+			"msg": "Oops! Some error has happened!",
+			"expired": "Data is expired, please reload."
+		},
+		"invalid": "Please check the form.",
+		"loading": "Loading...",
+		"confirm": "Confirm?",
+		"ok": "OK",
+		"send": "Send",
+		"cancel": "Cancel",
+		"yes": "Yes",
+		"no": "No",
+		"create": "Create",
+		"edit": "Edit",
+		"del": "Delete",
+		"delconfirm": "Delete datas?",
+		"del2": "Delete success",
+		"save": "Save",
+		"query": "Search",
+		"exp": "Export",
+		"imp": "Import",
+		"audit": "Audit",
+		"publish": "Publish",
+		"select": "Select"
+	},
+	"cn": {
+		"notimpelement": "没有实现!",
+		"servererror": "访问服务器错误",
+		"success": "处理成功",
+		"error": {
+			"title": "出错了!",
+			"msg": "发生错误了!",
+			"expired": "数据已经过期, 请重新加载."
+		},
+		"invalid": "请检查输入.",
+		"loading": "加载中...",
+		"confirm": "确认?",
+		"ok": "确定",
+		"cancel": "取消",
+		"yes": "是",
+		"no": "否",
+		"create": "新增",
+		"edit": "编辑",
+		"del": "删除",
+		"delconfirm": "确认删除吗?",
+		"del2": "删除成功",
+		"save": "保存",
+		"query": "查询",
+		"exp": "导出",
+		"imp": "导入",
+		"audit": "审核",
+		"publish": "发布",
+		"select": "选择"
+	}
+}

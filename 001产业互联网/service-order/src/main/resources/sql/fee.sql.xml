@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="fee">
+    <select id="list-processes" resultType="com.hst.ii.fee.ui.FeeProcess">
+        SELECT
+        p.id,
+        p.id_process processId,
+        p.id_order orderId,
+        p.title,
+        p.type,
+        p.amount,
+        p.payment_dt paymentDt,
+        p.receipt_org receiptOrgId,
+        o. NAME receiptOrg,
+        p. STATUS
+        FROM
+        payment_request p
+        LEFT JOIN sys_orginfo o ON p.receipt_org = o.id,
+        flow_process f
+        WHERE
+        p.id_process = f.id
+        AND f.id_org = #{org}
+        AND (f.id_flow, f.node) IN (
+        SELECT
+        f.id,
+        u.id_node
+        FROM
+        flow_org_user u,
+        flow_org o,
+        flow_info f
+        WHERE
+        u.type = o.type
+        AND o.id_flow = f.id
+        AND u.uid = #{uid}
+        AND o.type = 'fee'
+        )
+        <if test="id != null and id != ''">
+            and q.id= #{id}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,185 @@
+/** global **/
+body {
+	user-select: none;
+	font-family: "Microsoft YaHei", "微软雅黑", Arial, Helvetica, sans-serif !important;
+	font-size: 13px !important;
+	color: #444;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: "Microsoft YaHei", "微软雅黑", Arial, Helvetica, sans-serif !important;
+}
+
+/** top nav **/
+nav.navbar.navbar-static-top {
+	ul.dropdown-menu {
+		li {
+			a {
+				padding: 5px;
+			}
+
+			&.divider {
+				margin: 3px;
+			}
+		}
+	}
+}
+
+header {
+	.logo {
+		.logo-lg {
+			text-align: left;
+
+			img {
+				width: 150px;
+			}
+		}
+	}
+}
+
+/** left sidebar **/
+@media (min-width: 767px) {
+	// Show menu items on hover
+	.sidebar-mini:not(.sidebar-mini-expand-feature).sidebar-collapse {
+		.sidebar-menu > li:hover {
+			> .treeview-menu {
+				top: 42px;
+			}
+		}
+	}
+}
+
+// .main-sidebar {
+// 	ul.treeview-menu > li > a {
+// 		font-size: 16px;
+// 	}
+
+// 	// > .sidebar > .sidebar-menu {
+// 	// 	> .treeview > a > i {
+// 	// 		font-size: 130%;
+// 	// 	}
+
+// 	// 	> .treeview > .treeview-menu {
+// 	// 	  padding-left: 20px !important;
+// 	// 	}
+// 	// }
+// }
+
+/** table1 **/
+.box {
+	border-top-width: 1px;
+	user-select: text;
+	margin-bottom: 0;
+	color: #000;
+	background-color: #f7f7f7 !important;
+	border-radius: 0%;
+
+	.box-header {
+		border-bottom: 1px solid #ddd;
+
+		.box-title {
+			font-weight: bold;
+			font-size: 13px !important;
+		}
+	}
+}
+
+.form-search,
+.form-meta {
+	.row {
+		margin-left: -5px;
+		margin-right: -5px;
+
+		.form-group {
+			padding-left: 5px;
+			padding-right: 5px;
+
+			margin-bottom: 5px;
+		}
+
+		.form-group-title {
+			h4 {
+				font-size: 13px;
+				margin: auto -20px;
+				line-height: 200%;
+				padding: 0 10px;
+			}
+		}
+
+		.control-label {
+			font-weight: normal;
+		}
+
+		.form-control {
+			font-size: 13px !important;
+		}
+	}
+
+	.btn {
+		border-radius: 0 !important;
+		font-size: 13px !important;
+	}
+
+	.btn-default {
+		background-color: #fff;
+	}
+}
+
+.table {
+	margin-bottom: 0 !important;
+
+	tr {
+		cursor: pointer;
+	}
+
+	.col-width-1 {
+		min-width: 100px;
+	}
+
+	.col-width-2 {
+		min-width: 200px;
+	}
+
+	.col-width-3 {
+		min-width: 250px;
+	}
+
+	.col-width-4 {
+		min-width: 350px;
+	}
+}
+
+.table-bordered {
+	border: 1px solid #ccc !important;
+
+	th,
+	td {
+		border-color: #ccc !important;
+	}
+}
+
+table.table-scroll-body {
+	position: relative;
+	width: 100%;
+	max-height: 300px;
+	height: 300px;
+
+	thead {
+		position: absolute;
+		width: 100%;
+		max-height: 30px;
+	}
+
+	tbody {
+		position: absolute;
+		width: 100%;
+		top: 30px;
+		max-height: 270px;
+		overflow: auto;
+	}
+}

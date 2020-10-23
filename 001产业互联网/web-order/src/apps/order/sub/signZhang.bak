@@ -1,0 +1,708 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html style="display:block;">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script type="text/javascript" src="http://www.hanshuntech.com/js/jquery-1.9.1.min.js"></script>
+
+    <title>H5 PDF常规软证书和UsbKey签章1.0示例</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        ul, ol {
+            list-style: none;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande",
+            sans-serif;
+        }
+
+        .tab-head {
+            margin-left: 120px;
+            margin-bottom: 10px;
+        }
+
+        .tab-content {
+            clear: left;
+            display: none;
+        }
+
+        h2 {
+            border-bottom: solid #02aaf1 2px;
+            width: 200px;
+            height: 25px;
+            margin: 0;
+            float: left;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .selected {
+            color: #FFFFFF;
+            background-color: #02aaf1;
+        }
+
+        .show {
+            clear: left;
+            display: block;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .new-btn-login-sp {
+            padding: 1px;
+            display: inline-block;
+            width: 100px;
+        }
+
+        .new-btn-login {
+            background-color: #02aaf1;
+            color: #FFFFFF;
+            font-weight: bold;
+            border: none;
+            width: 100px;
+            height: 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #main {
+            width: 100%;
+            margin: 0 auto;
+            font-size: 14px;
+        }
+
+        .red-star {
+            color: #f00;
+            width: 10px;
+            display: inline-block;
+        }
+
+        .null-star {
+            color: #fff;
+        }
+
+        .content {
+            margin-top: 5px;
+        }
+
+        .content dt {
+            width: 100px;
+            display: inline-block;
+            float: left;
+            margin-left: 20px;
+            color: #666;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .content dd {
+            margin-left: 120px;
+            margin-bottom: 5px;
+        }
+
+        .content dd input[type="text"] {
+            vertical-align: middle;
+            width: 280px;
+            height: 28px;
+        }
+
+        .content dd input[type="radio"] {
+            vertical-align: middle;
+            width: 20px;
+            height: 28px;
+        }
+
+        #foot {
+            margin-top: 10px;
+            position: absolute;
+            bottom: 15px;
+            width: 100%;
+        }
+
+        .foot-ul {
+            width: 100%;
+        }
+
+        .foot-ul li {
+            width: 100%;
+            text-align: center;
+            color: #666;
+        }
+
+        .note-help {
+            color: #999999;
+            font-size: 12px;
+            line-height: 130%;
+            margin-top: 5px;
+            width: 100%;
+            display: block;
+        }
+
+        #btn-dd {
+            margin: 20px;
+            text-align: center;
+        }
+
+        .foot-ul {
+            width: 100%;
+        }
+
+        .one_line {
+            display: block;
+            height: 1px;
+            border: 0;
+            border-top: 1px solid #eeeeee;
+            width: 100%;
+            margin-left: 20px;
+        }
+
+        .am-header {
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: box;
+            width: 100%;
+            position: relative;
+            padding: 7px 0;
+            -webkit-box-sizing: border-box;
+            -ms-box-sizing: border-box;
+            box-sizing: border-box;
+            background: #1D222D;
+            height: 50px;
+            text-align: center;
+            -webkit-box-pack: center;
+            -ms-flex-pack: center;
+            box-pack: center;
+            -webkit-box-align: center;
+            -ms-flex-align: center;
+            box-align: center;
+        }
+
+        .am-header h1 {
+            -webkit-box-flex: 1;
+            -ms-flex: 1;
+            box-flex: 1;
+            line-height: 18px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 300;
+            color: #fff;
+        }
+    </style>
+</head>
+<body text=#000000 bgColor="#faebd7" leftMargin=0 topMargin=4>
+<header class="am-header">
+    <h1>H5 PDF常规软证书和UsbKey签章1.0示例</h1>
+</header>
+<div id="main" style="background-color: #2b542c;">
+    <form name="alipayment" id="alipayment" onsubmit="checkInput()"
+          action="http://81.68.203.28/H5PDF/pdfShow/apiPdfUpload/" method=post
+          target="_blank">
+        <div id="body1" class="show" name="divcontent">
+            <dl class="content">
+                <dt>文件路径 ：</dt>
+                <dd>
+                    <input id="filePath" name="filePath" type="text" value=""/>
+                </dd>
+                <hr class="one_line">
+                <dt>文件保存路径 ：</dt>
+                <dd>
+                    <input id="pdfOutPath" name="pdfOutPath" type="text" value="d://0_1.pdf"/>
+                </dd>
+                <dt>签章人 ：</dt>
+                <dd>
+                    <input id="signUser" name="signUser" type="text" value="test"/>
+                </dd>
+                <hr class="one_line">
+                <dt>合同编号 ：</dt>
+                <dd>
+                    <input id="contractNumber" name="contractNumber" type="text" value="111111111"/>
+                </dd>
+                <hr class="one_line">
+                <dt>业务流程编号 ：</dt>
+                <dd>
+                    <input id="requestId" name="requestId" type="text" value="0000000001"/>
+                    <input id="return_url" name="return_url" type="text" value=""/>
+                    <input id="sign_data" name="sign_data" type="text" value=""/>
+                </dd>
+
+                <hr class="one_line">
+                <dt>证书来源：</dt>
+                <dd>
+                    <input type="radio" name="certSource_1" value="1"/>印章特性码
+                    <input type="radio" name="certSource_1" value="2"/>事件证书
+                    <input type="radio" checked name="certSource_1" value="3"/>dat文件
+                    <input type="hidden" id="certSource" name="certSource" value=""/>
+                </dd>
+                <hr class="one_line">
+                <dt>证书类型 ：</dt>
+                <dd>
+                    <input type="radio" checked name="certType_1" value="1"/>机构证书
+                    <input type="radio" name="certType_1" value="2"/>个人证书
+                    <input type="hidden" id="certType" name="certType" value=""/>
+                </dd>
+                <hr class="one_line">
+                <dt>印章特性码：</dt>
+                <dd>
+                    <input id="sealCode" type="text" name="sealCode" value=""/>
+                </dd>
+
+                <hr class="one_line">
+                <dt>dat文件名称：</dt>
+                <dd>
+                    <input id="datFile" type="text" name="datFile" value=""/>
+                </dd>
+
+                <hr class="one_line">
+                <dt>登陆名：</dt>
+                <dd>
+                    <input type="text" id="account" name="account" value="测试印章"/>
+                </dd>
+                <hr class="one_line">
+                <dt>用户名：</dt>
+                <dd>
+                    <input type="text" id="userName" name="userName" value="北京安证通信息科技股份有限公司"/>
+                </dd>
+                <hr class="one_line">
+                <dt>证件号：</dt>
+                <dd>
+                    <input type="text" id="userCertNum" name="userCertNum" value="000000000001"/>
+                </dd>
+                <hr class="one_line">
+                <dt>印章类型：</dt>
+                <dd>
+                    <input type="radio" checked name="sealType_1" value="1"/>公章
+                    <input type="radio" name="sealType_1" value="2"/>私章
+                    <input type="hidden" id="sealType" name="sealType" value=""/>
+                </dd>
+                <hr class="one_line">
+                <dt>印章来源：</dt>
+                <dd>
+                    <input type="radio" name="sealSource_1" value="1"/>印章特性码
+                    <input type="radio" name="sealSource_1" value="2"/>后台自动生成
+                    <input type="radio" name="sealSource_1" value="3"/>本地上传base64印章内容
+                    <input type="radio" checked name="sealSource_1" value="4"/>dat文件印章
+                    <input type="hidden" id="sealSource" name="sealSource" value=""/>
+                </dd>
+                <hr class="one_line">
+                <dt>编码后的内容：</dt>
+                <dd>
+                    <input type="text" id="imageBaseStr" name="imageBaseStr"/>
+                </dd>
+                <hr class="one_line">
+                <dt>公章名称：</dt>
+                <dd>
+                    <input type="text" id="centerName" name="centerName" value="单位公章"/>
+                </dd>
+                <hr class="one_line">
+                <dt>是否加盖二维码：</dt>
+                <dd>
+                    <input type="radio" name="isAddBar_1" value="1"/>是
+                    <input type="radio" checked name="isAddBar_1" value="0"/>否
+                    <input type="hidden" id="isAddBar" name="isAddBar" value=""/>
+                </dd>
+                <hr class="one_line">
+                <dt>二维码内容：</dt>
+                <dd>
+                    <input type="text" id="barcodeContent" name="barcodeContent"/>
+                </dd>
+                <hr class="one_line">
+                <dt>二维码宽度：</dt>
+                <dd>
+                    <input type="text" id="barcodeWidth" name="barcodeWidth"/>
+                </dd>
+                <hr class="one_line">
+                <dt>二维码高度：</dt>
+                <dd>
+                    <input type="text" id="barcodeHeight" name="barcodeHeight"/>
+                </dd>
+                <hr class="one_line">
+                <dt>定位方式</dt>
+                <dd>
+                    <input type="radio" name="barPositionType_1" value="1"/>坐标定位
+                    <input type="radio" name="barPositionType_1" checked value="2"/>关键字定位
+                    <input type="hidden" id="barPositionType" name="barPositionType" value=""/>
+                </dd>
+                <hr class="one_line">
+                <dt>二维码X坐标</dt>
+                <dd>
+                    <input type="text" id="barXPosition" name="barXPosition"/>
+                </dd>
+                <hr class="one_line">
+                <dt>二维码Y坐标</dt>
+                <dd>
+                    <input type="text" id="barYPosition" name="barYPosition"/>
+                </dd>
+                <hr class="one_line">
+                <dt>二维码坐标页码</dt>
+                <dd>
+                    <input type="text" id="barPageNum" name="barPageNum"/>
+                </dd>
+                <hr class="one_line">
+                <dt>二维码定位关键字</dt>
+                <dd>
+                    <input type="text" id="barKeyWord" name="barKeyWord"/>
+                </dd>
+                <hr class="one_line">
+                <dt>是否添加骑缝章</dt>
+                <dd>
+                    <input type="radio" checked name="isAddMuSeal_1" value="1"/>是
+                    <input type="radio" name="isAddMuSeal_1" value="0"/>否
+                    <input type="hidden" id="isAddMuSeal" name="isAddMuSeal" value=""/>
+                </dd>
+                <hr class="one_line">
+                <dt>骑缝章盖章页面类型</dt>
+                <dd>
+                    <input type="radio" name="sealWay_1" value="0"/>所有页
+                    <input type="radio" name="sealWay_1" checked value="1"/>奇数页
+                    <input type="radio" name="sealWay_1" checked value="2"/>偶数页
+                    <input type="hidden" id="sealWay" name="sealWay" value=""/>
+                </dd>
+                <hr class="one_line">
+                <dt>左边或者右边</dt>
+                <dd>
+                    <input type="radio" name="leftOrRight_1" value="left"/>左边
+                    <input type="radio" name="leftOrRight_1" checked value="right"/>右边
+                    <input type="hidden" id="leftOrRight" name="leftOrRight" value=""/>
+                </dd>
+                <hr class="one_line">
+                <dt>骑缝章印章切割数</dt>
+                <dd>
+                    <input type="text" id="cutCount" name="cutCount" value="2"/>
+                </dd>
+                <hr class="one_line">
+                <dt>骑缝章Y坐标</dt>
+                <dd>
+                    <input type="text" id="yPosition" name="yPosition" value="100"/>
+                </dd>
+                <hr class="one_line">
+                <dt>是否加盖光学水印</dt>
+                <dd>
+                    <input type="radio" name="isAddWater_1" value="1"/>是
+                    <input type="radio" checked name="isAddWater_1" value="0"/>否
+                    <input type="hidden" id="isAddWater" name="isAddWater" value=""/>
+                </dd>
+                <hr class="one_line">
+                <dt>光学水印定位方式</dt>
+                <dd>
+                    <input type="radio" name="waterPositionType_1" checked value="1"/>坐标定位
+                    <input type="radio" name="waterPositionType_1" value="2"/>关键字定位
+                    <input type="hidden" id="waterPositionType" name="waterPositionType" value=""/>
+                </dd>
+                <hr class="one_line">
+                <dt>水印X坐标</dt>
+                <dd>
+                    <input type="text" id="waterXPosition" name="waterXPosition"/>
+                </dd>
+                <hr class="one_line">
+                <dt>水印Y坐标</dt>
+                <dd>
+                    <input type="text" id="waterYPosition" name="waterYPosition"/>
+                </dd>
+                <hr class="one_line">
+                <dt>水印坐标页码</dt>
+                <dd>
+                    <input type="text" id="waterPageNum" name="waterPageNum"/>
+                </dd>
+                <hr class="one_line">
+                <dt>水印定位关键字</dt>
+                <dd>
+                    <input type="text" id="waterKeyWord" name="waterKeyWord"/>
+                </dd>
+
+                <hr class="one_line">
+                <dt>采购商企业印章</dt>
+                <dd>
+                    <input type="text" id="purOrgSeal" name="purOrgSeal"/>
+                </dd>
+                <hr class="one_line">
+                <dt>采购商个人印章</dt>
+                <dd>
+                    <input type="text" id="purPerSeal" name="purPerSeal"/>
+                </dd>
+
+                <hr class="one_line">
+                <dt>供应商企业印章</dt>
+                <dd>
+                    <input type="text" id="supOrgSeal" name="supOrgSeal"/>
+                </dd>
+                <hr class="one_line">
+                <dt>供应商个人印章</dt>
+                <dd>
+                    <input type="text" id="supPerSeal" name="supPerSeal"/>
+                </dd>
+
+                <hr class="one_line">
+                <dt>业务参数</dt>
+                <dd>
+                    <input type="text" id="businessParam" name="businessParam"/>
+                    <input type="text" id="base64File" name="file_base"/>
+                </dd>
+
+                <hr class="one_line">
+                <dt>印章是否拖拽</dt>
+                <dd>
+                    <input type="radio" name="dragSeal_1" checked value="1"/>拖拽
+                    <input type="radio" name="dragSeal_1" value="2"/>不拖拽
+                    <input type="hidden" id="dragSeal" name="dragSeal" value=""/>
+                </dd>
+                <dt></dt>
+
+                <hr class="one_line">
+                <dt>印章不拖拽时，定位方式</dt>
+                <dd>
+                    <input type="radio" name="sealSignType_1" checked value="1"/>关键字
+                    <input type="radio" name="sealSignType_1" value="0"/>坐标
+                    <input type="hidden" id="sealSignType" name="sealSignType" value=""/>
+                </dd>
+                <dt></dt>
+
+                <hr class="one_line">
+                <dt>电子印章坐标(格式:X坐标:Y坐标:页码:坐标原点类型)</dt>
+                <dd>
+                    <input type="text" id="sealPosition" name="sealPosition" value=""/>
+                </dd>
+                <dt></dt>
+
+                <hr class="one_line">
+                <dt>电子印章定位关键字(格式:关键字:序号)</dt>
+                <dd>
+                    <input type="text" id="sealKeyword" name="sealKeyword" value=""/>
+                </dd>
+
+                <hr class="one_line">
+                <dt>签章类型</dt>
+                <dd>
+                    <input type="radio" name="operType_1" checked value="1"/>软证书
+                    <input type="radio" name="operType_1" value="2"/>UsbKey
+                    <input type="hidden" id="operType" name="operType" value=""/>
+                </dd>
+
+                <dd id="btn-dd">
+						<span class="new-btn-login-sp" style="display: inline">
+							<button class="new-btn-login" type="submit" style="text-align: center;">签 章</button>
+							<button class="new-btn-login" type="button" onclick="previewPdf()"
+                                    style="text-align: center;">预 览</button>
+							<button class="new-btn-login" type="button" onclick="viewPdf()" style="text-align: center;">查 看</button>
+						</span> <span class="note-help"></span>
+                </dd>
+            </dl>
+        </div>
+    </form>
+
+
+</div>
+</body>
+<script language="javascript">
+    var GcontractSignInfo = {};
+
+   // var params = $('#alipayment').serialize();
+
+    /*
+    <!--$.post("http://127.0.0.1:8080/pdfShow/signData", params, function (data) {
+        -- >
+
+        <!-- }); -->
+        <!-- $.ajax({ -->
+        < !-- //几个参数需要注意一下 -->
+        < !--type
+    :
+        "POST",//方法类型 -->
+    <
+        !--dataType
+    :
+        "json",//预期服务器返回的数据类型 -->
+    <
+        !--url
+    :
+        "http://192.168.1.133:8080/pdfShow/signData" ,//url -->
+        <!-- contentType:'application/json', -->
+        <!-- data: $('#alipayment').serialize(), -->
+        <!-- success: function (result) { -->
+    <
+        !--console.log(result);//打印服务端返回的数据(调试用) -->
+
+        <!-- }, -->
+        <!-- error : function() { -->
+
+        <!-- } -->
+
+        <!-- }); -->
+        */
+    function checkInput() {
+       // debugger;
+        var certSource = $("input[name='certSource_1']:checked").val();
+        $("#certSource").val(certSource);
+
+        var certType = $("input[name='certType_1']:checked").val();
+        $("#certType").val(certType);
+
+        var sealType = $('input[name="sealType_1"]:checked').val();
+        $("#sealType").val(sealType);
+
+        var sealSource = $('input[name="sealSource_1"]:checked').val();
+        $("#sealSource").val(sealSource);
+
+        var isAddBar = $('input[name="isAddBar_1"]:checked').val();
+        $("#isAddBar").val(isAddBar);
+
+        var barPositionType = $("input[name='barPositionType_1']:checked").val();
+        $("#barPositionType").val(barPositionType);
+
+        var isAddMuSeal = $('input[name="isAddMuSeal_1"]:checked').val();
+        $("#isAddMuSeal").val(isAddMuSeal);
+
+        var leftOrRight = $('input[name="leftOrRight_1"]:checked').val();
+        $("#leftOrRight").val(leftOrRight);
+
+        var isAddWater = $('input[name="isAddWater_1"]:checked').val();
+        $("#isAddWater").val(isAddWater);
+
+        var waterPositionType = $('input[name="waterPositionType_1"]:checked').val();
+        $("#waterPositionType").val(waterPositionType);
+
+        var operType = $('input[name="operType_1"]:checked').val();
+        $("#operType").val(operType);
+
+        var isMobile = $('input[name="isMobile_1"]:checked').val();
+        $("#isMobile").val(isMobile);
+
+        var dragSeal = $('input[name="dragSeal_1"]:checked').val();
+        $("#dragSeal").val(dragSeal);
+
+        var sealSignType = $('input[name="sealSignType_1"]:checked').val();
+        $("#sealSignType").val(sealSignType);
+
+        var sealWay = $('input[name="sealWay_1"]:checked').val();
+        $("#sealWay").val(sealWay);
+        // document.forms[0].action ="http://192.168.1.196:8088/H5PDF/pdfShow/apiPdfUpload/";
+        document.forms[0].action = GcontractSignInfo.signServer + "/pdfShow/apiPdfUpload/";
+
+
+        //debugger;
+        return true;
+
+    }
+
+
+
+
+    function previewPdf() {
+        var operType = $('input[name="operType_1"]:checked').val();
+        $("#operType").val(operType);
+
+        var isMobile = $('input[name="isMobile_1"]:checked').val();
+        $("#isMobile").val(isMobile);
+
+        document.forms[0].action = GcontractSignInfo.signServer + "/pdfShow/apiPdfUploadAndView/";
+        document.forms[0].submit();
+    }
+
+    function viewPdf() {
+        var operType = $('input[name="operType_1"]:checked').val();
+        $("#operType").val(operType);
+
+        var isMobile = $('input[name="isMobile_1"]:checked').val();
+        $("#isMobile").val(isMobile);
+
+        document.forms[0].action = GcontractSignInfo.signServer + "/pdfShow/apiSignPDFView/";
+        document.forms[0].submit();
+    }
+
+    var tabs = document.getElementsByName('tab');
+    var contents = document.getElementsByName('divcontent');
+
+    (function changeTab(tab) {
+        for (var i = 0, len = tabs.length; i < len; i++) {
+            tabs[i].onmouseover = showTab;
+        }
+    })();
+
+    function showTab() {
+        for (var i = 0, len = tabs.length; i < len; i++) {
+            if (tabs[i] === this) {
+                tabs[i].className = 'selected';
+                contents[i].className = 'show';
+            } else {
+                tabs[i].className = '';
+                contents[i].className = 'tab-content';
+            }
+        }
+    }
+
+    function GetDateNow() {
+        return;
+        var vNow = new Date();
+        var sNow = "";
+        sNow += String(vNow.getFullYear());
+        sNow += String(vNow.getMonth() + 1);
+        sNow += String(vNow.getDate());
+        sNow += String(vNow.getHours());
+        sNow += String(vNow.getMinutes());
+        sNow += String(vNow.getSeconds());
+        sNow += String(vNow.getMilliseconds());
+        document.getElementById("WIDout_trade_no").value = sNow;
+        document.getElementById("WIDsubject").value = "测试";
+        document.getElementById("WIDtotal_amount").value = "0.01";
+    }
+
+    GetDateNow();
+
+
+
+
+    function invockIframeMethod() {
+        // 是用widow调用vue绑定的vueDefinedMyProp方法
+        window.parent['vueDefinedMyProp']('you are Superman!');
+    }
+
+    function lodaTable(letStringPDFFile, letStringreturnBody, argType, argcontractNumber, argcontractSignInfo) {
+      //  debugger;
+        GcontractSignInfo = argcontractSignInfo;///后台传过来的值
+        // $("#return_url").val("/api/order/pdfShow/signReturnData");
+        $("#sign_data").val(letStringreturnBody);
+        $("#base64File").val(letStringPDFFile);
+        $("#contractNumber").val(argcontractNumber);
+
+
+        //debugger;
+
+        switch (argType) {
+            case "sign":
+                checkInput();
+
+
+                var form = document.getElementById('alipayment');
+//再次修改input内容
+                //debugger;
+                var params = $('#alipayment').serialize();
+                console.log(params);
+              //  debugger;
+                form.submit();
+                break;
+            case "previewPdf":
+                previewPdf();
+                break;
+            case "viewPdf":
+                viewPdf();
+                break;
+
+        }
+        //console.log(`argobj : ${argobj}`);
+
+
+        /*let num = 10;
+        while (num>0){
+            console.log(`number : ${num}`);
+            num--;
+        }*/
+    }
+</script>
+</html>
+

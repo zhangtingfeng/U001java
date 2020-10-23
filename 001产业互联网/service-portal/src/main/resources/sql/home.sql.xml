@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="home">
+	
+	<!--商品属性信息 -->
+	<select id="getOneGoodsClass" resultType="map">
+		select id,name,pid from base_goods_class where pid="207E000002"
+	</select>
+
+	<select id="getGoodsClass" resultType="map">
+		select id,name,pid from base_goods_class
+	</select>
+
+	<select id="getClassProps" resultType="map">
+		select t1.id,t1.class_id,t1.prop_id,t1.select_values value,t2.name className,t3.name propName
+		from base_class_prop t1,base_goods_class t2,base_goods_prop t3
+		where t1.class_id=t2.id and t1.prop_id =t3.id and t2.pid="207E000002"
+	</select>
+
+</mapper>

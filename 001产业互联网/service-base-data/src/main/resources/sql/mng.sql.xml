@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mng">
+    <select id="goodsClassTreeStyle" resultType="map">
+        select id id,pid parent,name text
+        from base_goods_class
+        where 1=1
+        <if test="pid!=null and pid!=''">
+            and pid = #{pid}
+        </if>
+    </select>
+    <select id="goodsProp" resultType="map">
+        select id,name,editor_args editorArgs from base_goods_prop
+        where 1=1
+        <if test="propCategory!=null and propCategory!=''">
+            and prop_category=#{propCategory}
+        </if>
+        <if test="propGroup!=null and propGroup!=''">
+            and prop_group=#{propGroup}
+        </if>
+    </select>
+    <select id="goodsClassProp" resultType="map">
+        select distinct cp.id,cp.class_id classId,cp.prop_id propId,
+        cp.visible_level visibleLevel,cp.select_values selectValues
+        from base_class_prop cp
+        where 1=1
+        <if test="classId!=null and classId!=''">
+            and cp.class_id=#{classId}
+        </if>
+    </select>
+    <delete id="deleteClassProp">
+		delete from base_class_prop
+		where class_id = #{classId}
+	</delete>
+</mapper>

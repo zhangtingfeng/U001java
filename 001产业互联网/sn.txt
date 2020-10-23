@@ -1,0 +1,58 @@
+1.86  8761
+getway
+service
+1.88
+
+
+wiki
+镜像
+系统模块
+
+1.86/platform
+子模块加载
+sys_moudle
+
+87 portal
+提交订单
+projuct-order 处理订单n
+flow流程
+
+
+web order createorders
+
+
+loadNodes
+flows 缓存
+service-im
+jpa
+
+flow process prop 流程状态表
+
+
+service order 
+
+BaseFlowProc 下订单流程   流转更新节点状态
+TreaFlowProc 
+ssh 86
+yarn dev
+localhost 92
+
+web-order项目
+
+
+
+
+
+
+
+
+
+
+flow node 
+type 0 自动执行，不会按钮
+1 买家操作
+2flow node prop  config
+
+ii-dealer-mng
+
+

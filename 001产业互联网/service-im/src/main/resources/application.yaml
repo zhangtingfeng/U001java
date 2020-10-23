@@ -1,0 +1,57 @@
+ii:
+  server: 192.168.255.86
+  eureka: http://${ii.server}:8761/eureka/
+  zipkin: http://${ii.server}:9411
+  ds:
+    host: ${ii.server}
+    database: ii-dealer-mng
+    port: 3306
+    username: ii
+    password: ii
+  redis:
+    host: ${ii.server}
+    port: 6379
+
+server:
+  port: 18008
+spring:
+  application:
+    name: service-im
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${ii.ds.host}:${ii.ds.port}/${ii.ds.database}?serverTimezone=GMT%2b8&useSSL=false&allowMultiQueries=true&useServerPrepStmts=false&rewriteBatchedStatements=true&useUnicode=true&characterEncoding=UTF-8
+    username: ${ii.ds.username}
+    password: ${ii.ds.password}
+    hikari:
+      minimum-idle: 1
+      maximum-pool-size: 30
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  redis:
+    host: ${ii.redis.host}
+    port: ${ii.redis.port}
+    timeout: 10000
+  zipkin:
+    base-url: ${ii.zipkin}
+  sleuth:
+    sampler:
+      #采样100%
+      probability: 1.0
+
+mybatis:
+  mapper-locations: classpath:sql/**/*.sql.xml
+  config-location: classpath:mybatis-config.xml
+
+eureka:
+  instance:
+    #以IP地址注册到服务中心，相互注册使用IP地址
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.cloud.client.ip-address}:${server.port}
+  client:
+    #eureka server注册中心的地址
+    service-url:
+      defaultZone: ${ii.eureka}
+

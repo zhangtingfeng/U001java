@@ -1,0 +1,8 @@
+ii:
+  server: 192.168.255.86
+
+spring:
+  cloud:
+    inetutils:
+      preferred-networks:
+        - "192.168.255"

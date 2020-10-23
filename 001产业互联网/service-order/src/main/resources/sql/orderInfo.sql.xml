@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="orderInfo">
+
+	<select id="getOrderDealer" resultType="com.hst.ii.order.entity.TOrderDealer">
+		select
+			t1.id_org orgId, t1.company_name title,t1.dtl_adr address, t1.phone, t1.signer,
+			t1.contactor,t1.contact_phone contactPhone,t1.contact_address contactAddress,
+			t2.rlt_bnk bank,t2.rlt_acc bankAccount,t2.rlt_acm bankTitle
+		from comp_info t1,comp_account t2
+		where t1.id=t2.id_company and t1.id_org= #{orgid}
+	</select>
+
+	<select id="getSellerUsers" parameterType="list" resultType="map">
+		select
+		t1.id orgId,t1.name orgName,t2.id,t2.name seller,t2.mobile
+		from
+		sys_orginfo t1,sys_user t2
+		where
+		t1.id=t2.id_org
+		and
+		t2.id_org in
+		<foreach item="item" collection="sellerIds" separator="," open="(" close=")" index="">
+			#{item, jdbcType=VARCHAR}
+		</foreach>
+	</select>
+
+	<!--获取买家用户信息-->
+	<select id="getBuyerUsers" parameterType="list" resultType="map">
+		select
+		t1.id orgId,t1.name orgName,t2.id,t2.name buyer,t2.mobile
+		from
+		sys_orginfo t1,sys_user t2
+		where
+		t1.id=t2.id_org
+		and
+		t2.id_org in
+		<foreach item="item" collection="buyerIds" separator="," open="(" close=")" index="">
+			#{item, jdbcType=VARCHAR}
+		</foreach>
+	</select>
+
+	<!--商品图片信息 -->
+	<select id="getImages" resultType="map">
+		select id,img_path path
+		from sale_img
+		where id_sales=#{id_sales}
+	</select>
+
+	<!--统计订单金额-->
+	<select id="getOrderMoney" resultType="map">
+		select
+			id_order,sum(amount_price) total
+		from order_goods
+		where
+		id_order in
+		<foreach item="item" collection="orderIds" separator="," open="(" close=")" index="">
+			#{item, jdbcType=VARCHAR}
+		</foreach>
+		group by id_order
+	</select>
+	
+</mapper>

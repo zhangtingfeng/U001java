@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="aftermarketInfo">
+
+
+
+	<select id="getSellerUsers" parameterType="list" resultType="map">
+		select
+		t1.id orgId,t1.name orgName,t2.id,t2.name seller,t2.mobile
+		from
+		sys_orginfo t1,sys_user t2
+		where
+		t1.id=t2.id_org
+		and
+		t2.id_org in
+		<foreach item="item" collection="sellerIds" separator="," open="(" close=")" index="">
+			#{item, jdbcType=VARCHAR}
+		</foreach>
+	</select>
+
+	<!--获取买家用户信息-->
+	<select id="getBuyerUsers" parameterType="list" resultType="map">
+		select
+		t1.id orgId,t1.name orgName,t2.id,t2.name buyer,t2.mobile
+		from
+		sys_orginfo t1,sys_user t2
+		where
+		t1.id=t2.id_org
+		and
+		t2.id_org in
+		<foreach item="item" collection="buyerIds" separator="," open="(" close=")" index="">
+			#{item, jdbcType=VARCHAR}
+		</foreach>
+	</select>
+
+
+	<!--删除数据库表的旧有的img-->
+	<delete id="delteimg" >
+		delete from aftermarket_img where  id_aftermarket_detail=#{id_aftermarket_detail}
+	</delete>
+	
+</mapper>

@@ -1,0 +1,15 @@
+[
+  "home",
+  "user/userRegistered",
+  "user/userOrg",
+  "user/user",
+  "user/role",
+  "org/manage",
+  "company/company",
+  "company/approve",
+  "company/logview",
+  "sales/approve",
+  "process/process-def",
+  "process/process-org",
+  "msg/msg"
+]

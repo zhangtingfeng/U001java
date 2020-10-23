@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="sale">
+
+	<!--选择商品分类后取出商品属性配置-->
+	<select id="getPagePropConfigs" resultType="map">
+		select
+			t1.id vid,t1.select_values value,
+			t2.id, t2.component_type, t2.data_type, t2.name, t2.prop_category, t2.prop_group,
+			t2.required, t2.symbol, t2.unit, t2.editor, t2.editor_args, t2.form, t2.group_title,
+			t2.idx, t2.is_line_show, t2.list, t2.query, t2.sort, t2.title, t2.validate, t2.view,
+			t2.view_args, t2.width, t2.component_args, t2.code
+		from base_class_prop t1,base_goods_prop t2
+		where t1.prop_id = t2.id and t1.class_id=#{id_class}
+		order by t2.idx
+	</select>
+	
+	<!--商品属性信息 -->
+	<select id="getPropInfos" resultType="map">
+		select t2.name,t1.prop_value value
+		from sale_prop_info t1,base_goods_prop t2
+		where t1.id_prop =t2.id  and t1.id_sales=#{id_sales}
+	</select>
+
+	<!--商品图片信息 -->
+	<select id="getImages" resultType="map">
+		select id,img_path path
+		from sale_img
+		where id_sales=#{id_sales}
+	</select>
+
+	<select id="getGroupTitles" resultType="String">
+		select text from sys_dict where name='propGroup'
+	</select>
+
+	<select id="getPropsName" resultType="map">
+		select id,name from base_goods_prop
+	</select>
+
+	<select id="getClassName" resultType="String">
+		select name from base_goods_class where id=#{id_class}
+	</select>
+
+	<delete id="deleteSaleImgs">
+		delete from sale_img where id_sales= #{id_sales}
+	</delete>
+
+	<delete id="deleteSaleProps">
+		delete from sale_prop_info where id_sales= #{id_sales}
+	</delete>
+
+</mapper>

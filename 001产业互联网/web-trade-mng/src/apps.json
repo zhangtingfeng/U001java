@@ -1,0 +1,12 @@
+[
+  "user/center",
+  "user/user",
+  "company/apply",
+  "company/logview",
+  "company/info",
+  "sale/sale",
+  "sale/manage",
+  "base/warehouse",
+  "base/receiveAddr",
+  "process/node-user"
+]
